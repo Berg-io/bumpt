@@ -1,0 +1,188 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-critical: hsl(var(--critical));
+  --color-critical-foreground: hsl(var(--critical-foreground));
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+:root {
+  /* Cloud Dancer Atmospheric — Light Mode */
+  --background: 60 11% 97%;
+  --foreground: 226 27% 14%;
+  --card: 60 7% 98%;
+  --card-foreground: 226 27% 14%;
+  --primary: 207 37% 54%;
+  --primary-foreground: 210 33% 98%;
+  --secondary: 43 18% 93%;
+  --secondary-foreground: 220 18% 20%;
+  --muted: 43 18% 93%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 207 50% 94%;
+  --accent-foreground: 210 22% 22%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 40 10% 89%;
+  --input: 40 10% 89%;
+  --ring: 207 37% 54%;
+  --radius: 0.5rem;
+  --success: 142.1 76.2% 36.3%;
+  --success-foreground: 355.7 100% 97.3%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 48 96% 5%;
+  --critical: 0 84.2% 60.2%;
+  --critical-foreground: 210 40% 98%;
+  /* Code blocks */
+  --code-bg: 43 18% 93%;
+  --code-foreground: 226 27% 14%;
+  --code-header: 40 12% 90%;
+}
+
+.dark {
+  /* Cloud Dancer Atmospheric — Dark Mode */
+  --background: 228 22% 8%;
+  --foreground: 40 10% 91%;
+  --card: 228 18% 11%;
+  --card-foreground: 40 10% 91%;
+  --primary: 205 48% 65%;
+  --primary-foreground: 228 22% 8%;
+  --secondary: 228 20% 15%;
+  --secondary-foreground: 40 10% 91%;
+  --muted: 228 20% 15%;
+  --muted-foreground: 215 14% 59%;
+  --accent: 210 30% 16%;
+  --accent-foreground: 200 40% 80%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 225 16% 20%;
+  --input: 225 16% 20%;
+  --ring: 205 48% 65%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144.9 80.4% 10%;
+  --warning: 48 96.1% 53.1%;
+  --warning-foreground: 36 45.4% 11%;
+  --critical: 0 72.2% 50.6%;
+  --critical-foreground: 210 40% 98%;
+  /* Code blocks */
+  --code-bg: 228 20% 13%;
+  --code-foreground: 40 10% 91%;
+  --code-header: 228 18% 16%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* NOC / TV Mode */
+.noc-mode {
+  cursor: default;
+}
+
+.noc-mode:fullscreen {
+  background-color: hsl(var(--background));
+}
+
+@keyframes noc-critical-pulse {
+  0%, 100% { border-color: hsl(var(--critical) / 0.3); }
+  50% { border-color: hsl(var(--critical) / 0.7); }
+}
+
+.noc-critical-card {
+  animation: noc-critical-pulse 2s ease-in-out infinite;
+}
+
+@keyframes noc-dot-fade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.noc-dot-critical {
+  animation: noc-dot-fade 2.5s ease-in-out infinite;
+}
+
+@keyframes noc-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.noc-live-dot {
+  animation: noc-live-pulse 2s ease-in-out infinite;
+}
+
+@media print {
+  body.printing-table * {
+    visibility: hidden;
+  }
+
+  body.printing-table #printable-table,
+  body.printing-table #printable-table * {
+    visibility: visible;
+  }
+
+  body.printing-table #printable-table {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  body.printing-table #printable-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  body.printing-table #printable-table th,
+  body.printing-table #printable-table td {
+    border: 1px solid hsl(var(--border));
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  body.printing-table #printable-table th {
+    background-color: hsl(var(--muted)) !important;
+    font-weight: 600;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body.printing-table #printable-table .hidden {
+    display: table-cell !important;
+    visibility: visible !important;
+  }
+
+  body.printing-table #printable-table button {
+    display: none !important;
+  }
+}
