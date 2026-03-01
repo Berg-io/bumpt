@@ -1,0 +1,16 @@
+{
+  "name": "bum.pt",
+  "short_name": "bumpt",
+  "description": "Monitor software, systems, services and Docker images for updates",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f7f6f3",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
