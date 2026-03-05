@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("ADMIN")
+  authType     String   @default("local") @map("auth_type")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model CheckSource {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  config      String   @default("{}")
+  isBuiltIn   Boolean  @default(false) @map("is_built_in")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items MonitoredItem[]
+
+  @@map("check_sources")
+}
+
+model MonitoredItem {
+  id             String    @id @default(cuid())
+  name           String
+  type           String
+  currentVersion String?   @map("current_version")
+  latestVersion  String?   @map("latest_version")
+  checkMethod    String    @default("manual") @map("check_method")
+  checkConfig    String?   @map("check_config")
+  sourceId       String?   @map("source_id")
+  sourceParams   String?   @map("source_params")
+  status            String    @default("up_to_date")
+  securityState     String    @default("no_known_vuln") @map("security_state")
+  monitoringEnabled Boolean   @default(true) @map("monitoring_enabled")
+  lastChecked       DateTime? @map("last_checked")
+  releaseNotes      String?   @map("release_notes")
+  releaseDate       String?   @map("release_date")
+  releaseUrl        String?   @map("release_url")
+  cves              String?   @map("cves")
+  assetCriticality  Int?      @map("asset_criticality")
+  environment       String?
+  networkExposure   String?   @map("network_exposure")
+  hostsSensitiveData Boolean? @map("hosts_sensitive_data")
+  hasPrivilegedAccess Boolean? @map("has_privileged_access")
+  hasCompensatingControls Boolean? @map("has_compensating_controls")
+  externalScore     Float?    @map("external_score")
+  externalSeverity  String?   @map("external_severity")
+  externalVector    String?   @map("external_vector")
+  externalSource    String?   @map("external_source")
+  epssPercent       Float?    @map("epss_percent")
+  vprScore          Float?    @map("vpr_score")
+  internalScore     Float?    @map("internal_score")
+  internalSeverity  String?   @map("internal_severity")
+  scoreConfidence   Int?      @map("score_confidence")
+  scoreUpdatedAt    DateTime? @map("score_updated_at")
+  description       String?   @map("description")
+  userNote          String?   @map("user_note")
+  downloadUrl       String?   @map("download_url")
+  eolDate           String?   @map("eol_date")
+  isLts             Boolean?  @map("is_lts")
+  rawMetadata       String?   @map("raw_metadata")
+  aiSummary         String?   @map("ai_summary")
+  tags              String?   @default("[]")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  source CheckSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  logs   VersionLog[]
+
+  @@index([externalScore], map: "monitored_items_external_score_idx")
+  @@index([externalSeverity], map: "monitored_items_external_severity_idx")
+  @@index([internalScore], map: "monitored_items_internal_score_idx")
+  @@index([internalSeverity], map: "monitored_items_internal_severity_idx")
+  @@index([scoreConfidence], map: "monitored_items_score_confidence_idx")
+  @@index([securityState], map: "monitored_items_security_state_idx")
+  @@map("monitored_items")
+}
+
+model VersionLog {
+  id           String   @id @default(cuid())
+  itemId       String   @map("item_id")
+  oldVersion   String?  @map("old_version")
+  newVersion   String   @map("new_version")
+  releaseNotes String?  @map("release_notes")
+  releaseUrl   String?  @map("release_url")
+  cves         String?  @map("cves")
+  changedAt    DateTime @default(now()) @map("changed_at")
+
+  item MonitoredItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("version_logs")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String?  @map("entity_id")
+  entityName  String?  @map("entity_name")
+  details     String?
+  userId      String?  @map("user_id")
+  userEmail   String?  @map("user_email")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
+
+model AppSetting {
+  key       String   @id
+  value     String   @default("")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+model CsvDataEntry {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  version    String
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("csv_data_entries")
+}
+

@@ -1,0 +1,58 @@
+bum.pt Proprietary License
+
+Copyright (c) 2026 Berg Studio (bergstudio.app). All rights reserved.
+
+Licensed Work: bum.pt
+
+Grant of Use:
+
+The Licensor grants you a non-exclusive, non-transferable right to
+use, copy, and self-host the Licensed Work for your own internal
+business or personal purposes, subject to the restrictions below.
+
+You may:
+
+- Use the Community Edition (up to 25 monitored items) free of charge
+- View and study the source code
+- Modify the source code for your own internal use
+- Submit contributions (pull requests) to the official repository
+
+You may NOT:
+
+1. Remove, disable, or circumvent the license verification system,
+   feature gating, item limits, or any other restriction enforced
+   by the software.
+
+2. Modify the software to bypass the item monitoring limits or to
+   unlock features designated as requiring a paid license without
+   purchasing said license.
+
+3. Offer the Licensed Work to third parties as a hosted or managed
+   service (SaaS, PaaS, or similar) without a separate commercial
+   agreement with the Licensor.
+
+4. Redistribute, sell, sublicense, or publish modified versions of
+   the Licensed Work that remove or weaken the license enforcement
+   mechanisms.
+
+5. Use the Licensed Work, in whole or in part, to create a
+   competing product or service.
+
+Professional License:
+
+Unlocking features beyond the Community Edition (unlimited items,
+AI analysis, webhooks, scheduled reports, SSO, API keys, MSSQL
+support) requires the purchase of a valid Professional license key
+from the Licensor. License keys are non-transferable and subject
+to the terms of purchase.
+
+Disclaimer:
+
+THE LICENSED WORK IS PROVIDED "AS IS". THE LICENSOR DISCLAIMS ALL
+WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY ARISING FROM THE USE OF THE LICENSED WORK.
+
+For licensing inquiries: hello@bergstudio.app
+Website: https://bum.pt

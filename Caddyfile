@@ -1,0 +1,21 @@
+{$CADDY_DOMAIN:localhost} {
+	reverse_proxy app:3000 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+	}
+
+	# === TLS Configuration ===
+	# Uncomment ONLY ONE of the 3 options below.
+
+	# Option 1: Self-signed certificate (default — development / internal network)
+	tls internal
+
+	# Option 2: Custom certificates (wildcard, enterprise, etc.)
+	# Place your .crt and .key files in the ./certs/ folder and adjust the paths:
+	# tls /certs/wildcard.domain.local.crt /certs/wildcard.domain.local.key
+
+	# Option 3: Let's Encrypt (automatic — domain must be publicly accessible)
+	# tls {$CADDY_TLS_EMAIL:admin@example.com}
+
+	header Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+}

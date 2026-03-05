@@ -1,0 +1,172 @@
+services:
+  # ── Application Next.js ────────────────────────────────────
+  app:
+    build:
+      context: .
+      args:
+        - DB_TYPE=${DB_TYPE:-sqlite}
+    container_name: bumpt-app
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - db-data:/app/data
+    environment:
+      # Core
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-bum.pt}
+      - APP_LANGUAGE=${APP_LANGUAGE:-fr}
+      - SEED_DEMO_DATA=${SEED_DEMO_DATA:-false}
+      # Database
+      - DATABASE_URL=${DATABASE_URL:-file:./dev.db}
+      - DB_TYPE=${DB_TYPE:-sqlite}
+      - DB_HOST=${DB_HOST:-}
+      - DB_PORT=${DB_PORT:-}
+      - DB_NAME=${DB_NAME:-}
+      - DB_USER=${DB_USER:-}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_SSL=${DB_SSL:-false}
+      # Auth / JWT
+      - JWT_SECRET=${JWT_SECRET:-please-change-this-secret-in-production}
+      - JWT_EXPIRY=${JWT_EXPIRY:-24h}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+      # Super Admin (first launch)
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@bumpt.local}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      # Cron
+      - CRON_SECRET=${CRON_SECRET:-please-change-this-cron-secret}
+      # License
+      - LICENSE_KEY=${LICENSE_KEY:-}
+      # API keys
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - WINGET_API_KEY=${WINGET_API_KEY:-}
+      - GITLAB_TOKEN=${GITLAB_TOKEN:-}
+      - NVD_API_KEY=${NVD_API_KEY:-}
+      # AI Enrichment
+      - AI_PROVIDER=${AI_PROVIDER:-}
+      - AI_OPENAI_KEY=${AI_OPENAI_KEY:-}
+      - AI_OPENAI_MODEL=${AI_OPENAI_MODEL:-}
+      - AI_ANTHROPIC_KEY=${AI_ANTHROPIC_KEY:-}
+      - AI_ANTHROPIC_MODEL=${AI_ANTHROPIC_MODEL:-}
+      - AI_MISTRAL_KEY=${AI_MISTRAL_KEY:-}
+      - AI_MISTRAL_MODEL=${AI_MISTRAL_MODEL:-}
+      - AI_SELF_HOSTED_URL=${AI_SELF_HOSTED_URL:-}
+      - AI_SELF_HOSTED_KEY=${AI_SELF_HOSTED_KEY:-}
+      - AI_SELF_HOSTED_MODEL=${AI_SELF_HOSTED_MODEL:-}
+      # External API
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      # SAML / SSO
+      - SAML_ENABLED=${SAML_ENABLED:-false}
+      - SAML_ENTITY_ID=${SAML_ENTITY_ID:-}
+      - SAML_SSO_URL=${SAML_SSO_URL:-}
+      - SAML_CERTIFICATE=${SAML_CERTIFICATE:-}
+      - SAML_CALLBACK_URL=${SAML_CALLBACK_URL:-}
+      - SAML_BUTTON_LABEL=${SAML_BUTTON_LABEL:-}
+      - SAML_IMAGE_URL=${SAML_IMAGE_URL:-}
+      # OpenID Connect
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-}
+      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-}
+      - OIDC_ISSUER=${OIDC_ISSUER:-}
+      - OIDC_CALLBACK_URL=${OIDC_CALLBACK_URL:-}
+      - OIDC_SCOPE=${OIDC_SCOPE:-openid profile email}
+      - OIDC_BUTTON_LABEL=${OIDC_BUTTON_LABEL:-}
+      - OIDC_IMAGE_URL=${OIDC_IMAGE_URL:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # ── Reverse Proxy Caddy (HTTPS) ───────────────────────────
+  caddy:
+    image: caddy:alpine
+    container_name: bumpt-caddy
+    ports:
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./certs:/certs:ro
+    environment:
+      - CADDY_DOMAIN=${CADDY_DOMAIN:-localhost}
+      - CADDY_TLS_EMAIL=${CADDY_TLS_EMAIL:-}
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Cron Scheduler (Ofelia) ────────────────────────────────
+  cron:
+    image: mcuadros/ofelia:latest
+    container_name: bumpt-cron
+    depends_on:
+      app:
+        condition: service_healthy
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.version-check.schedule: "${CRON_SCHEDULE:-0 0 */6 * * *}"
+      ofelia.job-exec.version-check.container: "bumpt-app"
+      ofelia.job-exec.version-check.command: >-
+        wget -qO-
+        --header='Authorization: Bearer ${CRON_SECRET:-please-change-this-cron-secret}'
+        http://127.0.0.1:3000/api/cron/check
+        wget -qO- --post-data=''
+        --header='Authorization: Bearer ${CRON_SECRET:-please-change-this-cron-secret}'
+        http://127.0.0.1:3000/api/cron/reports
+    restart: unless-stopped
+
+  # ── PostgreSQL (enabled with COMPOSE_PROFILES=postgresql) ──
+  postgresql:
+    profiles: ["postgresql"]
+    image: postgres:16-alpine
+    container_name: bumpt-db
+    environment:
+      - POSTGRES_DB=${DB_NAME:-bumpt}
+      - POSTGRES_USER=${DB_USER:-bumpt}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bumpt} -d ${DB_NAME:-bumpt}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── MariaDB (enabled with COMPOSE_PROFILES=mariadb) ────────
+  mariadb:
+    profiles: ["mariadb"]
+    image: mariadb:11
+    container_name: bumpt-db
+    environment:
+      - MARIADB_DATABASE=${DB_NAME:-bumpt}
+      - MARIADB_USER=${DB_USER:-bumpt}
+      - MARIADB_PASSWORD=${DB_PASSWORD:-password}
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD:-password}
+    volumes:
+      - maria-data:/var/lib/mysql
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  caddy_data:
+  caddy_config:
+  pg-data:
+  maria-data:
