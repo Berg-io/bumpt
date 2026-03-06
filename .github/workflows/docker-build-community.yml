@@ -50,7 +50,16 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to GHCR
+      - name: Login to GHCR with community PAT
+        if: ${{ secrets.GHCR_COMMUNITY_USERNAME != '' && secrets.GHCR_COMMUNITY_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.GHCR_COMMUNITY_USERNAME }}
+          password: ${{ secrets.GHCR_COMMUNITY_TOKEN }}
+
+      - name: Login to GHCR with GITHUB_TOKEN fallback
+        if: ${{ secrets.GHCR_COMMUNITY_USERNAME == '' || secrets.GHCR_COMMUNITY_TOKEN == '' }}
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
