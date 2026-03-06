@@ -1,0 +1,80 @@
+name: Build & Push Community Docker Image
+
+on:
+  push:
+    branches: [main]
+    tags: ["community/v*"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  GHCR_COMMUNITY_IMAGE: berg-io/bumpt
+
+jobs:
+  build-community:
+    if: ${{ github.repository == 'Berg-io/bumpt' || github.repository == 'berg-io/bumpt' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Read package.json version
+        id: package-version
+        run: echo "value=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve release version from tag (if any)
+        id: version
+        run: |
+          VERSION="${{ steps.package-version.outputs.value }}"
+          IS_RELEASE="false"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            case "${GITHUB_REF_NAME}" in
+              community/v*) VERSION="${GITHUB_REF_NAME#community/v}"; IS_RELEASE="true" ;;
+            esac
+          fi
+          echo "is_release=$IS_RELEASE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Validate package.json version matches release tag
+        if: ${{ steps.version.outputs.is_release == 'true' }}
+        run: npm run release:check-version -- --version "${{ steps.version.outputs.version }}"
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract GHCR metadata
+        id: meta-ghcr
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.GHCR_COMMUNITY_IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=sha
+          labels: |
+            org.opencontainers.image.source=https://github.com/Berg-io/bumpt
+
+      - name: Build and push Community image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta-ghcr.outputs.tags }}
+          labels: ${{ steps.meta-ghcr.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
