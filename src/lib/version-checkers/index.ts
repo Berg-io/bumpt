@@ -303,19 +303,6 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
       },
     });
 
-    if (changed && item.latestVersion) {
-      await prisma.versionLog.create({
-        data: {
-          itemId: item.id,
-          oldVersion: item.latestVersion,
-          newVersion: latestVersion,
-          releaseNotes: result.releaseNotes ?? null,
-          releaseUrl: result.releaseUrl ?? null,
-          cves: result.cves ? JSON.stringify(result.cves) : null,
-        },
-      });
-    }
-
     if (item.currentVersion && latestVersion && item.currentVersion !== latestVersion) {
       enrichItemCves({
         id: item.id,
@@ -402,19 +389,6 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
       ...buildMetadataUpdate(result),
     },
   });
-
-  if (changed && item.latestVersion) {
-    await prisma.versionLog.create({
-      data: {
-        itemId: item.id,
-        oldVersion: item.latestVersion,
-        newVersion: latestVersion,
-        releaseNotes: result.releaseNotes ?? null,
-        releaseUrl: result.releaseUrl ?? null,
-        cves: result.cves ? JSON.stringify(result.cves) : null,
-      },
-    });
-  }
 
   const legacySourceType = config.source || "github";
   if (item.currentVersion && latestVersion && item.currentVersion !== latestVersion) {

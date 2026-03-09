@@ -64,7 +64,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.GHCR_COMMUNITY_IMAGE }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.version }},enable=${{ steps.version.outputs.is_release == 'true' }}
             type=sha
           labels: |
             org.opencontainers.image.source=https://github.com/Berg-io/bumpt
