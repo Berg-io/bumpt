@@ -71,7 +71,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.GHCR_COMMUNITY_IMAGE }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.version.outputs.version }},enable=${{ steps.version.outputs.is_release == 'true' }}
+            type=raw,value=${{ steps.version.outputs.version }}
             type=sha
           labels: |
             org.opencontainers.image.source=https://github.com/Berg-io/bumpt
@@ -83,7 +83,7 @@ jobs:
           images: ${{ env.DOCKERHUB_COMMUNITY_IMAGE }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.version.outputs.version }},enable=${{ steps.version.outputs.is_release == 'true' }}
+            type=raw,value=${{ steps.version.outputs.version }}
             type=sha
 
       - name: Build and push Community image
