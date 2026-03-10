@@ -43,9 +43,9 @@ export const POST = withAuth(async (request) => {
     return NextResponse.json({ error: "License key is required" }, { status: 400 });
   }
 
-  const info = verifyLicenseKey(licenseKey);
+  const info = await verifyLicenseKey(licenseKey);
 
-  if (info.edition === "community" && info.message) {
+  if (!info.valid) {
     return NextResponse.json({
       error: "Invalid license key",
       message: info.message,
