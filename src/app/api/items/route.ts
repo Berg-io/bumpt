@@ -21,7 +21,7 @@ function resolvePageSize(rawPageSize: string | null, settingPageSize: string | n
   const fromQuery = normalize(rawPageSize);
   if (fromQuery !== undefined || rawPageSize?.toLowerCase() === "all") return fromQuery;
   const fromSetting = normalize(settingPageSize);
-  return fromSetting ?? 100;
+  return fromSetting ?? 25;
 }
 
 export const GET = withAuth(

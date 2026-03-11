@@ -611,6 +611,7 @@ async function main() {
   await initSettingIfMissing("vulndb_client_secret", process.env.VULNDB_CLIENT_SECRET || "");
 
   // AI enrichment settings
+  await initSettingIfMissing("ai_enrichment_enabled", process.env.AI_ENRICHMENT_ENABLED || "false");
   await initSettingIfMissing("ai_provider", process.env.AI_PROVIDER || "");
   await initSettingIfMissing("ai_openai_key", process.env.AI_OPENAI_KEY || "");
   await initSettingIfMissing("ai_openai_model", process.env.AI_OPENAI_MODEL || "");
@@ -621,6 +622,7 @@ async function main() {
   await initSettingIfMissing("ai_self_hosted_url", process.env.AI_SELF_HOSTED_URL || "");
   await initSettingIfMissing("ai_self_hosted_key", process.env.AI_SELF_HOSTED_KEY || "");
   await initSettingIfMissing("ai_self_hosted_model", process.env.AI_SELF_HOSTED_MODEL || "");
+  await initSettingIfMissing("dashboard_default_page_size", process.env.DASHBOARD_DEFAULT_PAGE_SIZE || "25");
 
   // Database connection settings
   await initSettingIfMissing("db_type", process.env.DB_TYPE || "");

@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const [items, setItems] = useState<MonitoredItem[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [pageSize, setPageSize] = useState<number | "all">(100);
+  const [pageSize, setPageSize] = useState<number | "all">(25);
   const [selectedPageSize, setSelectedPageSize] = useState<number | "all" | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState("");
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         setItems(data.data);
         setTotal(typeof data.total === "number" ? data.total : 0);
         setPage(typeof data.page === "number" ? data.page : 1);
-        const resolvedPageSize = data.pageSize === "all" ? "all" : Number(data.pageSize || 100);
+        const resolvedPageSize = data.pageSize === "all" ? "all" : Number(data.pageSize || 25);
         setPageSize(resolvedPageSize);
         if (selectedPageSize === null) setSelectedPageSize(resolvedPageSize);
       }

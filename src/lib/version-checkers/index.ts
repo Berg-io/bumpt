@@ -115,7 +115,7 @@ export async function resolveVersion(
     case "dockerhub":
       return checkDockerHub(itemParams.image ?? "");
     case "github":
-      return checkGitHubRelease(itemParams.repo ?? "");
+      return checkGitHubRelease(itemParams.repo ?? "", itemParams.repoType);
     case "appstore":
       return checkAppleAppStore(itemParams.bundleId ?? "", itemParams.country ?? "de");
     case "playstore":
@@ -369,7 +369,7 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
   if (config.source === "dockerhub" && config.image) {
     result = await checkDockerHub(config.image);
   } else if (config.source === "github" && config.repo) {
-    result = await checkGitHubRelease(config.repo);
+    result = await checkGitHubRelease(config.repo, config.repoType);
   } else {
     throw new Error(`Unsupported legacy check configuration for "${item.name}"`);
   }

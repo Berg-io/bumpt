@@ -45,8 +45,8 @@ const EMPTY_ITEM: ItemData = {
   name: "",
   userNote: "",
   type: "software",
-  currentVersion: "",
-  latestVersion: "",
+  currentVersion: "0.0.0",
+  latestVersion: "0.0.0",
   checkMethod: "manual",
   checkConfig: "",
   sourceId: "",
@@ -79,7 +79,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [paramFields, setParamFields] = useState<Record<string, string>>({
-    image: "", repo: "", bundleId: "", country: "de", appId: "", productId: "",
+    image: "", repo: "", repoType: "", bundleId: "", country: "de", appId: "", productId: "",
     product: "", package: "", project: "", formula: "", slug: "", packageId: "",
     platform: "win64", channel: "stable", itemName: "",
     artifact: "", crate: "", gem: "", module: "", chart: "", snap: "",
@@ -113,7 +113,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
         try { params = JSON.parse(item.sourceParams); } catch { /* skip */ }
       }
       setParamFields({
-        image: params.image || "", repo: params.repo || "",
+        image: params.image || "", repo: params.repo || "", repoType: params.repoType || "",
         bundleId: params.bundleId || "", country: params.country || "de",
         appId: params.appId || "", productId: params.productId || "",
         product: params.product || "", package: params.package || "",
@@ -133,7 +133,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
       setTags([]);
       setTagInput("");
       setParamFields({
-        image: "", repo: "", bundleId: "", country: "de", appId: "", productId: "",
+        image: "", repo: "", repoType: "", bundleId: "", country: "de", appId: "", productId: "",
         product: "", package: "", project: "", formula: "", slug: "", packageId: "",
         platform: "win64", channel: "stable", itemName: "",
         artifact: "", crate: "", gem: "", module: "", chart: "", snap: "",
@@ -151,7 +151,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
     } else {
       setData({ ...data, sourceId: "", checkMethod: "manual", sourceParams: "" });
       setParamFields({
-        image: "", repo: "", bundleId: "", country: "de", appId: "", productId: "",
+        image: "", repo: "", repoType: "", bundleId: "", country: "de", appId: "", productId: "",
         product: "", package: "", project: "", formula: "", slug: "", packageId: "",
         platform: "win64", channel: "stable", itemName: "",
         artifact: "", crate: "", gem: "", module: "", chart: "", snap: "",
@@ -173,8 +173,11 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
         finalData.sourceParams = JSON.stringify({ image: paramFields.image });
         finalData.checkConfig = JSON.stringify({ source: "dockerhub", image: paramFields.image });
       } else if (selectedSource.type === "github") {
-        finalData.sourceParams = JSON.stringify({ repo: paramFields.repo });
-        finalData.checkConfig = JSON.stringify({ source: "github", repo: paramFields.repo });
+        const githubParams: Record<string, string> = { repo: paramFields.repo };
+        const repoType = paramFields.repoType.trim();
+        if (repoType) githubParams.repoType = repoType;
+        finalData.sourceParams = JSON.stringify(githubParams);
+        finalData.checkConfig = JSON.stringify({ source: "github", ...githubParams });
       } else if (selectedSource.type === "appstore") {
         finalData.sourceParams = JSON.stringify({ bundleId: paramFields.bundleId, country: paramFields.country || "de" });
       } else if (selectedSource.type === "playstore") {
@@ -499,6 +502,13 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
               onChange={(e) => setParamFields({ ...paramFields, repo: e.target.value })}
               placeholder={t.sources.placeholders.repo}
               required
+            />
+            <Input
+              id="githubRepoType"
+              label="Repository flavor (optional)"
+              value={paramFields.repoType}
+              onChange={(e) => setParamFields({ ...paramFields, repoType: e.target.value })}
+              placeholder="prod | dev | canary"
             />
           </div>
         )}

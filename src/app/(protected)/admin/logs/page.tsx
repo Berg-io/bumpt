@@ -352,7 +352,7 @@ export default function AdminLogsPage() {
   const [filterAction, setFilterAction] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number | "all">(50);
+  const [pageSize, setPageSize] = useState<number | "all">(25);
   const [selectedPageSize, setSelectedPageSize] = useState<number | "all" | null>(null);
   const [totalItems, setTotalItems] = useState(0);
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
@@ -376,7 +376,7 @@ export default function AdminLogsPage() {
         setLogs(data.data);
         setTotalItems(data.total);
         setPage(typeof data.page === "number" ? data.page : 1);
-        const resolvedPageSize = data.pageSize === "all" ? "all" : Number(data.pageSize || 50);
+        const resolvedPageSize = data.pageSize === "all" ? "all" : Number(data.pageSize || 25);
         setPageSize(resolvedPageSize);
         if (selectedPageSize === null) setSelectedPageSize(resolvedPageSize);
       }

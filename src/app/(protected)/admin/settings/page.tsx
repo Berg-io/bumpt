@@ -147,7 +147,7 @@ export default function SettingsPage() {
   const [cveEnrichmentEnabled, setCveEnrichmentEnabled] = useState(true);
 
   const [aiProvider, setAiProvider] = useState("none");
-  const [aiEnrichmentEnabled, setAiEnrichmentEnabled] = useState(true);
+  const [aiEnrichmentEnabled, setAiEnrichmentEnabled] = useState(false);
   const [aiOpenaiKey, setAiOpenaiKey] = useState("");
   const [aiOpenaiModel, setAiOpenaiModel] = useState("");
   const [aiAnthropicKey, setAiAnthropicKey] = useState("");
@@ -182,7 +182,7 @@ export default function SettingsPage() {
   const [appTimezone, setAppTimezone] = useState("Europe/Zurich");
   const [appDateFormat, setAppDateFormat] = useState("DD.MM.YYYY");
   const [appTimeFormat, setAppTimeFormat] = useState("24h");
-  const [dashboardDefaultPageSize, setDashboardDefaultPageSize] = useState("100");
+  const [dashboardDefaultPageSize, setDashboardDefaultPageSize] = useState("25");
 
   const [dbType, setDbType] = useState("sqlite");
   const [dbHost, setDbHost] = useState("");
@@ -349,7 +349,7 @@ export default function SettingsPage() {
       setVulndbClientSecret(s.vulndb_client_secret || "");
       setCveEnrichmentEnabled(s.cve_enrichment_enabled !== "false");
       setAiProvider(s.ai_provider || "none");
-      setAiEnrichmentEnabled(s.ai_enrichment_enabled !== "false");
+      setAiEnrichmentEnabled(s.ai_enrichment_enabled === "true");
       setAiOpenaiKey(s.ai_openai_key || "");
       setAiOpenaiModel(s.ai_openai_model || "");
       setAiAnthropicKey(s.ai_anthropic_key || "");
@@ -386,7 +386,7 @@ export default function SettingsPage() {
       setAppTimezone(s.app_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
       setAppDateFormat(s.app_date_format || "DD.MM.YYYY");
       setAppTimeFormat(s.app_time_format || "24h");
-      setDashboardDefaultPageSize(s.dashboard_default_page_size || "100");
+      setDashboardDefaultPageSize(s.dashboard_default_page_size || "25");
       setDbType(s.db_type || "sqlite");
       setDbHost(s.db_host || "");
       setDbPort(s.db_port || "");

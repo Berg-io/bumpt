@@ -51,9 +51,20 @@ const SMTP_KEYS = new Set<string>([
   "smtp_from",
 ]);
 
+const DEFAULT_SETTINGS: Record<string, string> = {
+  dashboard_default_page_size: "25",
+  ai_enrichment_enabled: "false",
+};
+
 export const GET = withAuth(
   async () => {
     const settings = await getAllSettings();
+
+    for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
+      if (settings[key] === undefined || settings[key] === "") {
+        settings[key] = value;
+      }
+    }
 
     for (const [key, envVal] of Object.entries(DB_ENV_OVERRIDES)) {
       if (envVal !== undefined) settings[key] = envVal;

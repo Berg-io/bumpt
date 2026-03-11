@@ -19,7 +19,7 @@ function resolvePageSize(rawPageSize: string | null, settingPageSize: string | n
   if (fromQuery !== undefined || rawPageSize?.toLowerCase() === "all") return fromQuery;
 
   const fromSetting = normalize(settingPageSize);
-  return fromSetting ?? 50;
+  return fromSetting ?? 25;
 }
 
 export const GET = withAuth(

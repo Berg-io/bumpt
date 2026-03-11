@@ -94,7 +94,7 @@ const PARAM_ONLY_TYPES = [
 function getTypeDescription(type: string): string {
   const descriptions: Record<string, string> = {
     dockerhub: "Docker Hub uses built-in logic. The Docker image is configured per item.",
-    github: "GitHub Releases uses built-in logic. The repository is configured per item.",
+    github: "GitHub Releases uses built-in logic. The repository is configured per item, with optional channel/flavor filter (prod/dev/canary).",
     appstore: "Apple App Store uses the iTunes Lookup API. The bundle ID is configured per item.",
     playstore: "Google Play Store uses web scraping. The app ID is configured per item.",
     msstore: "Microsoft Store uses web scraping. The product ID is configured per item.",
