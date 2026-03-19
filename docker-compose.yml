@@ -1,10 +1,8 @@
 services:
   # ── Application Next.js ────────────────────────────────────
   app:
-    build:
-      context: .
-      args:
-        - DB_TYPE=${DB_TYPE:-sqlite}
+    image: ${BUMPT_IMAGE:-bergio/bumpt:latest}
+    pull_policy: always
     container_name: bumpt-app
     ports:
       - "${APP_PORT:-3000}:3000"
