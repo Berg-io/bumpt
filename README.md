@@ -212,17 +212,18 @@ Migrations are applied automatically during startup.
 
 ## Release flow (SemVer)
 
-Use `package.json` version as the single source of truth:
+Use `package.json` version as the single source of truth. See [docs/RELEASING.md](docs/RELEASING.md) for the full checklist.
 
 1. Bump version in `package.json` (e.g. `0.1.0` -> `0.2.0`)
-2. Create and push release tag:
+2. Add `release-notes/vX.Y.Z.md` and run `npm run release:prepare`
+3. Create and push release tag:
 
 ```bash
 git tag pro/vX.Y.Z
 git push origin pro/vX.Y.Z
 ```
 
-CI validates that `package.json` version matches tag `X.Y.Z`, then publishes Docker images with release tags.
+CI validates that `package.json` version matches tag `X.Y.Z`, then publishes Pro and Community releases and Docker images.
 
 ## License
 

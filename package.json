@@ -10,6 +10,7 @@
     "lint": "next lint",
     "check:readme-length": "node scripts/check-readme-length.mjs",
     "release:notes": "node scripts/generate-release-notes.mjs",
+    "release:prepare": "node scripts/release-prepare.mjs",
     "release:check-version": "node scripts/validate-release-version.mjs",
     "db:generate": "npx prisma generate",
     "db:migrate": "npx prisma migrate dev",

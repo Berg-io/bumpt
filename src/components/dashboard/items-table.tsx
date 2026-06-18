@@ -33,6 +33,7 @@ import { useTranslation, useLocale, getHtmlLang, useDateSettings } from "@/i18n/
 import { formatAppDate } from "@/lib/format-date";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/utils/cn";
+import { getDisplayStatus, getDisplayStatusOrder, parseCveCount } from "@/lib/item-classification";
 
 interface MonitoredItem {
   id: string;
@@ -93,11 +94,6 @@ const bptVariants: Record<string, "success" | "warning" | "critical"> = {
   critical: "critical",
 };
 
-function parseCveCount(cvesJson: string | null | undefined): number {
-  if (!cvesJson) return 0;
-  try { const arr = JSON.parse(cvesJson); return Array.isArray(arr) ? arr.length : 0; } catch { return 0; }
-}
-
 function parseTags(tags: string | string[] | null | undefined): string[] {
   if (!tags) return [];
   if (Array.isArray(tags)) return tags;
@@ -114,8 +110,6 @@ function isEolPast(eolDate: string | null | undefined): boolean {
 type SortKey = "name" | "versions" | "status" | "risk" | "lastChecked";
 type SortDir = "asc" | "desc";
 
-const STATUS_ORDER: Record<string, number> = { critical: 0, end_of_life: 1, outdated: 2, up_to_date: 3 };
-
 function compareItems(a: MonitoredItem, b: MonitoredItem, key: SortKey, dir: SortDir): number {
   let cmp = 0;
   switch (key) {
@@ -129,7 +123,7 @@ function compareItems(a: MonitoredItem, b: MonitoredItem, key: SortKey, dir: Sor
       }
       break;
     case "status":
-      cmp = (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99);
+      cmp = getDisplayStatusOrder(a) - getDisplayStatusOrder(b);
       if (cmp === 0) {
         const aBpt = typeof a.internalScore === "number" ? a.internalScore : -1;
         const bBpt = typeof b.internalScore === "number" ? b.internalScore : -1;
@@ -227,6 +221,7 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
   };
 
   const statusLabel = (status: string) => {
+    if (status === "critical") return t.items.statuses.critical;
     if (status === "end_of_life") return t.itemDetail.eolReached;
     return t.items.statuses[status as keyof typeof t.items.statuses] || status;
   };
@@ -282,6 +277,7 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
         <tbody>
           {sortedItems.map((item) => {
             const cveCount = parseCveCount(item.cves);
+            const displayStatus = getDisplayStatus(item);
             const eolPast = isEolPast(item.eolDate);
             const itemTags = parseTags(item.tags);
             return (
@@ -355,8 +351,8 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
                 )}
               </td>
               <td className="py-3 pr-4">
-                <Badge variant={statusVariants[item.status] || "default"}>
-                  {statusLabel(item.status)}
+                <Badge variant={statusVariants[displayStatus] || "default"}>
+                  {statusLabel(displayStatus)}
                 </Badge>
               </td>
               <td className="py-3 pr-4 hidden md:table-cell">

@@ -67,5 +67,6 @@ dev.db-journal
 TOKENS.md
 CURSOR-RULES.md
 RELEASE_NOTES_DRAFT.md
+.release/
 
 /generated/prisma

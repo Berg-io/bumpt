@@ -46,7 +46,17 @@ export const GET = withAuth(
     if (status) where.status = status;
     if (securityState) where.securityState = securityState;
     if (riskState === "at_risk") {
-      where.OR = [{ securityState: "vulnerable" }, { status: "end_of_life" }];
+      where.OR = [
+        { securityState: "vulnerable" },
+        { status: "end_of_life" },
+        {
+          AND: [
+            { cves: { not: null } },
+            { NOT: { cves: "" } },
+            { NOT: { cves: "[]" } },
+          ],
+        },
+      ];
     }
     if (monitoringEnabled === "true") where.monitoringEnabled = true;
     if (monitoringEnabled === "false") where.monitoringEnabled = false;

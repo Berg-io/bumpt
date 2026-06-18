@@ -18,6 +18,7 @@ import {
   Bot,
   Info,
 } from "lucide-react";
+import { getDisplayStatus } from "@/lib/item-classification";
 import { RenderedContent } from "@/components/ui/rendered-content";
 
 interface VersionLog {
@@ -41,7 +42,8 @@ interface ItemDetail {
   releaseNotes: string | null;
   releaseDate: string | null;
   releaseUrl: string | null;
-  cves: string | null;
+  securityState?: string | null;
+  cves?: string | null;
   description: string | null;
   downloadUrl: string | null;
   eolDate: string | null;
@@ -108,6 +110,7 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
   };
 
   const statusLabel = (status: string) => {
+    if (status === "critical") return t.items.statuses.critical;
     if (status === "end_of_life") return t.itemDetail.eolReached;
     return t.items.statuses[status as keyof typeof t.items.statuses] || status;
   };
@@ -144,6 +147,7 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
   };
 
   const cves = item ? parseCves(item.cves) : [];
+  const displayStatus = item ? getDisplayStatus(item) : "up_to_date";
   const cveSourceCounts = parseCveSourceCounts(item?.rawMetadata ?? null);
   const cveVersionQueried = parseCveVersionQueried(item?.rawMetadata ?? null);
   const cveSourceLabels: Record<string, string> = {
@@ -180,8 +184,8 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
         <div className="space-y-5">
           {/* Status + Versions */}
           <div className="flex items-center gap-3 flex-wrap">
-            <Badge variant={statusVariants[item.status] || "default"}>
-              {statusLabel(item.status)}
+            <Badge variant={statusVariants[displayStatus] || "default"}>
+              {statusLabel(displayStatus)}
             </Badge>
             {item.isLts && (
               <Badge variant="info">LTS</Badge>

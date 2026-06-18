@@ -16,6 +16,12 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useTranslation, useLocale, useDateSettings } from "@/i18n/config";
 import { formatAppDate } from "@/lib/format-date";
 import { cn } from "@/utils/cn";
+import {
+  getDisplayStatus,
+  getDisplayStatusOrder,
+  isItemAtRisk,
+  isItemOutdated,
+} from "@/lib/item-classification";
 
 interface MonitoredItem {
   id: string;
@@ -30,13 +36,6 @@ interface MonitoredItem {
 }
 
 const REFRESH_INTERVAL = 60;
-
-const statusOrder: Record<string, number> = {
-  critical: 0,
-  end_of_life: 1,
-  outdated: 2,
-  up_to_date: 3,
-};
 
 function useClock() {
   const [time, setTime] = useState("");
@@ -178,13 +177,13 @@ export default function FullscreenOverviewPage() {
 
   const counts = {
     up_to_date: items.filter((i) => i.status === "up_to_date").length,
-    outdated: items.filter((i) => i.status === "outdated").length,
-    critical: items.filter((i) => i.securityState === "vulnerable" || i.status === "end_of_life").length,
+    outdated: items.filter((i) => isItemOutdated(i)).length,
+    critical: items.filter((i) => isItemAtRisk(i)).length,
     total: items.length,
   };
 
   const sortedItems = [...items].sort(
-    (a, b) => (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9)
+    (a, b) => getDisplayStatusOrder(a) - getDisplayStatusOrder(b)
   );
 
   const formatLastRefresh = () => {
@@ -292,7 +291,9 @@ export default function FullscreenOverviewPage() {
           </div>
         ) : (
           <div className="flex-1 content-start flex flex-wrap gap-x-4 gap-y-2.5 lg:gap-x-5 lg:gap-y-3 overflow-auto">
-            {sortedItems.map((item) => (
+            {sortedItems.map((item) => {
+              const displayStatus = getDisplayStatus(item);
+              return (
               <div
                 key={item.id}
                 className="noc-item flex items-center gap-2 shrink-0"
@@ -300,15 +301,16 @@ export default function FullscreenOverviewPage() {
                 <span
                   className={cn(
                     "noc-dot h-2.5 w-2.5 rounded-full shrink-0",
-                    dotColor[item.status] || "bg-slate-400",
-                    (item.securityState === "vulnerable" || item.status === "end_of_life") && "noc-dot-critical"
+                    dotColor[displayStatus] || "bg-slate-400",
+                    isItemAtRisk(item) && "noc-dot-critical"
                   )}
                 />
                 <span className="text-sm lg:text-base font-medium text-foreground/90 whitespace-nowrap">
                   {item.name}
                 </span>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>

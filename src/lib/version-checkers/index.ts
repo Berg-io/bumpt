@@ -42,7 +42,7 @@ import { checkAnsible } from "./ansible";
 import { checkQuay } from "./quay";
 import { checkBitbucket } from "./bitbucket";
 import { checkLibrariesIo } from "./libraries-io";
-import { enrichItemCves } from "@/lib/cve-enrichment";
+import { scheduleItemCveEnrichment } from "@/lib/cve-enrichment";
 import { dispatchWebhookEvent } from "@/lib/webhooks";
 import type { VersionCheckResult } from "./types";
 
@@ -246,11 +246,13 @@ function buildCheckResult(
 }
 
 function buildMetadataUpdate(result: VersionCheckResult) {
+  const hasCves = Boolean(result.cves && result.cves.length > 0);
   return {
     releaseNotes: result.releaseNotes ?? null,
     releaseDate: result.releaseDate ?? null,
     releaseUrl: result.releaseUrl ?? null,
-    cves: result.cves ? JSON.stringify(result.cves) : null,
+    cves: hasCves ? JSON.stringify(result.cves) : null,
+    ...(hasCves ? { securityState: "vulnerable" as const } : {}),
     description: result.description ?? null,
     downloadUrl: result.downloadUrl ?? null,
     eolDate: result.eolDate ?? null,
@@ -269,6 +271,48 @@ function clearCveMetadata(rawMetadata: string | null | undefined): string | null
     return JSON.stringify(parsed);
   } catch {
     return rawMetadata;
+  }
+}
+
+async function handlePostCheckSecurityState(
+  item: MonitoredItem,
+  latestVersion: string,
+  newStatus: string,
+  result: VersionCheckResult,
+  sourceType: string,
+  sourceParams: Record<string, string>
+): Promise<void> {
+  const connectorHasCves = Boolean(result.cves && result.cves.length > 0);
+  const enrichmentScheduled = await scheduleItemCveEnrichment({
+    id: item.id,
+    name: item.name,
+    currentVersion: item.currentVersion,
+    latestVersion,
+    sourceType,
+    sourceParams,
+  });
+
+  if (!enrichmentScheduled && newStatus === "up_to_date" && !connectorHasCves) {
+    await prisma.monitoredItem.update({
+      where: { id: item.id },
+      data: {
+        cves: null,
+        securityState: "no_known_vuln",
+        externalScore: null,
+        externalSeverity: null,
+        externalVector: null,
+        externalSource: null,
+        epssPercent: null,
+        vprScore: null,
+        internalScore: null,
+        internalSeverity: null,
+        scoreConfidence: null,
+        scoreUpdatedAt: new Date(),
+        rawMetadata: clearCveMetadata(
+          result.rawMetadata ? JSON.stringify(result.rawMetadata) : item.rawMetadata ?? null
+        ),
+      },
+    });
   }
 }
 
@@ -303,36 +347,7 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
       },
     });
 
-    if (item.currentVersion && latestVersion && item.currentVersion !== latestVersion) {
-      enrichItemCves({
-        id: item.id,
-        name: item.name,
-        currentVersion: item.currentVersion,
-        latestVersion,
-        sourceType: source.type,
-        sourceParams: itemParams,
-      }).catch((err) => console.error(`[CVE Enrichment] ${item.name}:`, err));
-    } else if (newStatus === "up_to_date" && (!result.cves || result.cves.length === 0)) {
-      // Avoid stale risk scores on up-to-date items when no CVE signal is present.
-      await prisma.monitoredItem.update({
-        where: { id: item.id },
-        data: {
-          cves: null,
-          securityState: "no_known_vuln",
-          externalScore: null,
-          externalSeverity: null,
-          externalVector: null,
-          externalSource: null,
-          epssPercent: null,
-          vprScore: null,
-          internalScore: null,
-          internalSeverity: null,
-          scoreConfidence: null,
-          scoreUpdatedAt: new Date(),
-          rawMetadata: clearCveMetadata(result.rawMetadata ? JSON.stringify(result.rawMetadata) : item.rawMetadata ?? null),
-        },
-      });
-    }
+    await handlePostCheckSecurityState(item, latestVersion, newStatus, result, source.type, itemParams);
 
     if (changed) {
       dispatchWebhookEvent("version.new", {
@@ -391,36 +406,7 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
   });
 
   const legacySourceType = config.source || "github";
-  if (item.currentVersion && latestVersion && item.currentVersion !== latestVersion) {
-    enrichItemCves({
-      id: item.id,
-      name: item.name,
-      currentVersion: item.currentVersion,
-      latestVersion,
-      sourceType: legacySourceType,
-      sourceParams: config,
-    }).catch((err) => console.error(`[CVE Enrichment] ${item.name}:`, err));
-  } else if (newStatus === "up_to_date" && (!result.cves || result.cves.length === 0)) {
-    // Avoid stale risk scores on up-to-date items when no CVE signal is present.
-    await prisma.monitoredItem.update({
-      where: { id: item.id },
-      data: {
-        cves: null,
-        securityState: "no_known_vuln",
-        externalScore: null,
-        externalSeverity: null,
-        externalVector: null,
-        externalSource: null,
-        epssPercent: null,
-        vprScore: null,
-        internalScore: null,
-        internalSeverity: null,
-        scoreConfidence: null,
-        scoreUpdatedAt: new Date(),
-        rawMetadata: clearCveMetadata(result.rawMetadata ? JSON.stringify(result.rawMetadata) : item.rawMetadata ?? null),
-      },
-    });
-  }
+  await handlePostCheckSecurityState(item, latestVersion, newStatus, result, legacySourceType, config);
 
   if (changed) {
     dispatchWebhookEvent("version.new", {

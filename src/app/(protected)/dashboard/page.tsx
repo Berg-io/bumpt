@@ -13,6 +13,13 @@ import { PaginationControls } from "@/components/ui/pagination-controls";
 import { useTranslation } from "@/i18n/config";
 import { useToast } from "@/components/ui/toast";
 import { exportToCsv } from "@/utils/csv";
+import {
+  isItemAtRisk,
+  isItemOutdated,
+  parseCveCount,
+  getDisplayStatus,
+  getDisplayStatusOrder,
+} from "@/lib/item-classification";
 
 interface MonitoredItem {
   id: string;
@@ -155,18 +162,10 @@ export default function DashboardPage() {
 
   const counts = {
     up_to_date: items.filter((i) => i.status === "up_to_date").length,
-    outdated: items.filter((i) => i.status === "outdated").length,
-    critical: items.filter((i) => i.securityState === "vulnerable" || i.status === "end_of_life").length,
+    outdated: items.filter((i) => isItemOutdated(i)).length,
+    critical: items.filter((i) => isItemAtRisk(i)).length,
     total: items.length,
-    totalVulnerabilities: items.reduce((sum, item) => {
-      if (!item.cves) return sum;
-      try {
-        const parsed = JSON.parse(item.cves);
-        return sum + (Array.isArray(parsed) ? parsed.length : 0);
-      } catch {
-        return sum;
-      }
-    }, 0),
+    totalVulnerabilities: items.reduce((sum, item) => sum + parseCveCount(item.cves), 0),
     avgInternalScore: (() => {
       const values = items
         .map((item) => item.internalScore)
@@ -186,7 +185,7 @@ export default function DashboardPage() {
         const severity = item.internalSeverity ?? item.externalSeverity;
         if (severity === "critical" || severity === "high" || severity === "medium" || severity === "low") {
           acc[severity] += 1;
-        } else if (item.securityState === "vulnerable" || item.status === "end_of_life") {
+        } else if (isItemAtRisk(item)) {
           // Fallback: keep critical bucket aligned with critical status cards.
           acc.critical += 1;
         }
