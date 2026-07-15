@@ -146,7 +146,7 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
     return !isNaN(d.getTime()) && d < new Date();
   };
 
-  const cves = item ? parseCves(item.cves) : [];
+  const cves = item ? parseCves(item.cves ?? null) : [];
   const displayStatus = item ? getDisplayStatus(item) : "up_to_date";
   const cveSourceCounts = parseCveSourceCounts(item?.rawMetadata ?? null);
   const cveVersionQueried = parseCveVersionQueried(item?.rawMetadata ?? null);
@@ -155,6 +155,7 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
     nvd: "NVD",
     github_advisory: "GitHub Advisory",
     vulndb: "VulnDB",
+    connector: "Connector",
   };
   const DESCRIPTION_PREVIEW_MAX = 700;
   const descriptionText = item?.description ?? "";
