@@ -44,6 +44,7 @@ import { checkBitbucket } from "./bitbucket";
 import { checkLibrariesIo } from "./libraries-io";
 import { scheduleItemCveEnrichment } from "@/lib/cve-enrichment";
 import { dispatchWebhookEvent } from "@/lib/webhooks";
+import { isVersionOutdated } from "@/lib/version-utils";
 import type { VersionCheckResult } from "./types";
 
 export type { VersionCheckResult };
@@ -80,7 +81,7 @@ export interface CheckResult {
 function compareVersions(current: string | null, latest: string | null): string {
   if (!current || !latest) return "up_to_date";
   if (current === latest) return "up_to_date";
-  return "outdated";
+  return isVersionOutdated(current, latest) ? "outdated" : "up_to_date";
 }
 
 function deriveItemStatus(

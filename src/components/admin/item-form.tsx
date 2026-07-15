@@ -147,7 +147,11 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
 
   const handleSourceChange = (sourceId: string) => {
     if (sourceId) {
+      const source = sources.find((s) => s.id === sourceId);
       setData({ ...data, sourceId, checkMethod: "api" });
+      if (source?.type === "libraries_io") {
+        setParamFields((prev) => ({ ...prev, platform: "npm", package: "" }));
+      }
     } else {
       setData({ ...data, sourceId: "", checkMethod: "manual", sourceParams: "" });
       setParamFields({
@@ -240,6 +244,11 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
         finalData.sourceParams = JSON.stringify({ repository: paramFields.repository });
       } else if (selectedSource.type === "bitbucket") {
         finalData.sourceParams = JSON.stringify({ repo: paramFields.repo });
+      } else if (selectedSource.type === "libraries_io") {
+        finalData.sourceParams = JSON.stringify({
+          platform: paramFields.platform || "npm",
+          package: paramFields.package,
+        });
       } else {
         finalData.sourceParams = "{}";
       }
@@ -920,6 +929,27 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
               value={paramFields.repo}
               onChange={(e) => setParamFields({ ...paramFields, repo: e.target.value })}
               placeholder="e.g. atlassian/python-bitbucket"
+              required
+            />
+          </div>
+        )}
+
+        {selectedSource?.type === "libraries_io" && (
+          <div className="rounded-lg border p-3 bg-muted/30 space-y-2">
+            <Input
+              id="librariesIoPlatform"
+              label={t.sources.fields.platform}
+              value={paramFields.platform}
+              onChange={(e) => setParamFields({ ...paramFields, platform: e.target.value })}
+              placeholder="e.g. npm, pypi, maven, crates"
+              required
+            />
+            <Input
+              id="librariesIoPackage"
+              label={t.sources.fields.package}
+              value={paramFields.package}
+              onChange={(e) => setParamFields({ ...paramFields, package: e.target.value })}
+              placeholder="e.g. react"
               required
             />
           </div>
