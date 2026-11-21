@@ -49,6 +49,7 @@ export const GET = withAuth(
       where.OR = [
         { securityState: "vulnerable" },
         { status: "end_of_life" },
+        { status: "critical" }, // legacy value, see isItemVulnerable()
         {
           AND: [
             { cves: { not: null } },
@@ -101,7 +102,7 @@ export const GET = withAuth(
 
     return NextResponse.json({ data, total, page: effectivePage, pageSize: pageSize ?? "all" });
   },
-  { roles: ["ADMIN"] }
+  { roles: ["VIEWER"] }
 );
 
 export const DELETE = withAuth(

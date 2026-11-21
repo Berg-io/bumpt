@@ -1,5 +1,5 @@
 import type { VersionCheckResult } from "./types";
-import { compareNormalizedVersions } from "@/lib/version-utils";
+import { compareNormalizedVersions, matchesBranch } from "@/lib/version-utils";
 
 interface DockerTag {
   name: string;
@@ -80,9 +80,12 @@ function pickHighestVersionTag(candidates: TagCandidate[]): TagCandidate | null 
   return tierCandidates[0] ?? null;
 }
 
-export async function checkDockerHub(image: string): Promise<VersionCheckResult> {
+export async function checkDockerHub(image: string, branch?: string): Promise<VersionCheckResult> {
   try {
-    const url = `https://hub.docker.com/v2/repositories/${image}/tags/?page_size=100&ordering=last_updated`;
+    // With a tracked branch, ask Docker Hub for tags of that branch only (e.g. "16").
+    const branchPrefix = branch?.trim().replace(/\.?[x*]$/i, "");
+    const nameFilter = branchPrefix ? `&name=${encodeURIComponent(branchPrefix)}` : "";
+    const url = `https://hub.docker.com/v2/repositories/${image}/tags/?page_size=100&ordering=last_updated${nameFilter}`;
     const res = await fetch(url, {
       headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(10000),
@@ -96,7 +99,8 @@ export async function checkDockerHub(image: string): Promise<VersionCheckResult>
 
     const candidates = tags
       .map(classifyTag)
-      .filter((candidate): candidate is TagCandidate => candidate !== null);
+      .filter((candidate): candidate is TagCandidate => candidate !== null)
+      .filter((candidate) => matchesBranch(candidate.version, branchPrefix));
 
     const selected = pickHighestVersionTag(candidates);
     if (!selected) return { version: null };

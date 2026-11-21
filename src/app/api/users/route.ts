@@ -14,6 +14,7 @@ export const GET = withAuth(
         email: true,
         role: true,
         authType: true,
+        totpEnabled: true,
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },

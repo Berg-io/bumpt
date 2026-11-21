@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import {
   compareNormalizedVersions,
   isVersionOutdated,
@@ -7,32 +8,32 @@ import {
 
 describe("compareNormalizedVersions", () => {
   it("treats v-prefix and plain versions as equal", () => {
-    expect(compareNormalizedVersions("v1.0.0", "1.0.0")).toBe(0);
+    assert.equal(compareNormalizedVersions("v1.0.0", "1.0.0"), 0);
   });
 
   it("orders numeric segments correctly", () => {
-    expect(compareNormalizedVersions("1.10.0", "1.9.0")).toBe(1);
-    expect(compareNormalizedVersions("2.0.0", "10.0.0")).toBe(-1);
+    assert.equal(compareNormalizedVersions("1.10.0", "1.9.0"), 1);
+    assert.equal(compareNormalizedVersions("2.0.0", "10.0.0"), -1);
   });
 });
 
 describe("isVersionOutdated", () => {
   it("returns false for equivalent versions with different prefixes", () => {
-    expect(isVersionOutdated("v1.0.0", "1.0.0")).toBe(false);
+    assert.equal(isVersionOutdated("v1.0.0", "1.0.0"), false);
   });
 
   it("returns true when latest is newer", () => {
-    expect(isVersionOutdated("1.0.0", "1.0.1")).toBe(true);
+    assert.equal(isVersionOutdated("1.0.0", "1.0.1"), true);
   });
 
   it("returns false when current is newer", () => {
-    expect(isVersionOutdated("2.0.0", "1.9.9")).toBe(false);
+    assert.equal(isVersionOutdated("2.0.0", "1.9.9"), false);
   });
 });
 
 describe("semverSortDescending", () => {
   it("sorts versions from highest to lowest", () => {
     const sorted = ["1.2.0", "1.10.0", "1.9.0"].sort(semverSortDescending);
-    expect(sorted).toEqual(["1.10.0", "1.9.0", "1.2.0"]);
+    assert.deepEqual(sorted, ["1.10.0", "1.9.0", "1.2.0"]);
   });
 });

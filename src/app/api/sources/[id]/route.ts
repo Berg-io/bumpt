@@ -19,7 +19,7 @@ export const GET = withAuth(
 
     return NextResponse.json(source);
   },
-  { roles: ["ADMIN"] }
+  { roles: ["VIEWER"] }
 );
 
 export const PUT = withAuth(

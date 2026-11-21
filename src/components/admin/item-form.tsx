@@ -60,6 +60,9 @@ const EMPTY_ITEM: ItemData = {
   hasCompensatingControls: null,
 };
 
+/** Sources whose checker can follow a version branch (sourceParams.branch). */
+const BRANCH_SOURCES = new Set(["dockerhub", "github", "npm", "pypi"]);
+
 function boolToSelect(value: boolean | null | undefined): string {
   if (value === true) return "yes";
   if (value === false) return "no";
@@ -78,6 +81,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
   const [sources, setSources] = useState<CheckSource[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [branch, setBranch] = useState("");
   const [paramFields, setParamFields] = useState<Record<string, string>>({
     image: "", repo: "", repoType: "", bundleId: "", country: "de", appId: "", productId: "",
     product: "", package: "", project: "", formula: "", slug: "", packageId: "",
@@ -112,6 +116,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
       if (item.sourceParams) {
         try { params = JSON.parse(item.sourceParams); } catch { /* skip */ }
       }
+      setBranch(params.branch || "");
       setParamFields({
         image: params.image || "", repo: params.repo || "", repoType: params.repoType || "",
         bundleId: params.bundleId || "", country: params.country || "de",
@@ -132,6 +137,7 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
       setData(EMPTY_ITEM);
       setTags([]);
       setTagInput("");
+      setBranch("");
       setParamFields({
         image: "", repo: "", repoType: "", bundleId: "", country: "de", appId: "", productId: "",
         product: "", package: "", project: "", formula: "", slug: "", packageId: "",
@@ -251,6 +257,14 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
         });
       } else {
         finalData.sourceParams = "{}";
+      }
+      const trimmedBranch = branch.trim();
+      if (trimmedBranch && BRANCH_SOURCES.has(selectedSource.type)) {
+        const withBranch = { ...JSON.parse(finalData.sourceParams || "{}"), branch: trimmedBranch };
+        finalData.sourceParams = JSON.stringify(withBranch);
+        if (finalData.checkConfig && (selectedSource.type === "dockerhub" || selectedSource.type === "github")) {
+          finalData.checkConfig = JSON.stringify({ ...JSON.parse(finalData.checkConfig), branch: trimmedBranch });
+        }
       }
       finalData.checkMethod = "api";
     } else {
@@ -519,6 +533,20 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
               onChange={(e) => setParamFields({ ...paramFields, repoType: e.target.value })}
               placeholder="prod | dev | canary"
             />
+          </div>
+        )}
+
+        {selectedSource && BRANCH_SOURCES.has(selectedSource.type) && (
+          <div className="rounded-lg border p-3 bg-muted/30 space-y-1.5">
+            <Input
+              id="trackedBranch"
+              label={t.items.branchLabel}
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+              placeholder="16"
+              maxLength={20}
+            />
+            <p className="text-xs text-muted-foreground">{t.items.branchHint}</p>
           </div>
         )}
 

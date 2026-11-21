@@ -5,6 +5,7 @@ import { logAudit } from "@/lib/audit";
 import type { JWTPayload } from "@/types";
 import fs from "fs";
 import path from "path";
+import os from "os";
 
 const DB_TYPE = process.env.DB_TYPE || "sqlite";
 
@@ -88,7 +89,19 @@ async function handleSqliteBackup(user: JWTPayload) {
     return NextResponse.json({ error: "Database file not found" }, { status: 404 });
   }
 
-  const data = fs.readFileSync(resolvedPath);
+  // Copying the live file can capture a half-written state (WAL mode, concurrent
+  // checks). VACUUM INTO writes a consistent snapshot; fall back to a raw copy.
+  let data: Buffer;
+  const snapshotPath = path.join(os.tmpdir(), `bumpt-backup-${process.pid}-${Date.now()}.db`);
+  try {
+    await prisma.$executeRawUnsafe(`VACUUM INTO '${snapshotPath.replace(/'/g, "''")}'`);
+    data = fs.readFileSync(snapshotPath);
+  } catch (err) {
+    console.warn("[Backup] VACUUM INTO failed, falling back to a file copy:", err);
+    data = fs.readFileSync(resolvedPath);
+  } finally {
+    fs.rmSync(snapshotPath, { force: true });
+  }
 
   await logAudit({
     action: "database.backup",

@@ -14,7 +14,7 @@ export const GET = withAuth(
 
     return NextResponse.json({ data: sources });
   },
-  { roles: ["ADMIN"] }
+  { roles: ["VIEWER"] }
 );
 
 export const POST = withAuth(

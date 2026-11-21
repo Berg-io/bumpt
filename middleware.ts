@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { getCorsHeaders } from "@/lib/cors";
 
 const PUBLIC_PATHS = [
   "/login",
@@ -13,6 +14,7 @@ const PUBLIC_PATHS = [
   "/api/auth/oidc/callback",
   "/api/auth/sso/status",
   "/api/health",
+  "/api/app-config",
   "/api/openapi",
   "/api/cron",
 ];
@@ -58,6 +60,23 @@ if (typeof setInterval !== "undefined") {
 }
 
 export async function middleware(request: NextRequest) {
+  if (!request.nextUrl.pathname.startsWith("/api/")) {
+    return handleRequest(request);
+  }
+
+  const cors = getCorsHeaders(request.headers.get("origin"));
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, { status: 204, headers: cors ?? {} });
+  }
+
+  const response = await handleRequest(request);
+  if (cors) {
+    for (const [key, value] of Object.entries(cors)) response.headers.set(key, value);
+  }
+  return response;
+}
+
+async function handleRequest(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/_next") || pathname.startsWith("/favicon")) {
@@ -106,7 +125,10 @@ export async function middleware(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const apiKeyHeader = request.headers.get("x-api-key");
 
-  if (apiKeyHeader) {
+  // API keys are validated by the route handlers (withAuth). They only make sense
+  // for /api: on pages they used to skip the login redirect with any value.
+  const bearerApiKey = authHeader?.startsWith("Bearer bumpt_") ?? false;
+  if (pathname.startsWith("/api/") && (apiKeyHeader || bearerApiKey)) {
     return NextResponse.next();
   }
 

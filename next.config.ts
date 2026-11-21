@@ -1,9 +1,5 @@
 import type { NextConfig } from "next";
 
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(",").map((o) => o.trim())
-  : ["*"];
-
 const nextConfig: NextConfig = {
   output: "standalone",
   serverExternalPackages: [
@@ -29,16 +25,9 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
-      {
-        source: "/api/:path*",
-        headers: [
-          { key: "Access-Control-Allow-Origin", value: allowedOrigins.join(", ") },
-          { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, OPTIONS" },
-          { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization, X-API-Key" },
-          { key: "Access-Control-Max-Age", value: "86400" },
-        ],
-      },
     ];
+    // CORS for /api is handled in middleware.ts: the browser only accepts a single
+    // origin in Access-Control-Allow-Origin, so it must be echoed per request.
   },
 };
 

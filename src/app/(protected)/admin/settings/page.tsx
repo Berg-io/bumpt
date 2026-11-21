@@ -1673,7 +1673,7 @@ export default function SettingsPage() {
                 <option value="all">{t.dashboard.total}</option>
               </select>
               <p className="text-xs text-muted-foreground mt-1">
-                Default rows per page for dashboard, items, users, and logs.
+                {t.common.rowsPerPageHint}
               </p>
             </div>
           </div>

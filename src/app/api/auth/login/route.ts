@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { comparePassword, signToken, AUTH_COOKIE_NAME, createCookieOptions } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { verifyTotp } from "@/lib/totp";
+import type { UserRole } from "@/types";
 import { z } from "zod";
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  /** Code from the authenticator app, required when two-factor authentication is on. */
+  code: z.string().max(10).optional(),
 });
 
 const LOGIN_WINDOW_MS = 60 * 1000;
@@ -73,10 +77,21 @@ export async function POST(request: Request) {
       );
     }
 
+    if (user.totpEnabled && user.totpSecret) {
+      // Only reached with a correct password; the per-IP login limit above also
+      // applies to code attempts.
+      if (!parsed.data.code) {
+        return NextResponse.json({ mfaRequired: true }, { status: 401 });
+      }
+      if (!verifyTotp(user.totpSecret, parsed.data.code)) {
+        return NextResponse.json({ error: "Invalid code", mfaRequired: true }, { status: 401 });
+      }
+    }
+
     const token = signToken({
       id: user.id,
       email: user.email,
-      role: user.role as "SUPER_ADMIN" | "ADMIN",
+      role: user.role as UserRole,
     });
 
     await logAudit({

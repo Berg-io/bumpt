@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
 
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const items = await prisma.monitoredItem.findMany({
@@ -66,3 +66,7 @@ export async function POST(request: Request) {
     timestamp: new Date().toISOString(),
   });
 }
+
+// Older docker-compose files trigger this endpoint with a plain `wget` (GET).
+// Accept both methods so scheduled checks keep running after an upgrade.
+export const GET = POST;

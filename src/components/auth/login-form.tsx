@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, LogIn, Mail, Lock } from "lucide-react";
+import { Loader2, LogIn, Mail, Lock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/i18n/config";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 interface SsoStatus {
   saml: { enabled: boolean; buttonLabel?: string; imageUrl?: string };
@@ -18,6 +19,8 @@ export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [ssoStatus, setSsoStatus] = useState<SsoStatus | null>(null);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [code, setCode] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslation();
@@ -50,15 +53,20 @@ export function LoginForm() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(mfaRequired ? { email, password, code } : { email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        const redirect = searchParams.get("redirect") || "/dashboard";
+        const redirect = safeRedirectPath(searchParams.get("redirect"));
         router.push(redirect);
         router.refresh();
+      } else if (data.mfaRequired) {
+        // Password accepted: ask for the authenticator code (error only after a wrong code).
+        if (mfaRequired) setError(t.account.invalidCode);
+        setMfaRequired(true);
+        setCode("");
       } else {
         setError(data.error || t.auth.loginError);
       }
@@ -70,7 +78,7 @@ export function LoginForm() {
   };
 
   const handleSsoLogin = (type: "saml" | "oidc") => {
-    const redirect = searchParams.get("redirect") || "/dashboard";
+    const redirect = safeRedirectPath(searchParams.get("redirect"));
     window.location.href = `/api/auth/${type}/login?redirect=${encodeURIComponent(redirect)}`;
   };
 
@@ -143,6 +151,29 @@ export function LoginForm() {
                 className="flex h-10 w-full rounded-lg border bg-background pl-10 pr-3 text-sm transition-colors placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
               />
             </div>
+
+            {mfaRequired && (
+              <div className="space-y-1.5">
+                <p className="text-sm text-muted-foreground">{t.auth.mfaPrompt}</p>
+                <div className="relative">
+                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    id="mfa-code"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9 ]*"
+                    maxLength={7}
+                    placeholder={t.auth.mfaCode}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    required
+                    autoFocus
+                    autoComplete="one-time-code"
+                    className="flex h-10 w-full rounded-lg border bg-background pl-10 pr-3 text-sm tracking-widest transition-colors placeholder:text-muted-foreground placeholder:tracking-normal focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
+              </div>
+            )}
 
             <Button type="submit" className="w-full h-10 font-semibold" disabled={loading}>
               {loading ? (

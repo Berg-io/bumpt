@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Users, ShieldCheck, Shield, KeyRound, Globe } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, ShieldCheck, Shield, ShieldOff, KeyRound, Globe } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ interface UserItem {
   email: string;
   role: string;
   authType: string;
+  totpEnabled?: boolean;
   createdAt: string;
 }
 
@@ -102,6 +103,21 @@ export default function AdminUsersPage() {
     const start = (page - 1) * pageSize;
     return users.slice(start, start + pageSize);
   }, [users, page, pageSize]);
+
+  const handleResetMfa = async (u: UserItem) => {
+    if (!window.confirm(`${t.users.resetMfaConfirm}\n${u.email}`)) return;
+    const res = await fetch(`/api/users/${u.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mfaEnabled: false }),
+    });
+    if (res.ok) {
+      toast(t.account.mfaDeactivated, "success");
+      fetchUsers();
+    } else {
+      toast(t.common.error, "error");
+    }
+  };
 
   const handleSave = async (data: { id?: string; email: string; password: string; role: string }) => {
     try {
@@ -211,8 +227,8 @@ export default function AdminUsersPage() {
                               <Shield className="h-4 w-4 text-muted-foreground" />
                             )}
                             <span className="font-medium">{u.email}</span>
-                            {authUser?.id === u.id && (
-                              <Badge variant="outline" className="text-xs">Du</Badge>
+                            {u.totpEnabled && (
+                              <Badge variant="success" className="text-xs">{t.users.mfaBadge}</Badge>
                             )}
                           </div>
                         </td>
@@ -236,6 +252,16 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="p-4">
                           <div className="flex justify-end gap-1">
+                            {u.totpEnabled && authUser?.id !== u.id && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleResetMfa(u)}
+                                title={t.users.resetMfa}
+                              >
+                                <ShieldOff className="h-4 w-4" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"

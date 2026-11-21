@@ -13,6 +13,8 @@ model User {
   passwordHash String   @map("password_hash")
   role         String   @default("ADMIN")
   authType     String   @default("local") @map("auth_type")
+  totpSecret   String?  @map("totp_secret")
+  totpEnabled  Boolean  @default(false) @map("totp_enabled")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -48,7 +50,8 @@ model MonitoredItem {
   securityState     String    @default("no_known_vuln") @map("security_state")
   monitoringEnabled Boolean   @default(true) @map("monitoring_enabled")
   lastChecked       DateTime? @map("last_checked")
-  releaseNotes      String?   @map("release_notes")
+  lastCheckError    String?   @map("last_check_error")
+  releaseNotes     String?   @map("release_notes")
   releaseDate       String?   @map("release_date")
   releaseUrl        String?   @map("release_url")
   cves              String?   @map("cves")

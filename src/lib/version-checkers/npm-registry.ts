@@ -1,6 +1,7 @@
 import type { VersionCheckResult } from "./types";
+import { pickLatestInBranch } from "@/lib/version-utils";
 
-export async function checkNpmRegistry(packageName: string): Promise<VersionCheckResult> {
+export async function checkNpmRegistry(packageName: string, branch?: string): Promise<VersionCheckResult> {
   if (!packageName) return { version: null };
 
   try {
@@ -14,7 +15,9 @@ export async function checkNpmRegistry(packageName: string): Promise<VersionChec
 
     const data = await res.json();
     const distTags = data["dist-tags"] as Record<string, string> | undefined;
-    const latestVersion = distTags?.latest || null;
+    const latestVersion = branch?.trim()
+      ? pickLatestInBranch(Object.keys(data.versions ?? {}), branch)
+      : distTags?.latest || null;
     if (!latestVersion) return { version: null };
 
     const versionData = data.versions?.[latestVersion];

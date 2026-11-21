@@ -21,7 +21,9 @@ export function hasKnownCves(cves?: string | null): boolean {
 }
 
 export function isItemVulnerable(item: ItemClassificationFields): boolean {
-  return item.securityState === "vulnerable" || hasKnownCves(item.cves);
+  // "critical" is the legacy status value from before status/securityState were split;
+  // rows still carrying it must not be shown as "up to date".
+  return item.securityState === "vulnerable" || item.status === "critical" || hasKnownCves(item.cves);
 }
 
 export function isItemAtRisk(item: ItemClassificationFields): boolean {

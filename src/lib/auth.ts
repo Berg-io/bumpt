@@ -37,10 +37,12 @@ export async function comparePassword(
   return bcrypt.compare(password, hash);
 }
 
+const ROLE_LEVEL: Record<UserRole, number> = { VIEWER: 1, ADMIN: 2, SUPER_ADMIN: 3 };
+
+/** Roles are hierarchical: SUPER_ADMIN > ADMIN > VIEWER. */
 export function hasRole(userRole: UserRole, requiredRoles: UserRole[]): boolean {
-  if (requiredRoles.includes(userRole)) return true;
-  if (requiredRoles.includes("ADMIN") && userRole === "SUPER_ADMIN") return true;
-  return false;
+  const level = ROLE_LEVEL[userRole] ?? 0;
+  return requiredRoles.some((required) => level >= (ROLE_LEVEL[required] ?? Infinity));
 }
 
 export const AUTH_COOKIE_NAME = "auth-token";

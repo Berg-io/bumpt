@@ -73,10 +73,16 @@ export const PUT = withAuth(
         }
       }
 
+      if (parsed.data.mfaEnabled === false && existing.totpEnabled) {
+        updateData.totpEnabled = false;
+        updateData.totpSecret = null;
+        changes.mfa = { from: "enabled", to: "reset by super admin" };
+      }
+
       const updated = await prisma.user.update({
         where: { id },
         data: updateData,
-        select: { id: true, email: true, role: true, authType: true, createdAt: true },
+        select: { id: true, email: true, role: true, authType: true, totpEnabled: true, createdAt: true },
       });
 
       await logAudit({

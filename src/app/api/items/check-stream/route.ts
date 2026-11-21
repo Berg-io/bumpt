@@ -52,5 +52,5 @@ export const GET = withAuth(
       },
     });
   },
-  { roles: ["ADMIN"] }
+  { roles: ["VIEWER"] }
 );

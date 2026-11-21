@@ -47,6 +47,7 @@ export function UserForm({ open, onClose, onSave, user }: UserFormProps) {
   };
 
   const roleOptions = [
+    { value: "VIEWER", label: t.users.roles.VIEWER },
     { value: "ADMIN", label: t.users.roles.ADMIN },
     { value: "SUPER_ADMIN", label: t.users.roles.SUPER_ADMIN },
   ];

@@ -1,4 +1,5 @@
-export type UserRole = "SUPER_ADMIN" | "ADMIN";
+/** VIEWER: read-only access to the dashboard and items. */
+export type UserRole = "SUPER_ADMIN" | "ADMIN" | "VIEWER";
 
 export type ItemType = "software" | "system" | "docker" | "service";
 

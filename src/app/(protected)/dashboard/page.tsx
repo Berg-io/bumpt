@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import { useTranslation } from "@/i18n/config";
 import { useToast } from "@/components/ui/toast";
+import { useAuth } from "@/hooks/use-auth";
 import { exportToCsv } from "@/utils/csv";
 import {
   isItemAtRisk,
@@ -57,6 +58,8 @@ export default function DashboardPage() {
   const [checkingAll, setCheckingAll] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const t = useTranslation();
+  const { user } = useAuth();
+  const readOnly = user?.role === "VIEWER";
   const { toast } = useToast();
 
   const patchItemInState = useCallback((patched: Partial<MonitoredItem> & { id: string }) => {
@@ -275,7 +278,7 @@ export default function DashboardPage() {
                 <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
                 {t.dashboard.cancelCheckAll ?? "Cancel"}
               </Button>
-            ) : (
+            ) : readOnly ? null : (
               <Button
                 onClick={handleCheckAll}
                 size="sm"
@@ -330,7 +333,7 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-3">
                 <div id="printable-table" className="w-full">
-                  <ItemsTable items={items} onRefresh={fetchItems} />
+                  <ItemsTable items={items} onRefresh={fetchItems} readOnly={readOnly} />
                 </div>
                 <PaginationControls
                   page={page}

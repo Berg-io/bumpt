@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Read package.json version
         id: package-version
@@ -69,9 +69,11 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.GHCR_COMMUNITY_IMAGE }}
+          # Stable tags only move on a release tag; pushes to main publish "edge".
           tags: |
-            type=raw,value=latest
-            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=edge,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha
           labels: |
             org.opencontainers.image.source=https://github.com/Berg-io/bumpt
@@ -82,8 +84,9 @@ jobs:
         with:
           images: ${{ env.DOCKERHUB_COMMUNITY_IMAGE }}
           tags: |
-            type=raw,value=latest
-            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=edge,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha
 
       - name: Build and push Community image

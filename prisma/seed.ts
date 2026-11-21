@@ -699,9 +699,9 @@ async function main() {
       currentVersion: "120.0.6099.130",
       latestVersion: "121.0.6167.85",
       checkMethod: "api",
-      checkConfig: JSON.stringify({ source: "github", repo: "AChromium/AChromium-browser" }),
-      sourceId: githubSource.id,
-      sourceParams: JSON.stringify({ repo: "AChromium/AChromium-browser" }),
+      checkConfig: JSON.stringify({ source: "chrome", platform: "win64", channel: "stable" }),
+      sourceId: chromeSource.id,
+      sourceParams: JSON.stringify({ platform: "win64", channel: "stable" }),
       status: "outdated",
     },
     {
@@ -732,7 +732,7 @@ async function main() {
       currentVersion: "22.04.3 LTS",
       latestVersion: "24.04 LTS",
       checkMethod: "manual",
-      status: "critical",
+      status: "outdated",
     },
     {
       name: "Node.js",

@@ -1,4 +1,5 @@
 import type { VersionCheckResult } from "./types";
+import { pickLatestInBranch } from "@/lib/version-utils";
 
 interface PyPIVulnerability {
   id: string;
@@ -25,7 +26,7 @@ interface PyPIResponse {
   vulnerabilities?: PyPIVulnerability[];
 }
 
-export async function checkPyPI(packageName: string): Promise<VersionCheckResult> {
+export async function checkPyPI(packageName: string, branch?: string): Promise<VersionCheckResult> {
   if (!packageName) return { version: null };
 
   try {
@@ -40,7 +41,10 @@ export async function checkPyPI(packageName: string): Promise<VersionCheckResult
     const data = (await res.json()) as PyPIResponse;
     if (!data.info?.version) return { version: null };
 
-    const version = data.info.version;
+    const version = branch?.trim()
+      ? pickLatestInBranch(Object.keys(data.releases ?? {}), branch)
+      : data.info.version;
+    if (!version) return { version: null };
 
     const vulnIds = data.vulnerabilities
       ?.map((v) => v.id)

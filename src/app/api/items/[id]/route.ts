@@ -43,7 +43,7 @@ export const GET = withAuth(
 
     return NextResponse.json({ ...item, tags: parsedTags });
   },
-  { roles: ["ADMIN"] }
+  { roles: ["VIEWER"] }
 );
 
 export const PUT = withAuth(

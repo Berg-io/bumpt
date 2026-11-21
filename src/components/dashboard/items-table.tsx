@@ -45,6 +45,7 @@ interface MonitoredItem {
   checkMethod: string;
   status: string;
   lastChecked: string | null;
+  lastCheckError?: string | null;
   releaseNotes?: string | null;
   cves?: string | null;
   eolDate?: string | null;
@@ -60,6 +61,8 @@ interface MonitoredItem {
 interface ItemsTableProps {
   items: MonitoredItem[];
   onRefresh: () => void;
+  /** Read-only users (VIEWER) do not get the check / acknowledge buttons. */
+  readOnly?: boolean;
 }
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -152,7 +155,7 @@ function compareItems(a: MonitoredItem, b: MonitoredItem, key: SortKey, dir: Sor
   return dir === "asc" ? cmp : -cmp;
 }
 
-export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
+export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTableProps) {
   const [checkingId, setCheckingId] = useState<string | null>(null);
   const [acknowledgingId, setAcknowledgingId] = useState<string | null>(null);
   const [detailItemId, setDetailItemId] = useState<string | null>(null);
@@ -262,7 +265,94 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
   );
 
   return (
-    <div className="overflow-x-auto">
+    <div>
+      {/* Phones: one card per item instead of a table that needs horizontal scrolling. */}
+      <ul className="divide-y md:hidden print:hidden">
+        {sortedItems.map((item) => {
+          const cveCount = parseCveCount(item.cves);
+          const displayStatus = getDisplayStatus(item);
+          const outdated = item.latestVersion && item.currentVersion && item.currentVersion !== item.latestVersion;
+          return (
+            <li key={item.id}>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setDetailItemId(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setDetailItemId(item.id);
+                  }
+                }}
+                className="flex flex-col gap-2 px-4 py-3 active:bg-muted/50 cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="shrink-0 text-muted-foreground">
+                      {typeIcons[item.type] || <Package className="h-4 w-4" />}
+                    </span>
+                    <span className="truncate font-medium">{item.name}</span>
+                    {cveCount > 0 && (
+                      <Badge variant="critical" className="shrink-0 text-[10px] px-1.5 py-0 [&>span:first-child]:hidden !gap-1">
+                        <Shield className="h-3 w-3 mr-0.5" />
+                        {cveCount}
+                      </Badge>
+                    )}
+                  </div>
+                  <Badge variant={statusVariants[displayStatus] || "default"} className="shrink-0">
+                    {statusLabel(displayStatus)}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 truncate text-sm">
+                    {outdated ? (
+                      <>
+                        <code>{item.currentVersion}</code>
+                        <span className="text-muted-foreground"> → </span>
+                        <code>{item.latestVersion}</code>
+                      </>
+                    ) : (
+                      <code>{item.currentVersion || item.latestVersion || "—"}</code>
+                    )}
+                  </span>
+                  <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+                    {item.lastCheckError && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label={item.lastCheckError} />}
+                    {formatDate(item.lastChecked)}
+                  </span>
+                </div>
+                {!readOnly && (
+                  <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                    {item.checkMethod !== "manual" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCheck(item.id)}
+                        disabled={checkingId === item.id}
+                      >
+                        <RefreshCw className={cn("h-4 w-4 mr-1", checkingId === item.id && "animate-spin")} />
+                        {t.dashboard.checkNow}
+                      </Button>
+                    )}
+                    {item.status !== "up_to_date" && outdated && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAcknowledge(item.id)}
+                        disabled={acknowledgingId === item.id}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-1 text-green-600 dark:text-green-400" />
+                        {t.dashboard.acknowledge}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="hidden overflow-x-auto md:block print:block">
       <table className="w-full">
         <thead>
           <tr className="border-b text-left text-sm text-muted-foreground">
@@ -368,13 +458,22 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
                 </div>
               </td>
               <td className="py-3 pr-4 hidden md:table-cell">
-                <span className="text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                  {item.lastCheckError && (
+                    <span
+                      title={`${t.logs.actions["item.check_failed"]}: ${item.lastCheckError}`}
+                      aria-label={`${t.logs.actions["item.check_failed"]}: ${item.lastCheckError}`}
+                      className="inline-flex text-amber-500"
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                    </span>
+                  )}
                   {formatDate(item.lastChecked)}
                 </span>
               </td>
               <td className="py-3 print-hide-action">
                 <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                  {item.checkMethod !== "manual" && (
+                  {!readOnly && item.checkMethod !== "manual" && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -390,7 +489,7 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
                       />
                     </Button>
                   )}
-                  {item.status !== "up_to_date" && item.latestVersion && item.currentVersion !== item.latestVersion && (
+                  {!readOnly && item.status !== "up_to_date" && item.latestVersion && item.currentVersion !== item.latestVersion && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -413,6 +512,7 @@ export function ItemsTable({ items, onRefresh }: ItemsTableProps) {
           })}
         </tbody>
       </table>
+      </div>
       <ItemDetailModal
         open={!!detailItemId}
         onClose={() => setDetailItemId(null)}

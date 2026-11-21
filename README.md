@@ -25,9 +25,10 @@ Change the default password immediately after first login.
 
 | Feature | Community | Professional |
 |---|---|---|
-| Monitored items | Up to 25 | Unlimited |
-| Check sources | 43 built-in | 43 built-in |
+| Monitored items | Up to 25 (disabled items included) | Unlimited |
+| Check sources | 43 (41 built-in + JSON API + HTML scraper) | 43 |
 | Dashboard + TV/NOC mode | Yes | Yes |
+| Audit logs | Yes | Yes |
 | Release metadata + CVE enrichment | Yes | Yes |
 | CSV export / print | Yes | Yes |
 | Languages | 13 | 13 |
@@ -39,17 +40,17 @@ Change the default password immediately after first login.
 | REST API + API keys | No | Yes |
 | MCP server | No | Yes |
 
-To enable Professional features, set:
+### Upgrading to Professional
 
-```env
-LICENSE_KEY="your_signed_license_key_here"
-```
+The Community image does not contain the Professional features. After purchasing
+on [bum.pt](https://bum.pt) you receive:
 
-Then restart:
+1. a license key by e-mail;
+2. access to the private `bergstudioapp/bumpt-pro-dist` repository on your GitHub account, with the
+   Docker Compose file and installation steps for the Professional image.
 
-```bash
-docker compose restart
-```
+Your data stays in the same volume: point `BUMPT_IMAGE` to the Professional image, set
+`LICENSE_KEY`, then run `docker compose up -d`.
 
 ## What bum.pt does
 
@@ -93,8 +94,6 @@ Copy `.env.example` to `.env`, then configure as needed.
 ```env
 DB_TYPE=sqlite
 DATABASE_URL=file:/app/data/production.db
-JWT_SECRET=change_me
-CRON_SECRET=change_me
 ADMIN_EMAIL=admin@bumpt.local
 ADMIN_PASSWORD=change_me
 ```
@@ -104,19 +103,24 @@ ADMIN_PASSWORD=change_me
 - App:
   - `NEXT_PUBLIC_APP_NAME`
   - `APP_LANGUAGE`
-  - `APP_PORT`
+  - `APP_URL` (public URL, used for SSO redirects)
+  - `APP_PORT`, `APP_BIND` (direct HTTP port, bound to `127.0.0.1` by default; use Caddy)
   - `SEED_DEMO_DATA`
 - Database:
   - `DB_TYPE` (`sqlite`, `postgresql`, `mariadb`, `mssql`)
   - `DATABASE_URL`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL`
 - Security and auth:
-  - `JWT_SECRET`, `JWT_EXPIRY`, `BCRYPT_SALT_ROUNDS`, `STRICT_ENV_VALIDATION`
-- Checks and rate limits:
-  - `CRON_SECRET`, `CRON_SCHEDULE`, `RATE_LIMIT_MAX`
+  - `JWT_SECRET` (generated and stored in the data volume when left empty), `JWT_EXPIRY`, `BCRYPT_SALT_ROUNDS`, `STRICT_ENV_VALIDATION`
+  - `CORS_ALLOWED_ORIGINS` (empty = same origin only), `OUTBOUND_ALLOW_LOCAL`
+- Scheduled checks (built into the app, no separate cron container):
+  - `CRON_SCHEDULE`, `REPORTS_SCHEDULE`, `SCHEDULER_ENABLED`
+  - `CRON_SECRET` (only to call `/api/cron/*` from outside; generated when empty)
+  - `RATE_LIMIT_MAX`
 - Reverse proxy:
   - `CADDY_DOMAIN`, `CADDY_HTTP_PORT`, `CADDY_HTTPS_PORT`, `CADDY_TLS_EMAIL`
 - Optional provider keys:
-  - `GITHUB_TOKEN`, `GITLAB_TOKEN`, `WINGET_API_KEY`, `NVD_API_KEY`, `LIBRARIES_IO_API_KEY`
+  - `GITHUB_TOKEN`, `GITLAB_TOKEN`, `WINGET_API_KEY`, `NVD_API_KEY`
+  - `LIBRARIES_IO_API_KEY` (required by the Libraries.io source, paid service)
 
 ### Professional-only options
 
@@ -203,12 +207,15 @@ docker compose exec mariadb mariadb-dump -u bumpt -p bumpt > backup-$(date +%Y%m
 ## Update flow
 
 ```bash
-docker compose down
-docker compose build --no-cache
-docker compose up -d
+docker compose pull
+docker compose up -d --remove-orphans
 ```
 
-Migrations are applied automatically during startup.
+`--remove-orphans` removes the former `cron` (Ofelia) container: scheduled checks now run inside the app.
+
+Migrations are applied automatically during startup. Back up your data first (see above). With PostgreSQL or MariaDB, the container refuses to start when a schema change would delete data; set `PRISMA_ACCEPT_DATA_LOSS=true` once if the change is expected.
+
+`latest` only moves on releases. Pushes to `main` publish the `edge` tag, for testing only.
 
 ## Release flow (SemVer)
 

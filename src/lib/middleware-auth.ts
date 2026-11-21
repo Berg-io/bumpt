@@ -2,6 +2,7 @@ import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { verifyToken, AUTH_COOKIE_NAME, hasRole } from "./auth";
 import { validateApiKey } from "./api-keys";
+import { prisma } from "./prisma";
 import type { JWTPayload, UserRole } from "@/types";
 
 interface AuthOptions {
@@ -12,6 +13,24 @@ type RouteHandler = (
   request: Request,
   context: { params: Promise<Record<string, string>>; user: JWTPayload }
 ) => Promise<Response>;
+
+/**
+ * A JWT stays valid until it expires, so re-read the account: a deleted user
+ * loses access immediately and a role change applies to the next request.
+ */
+async function refreshFromDatabase(payload: JWTPayload | null): Promise<JWTPayload | null> {
+  if (!payload?.id) return null;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id },
+      select: { id: true, email: true, role: true },
+    });
+    if (!user) return null;
+    return { ...payload, email: user.email, role: user.role as UserRole };
+  } catch {
+    return null;
+  }
+}
 
 async function resolveUser(): Promise<JWTPayload | null> {
   const headerStore = await headers();
@@ -25,14 +44,14 @@ async function resolveUser(): Promise<JWTPayload | null> {
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.slice(7);
     const user = verifyToken(token);
-    if (user) return user;
+    if (user) return refreshFromDatabase(user);
     return validateApiKey(token);
   }
 
   const cookieStore = await cookies();
   const cookieToken = cookieStore.get(AUTH_COOKIE_NAME)?.value;
   if (cookieToken) {
-    return verifyToken(cookieToken);
+    return refreshFromDatabase(verifyToken(cookieToken));
   }
 
   return null;

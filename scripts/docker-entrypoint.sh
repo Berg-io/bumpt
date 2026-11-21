@@ -15,11 +15,18 @@ if [ "$NODE_ENV" = "production" ]; then
   INSECURE=""
   STRICT_ENV_VALIDATION="${STRICT_ENV_VALIDATION:-false}"
   if [ -z "$JWT_SECRET" ] || [ "$JWT_SECRET" = "change-this-to-a-secure-random-string-in-production" ] || [ "$JWT_SECRET" = "please-change-this-secret-in-production" ] || [ "$JWT_SECRET" = "fallback-dev-secret" ]; then
-    INSECURE="${INSECURE}  - JWT_SECRET is missing or insecure\n"
+    # A publicly known JWT secret lets anyone forge an admin session.
+    # Generate a random one once and keep it in the data volume so sessions survive restarts.
+    JWT_SECRET_FILE="/app/data/.jwt_secret"
+    if [ ! -s "$JWT_SECRET_FILE" ]; then
+      (umask 077 && node -e "process.stdout.write(require('crypto').randomBytes(48).toString('hex'))" > "$JWT_SECRET_FILE")
+      echo "JWT_SECRET was missing or a default value: generated a random one in $JWT_SECRET_FILE"
+    fi
+    JWT_SECRET="$(cat "$JWT_SECRET_FILE")"
+    export JWT_SECRET
   fi
-  if [ -z "$CRON_SECRET" ] || [ "$CRON_SECRET" = "change-this-to-a-secure-random-string-in-production" ] || [ "$CRON_SECRET" = "please-change-this-cron-secret" ]; then
-    INSECURE="${INSECURE}  - CRON_SECRET is missing or insecure\n"
-  fi
+  # CRON_SECRET: when missing or a default, the built-in scheduler generates one
+  # at startup (src/lib/scheduler.ts), so it is no longer reported here.
   if [ -z "$ADMIN_PASSWORD" ] || [ "$ADMIN_PASSWORD" = "admin123" ] || [ "$ADMIN_PASSWORD" = "change-this-admin-password-in-production" ]; then
     INSECURE="${INSECURE}  - ADMIN_PASSWORD is missing or insecure\n"
   fi
@@ -76,16 +83,35 @@ if [ "$PRISMA_PROVIDER" != "sqlite" ]; then
   echo "[1/3] Waiting for database to be ready..."
   RETRIES=0
   MAX_RETRIES=30
-  until npx prisma db push --accept-data-loss > /dev/null 2>&1 || [ "$RETRIES" -ge "$MAX_RETRIES" ]; do
+  # Never drop data silently on upgrade: --accept-data-loss is only passed when
+  # the operator explicitly sets PRISMA_ACCEPT_DATA_LOSS=true (after a backup).
+  PUSH_FLAGS=""
+  if [ "${PRISMA_ACCEPT_DATA_LOSS:-false}" = "true" ]; then
+    PUSH_FLAGS="--accept-data-loss"
+  fi
+  while true; do
+    set +e
+    PUSH_OUTPUT="$(npx prisma db push $PUSH_FLAGS 2>&1)"
+    PUSH_STATUS=$?
+    set -e
+    if [ "$PUSH_STATUS" -eq 0 ]; then
+      break
+    fi
+    if echo "$PUSH_OUTPUT" | grep -qiE "data loss|accept-data-loss"; then
+      echo "$PUSH_OUTPUT"
+      echo "ERROR: applying the schema would delete data. Back up the database, then"
+      echo "       restart with PRISMA_ACCEPT_DATA_LOSS=true if the change is expected."
+      exit 1
+    fi
     RETRIES=$((RETRIES + 1))
+    if [ "$RETRIES" -ge "$MAX_RETRIES" ]; then
+      echo "$PUSH_OUTPUT" | tail -5
+      echo "ERROR: Database not reachable after $MAX_RETRIES retries. Aborting."
+      exit 1
+    fi
     echo "      Database not ready yet... retry $RETRIES/$MAX_RETRIES"
     sleep 2
   done
-
-  if [ "$RETRIES" -ge "$MAX_RETRIES" ]; then
-    echo "ERROR: Database not reachable after $MAX_RETRIES retries. Aborting."
-    exit 1
-  fi
 
   echo "      Database schema synced."
 else
@@ -137,6 +163,21 @@ else
   }
 
   run_sqlite_migrations
+
+  # Safety net for databases whose schema drifted from the migration history
+  # (Community releases used to rewrite their single baseline migration, so
+  # columns added later were never created on existing installs). Without
+  # --accept-data-loss, `db push` only applies changes that keep data;
+  # otherwise it fails and we leave the database as it is.
+  echo "      Checking for missing columns..."
+  set +e
+  REPAIR_OUTPUT="$(npx prisma db push 2>&1)"
+  REPAIR_STATUS=$?
+  set -e
+  if [ "$REPAIR_STATUS" -ne 0 ]; then
+    echo "$REPAIR_OUTPUT" | tail -5
+    echo "      WARNING: schema check could not be applied automatically (see above)."
+  fi
 fi
 
 echo "[2/3] Running database seed (sources, admin, settings)..."

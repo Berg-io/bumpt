@@ -14,6 +14,7 @@
 import * as cheerio from "cheerio";
 import type { VersionCheckResult } from "./types";
 import { extractCves } from "./types";
+import { safeFetch } from "@/lib/outbound-url";
 
 function resolveTemplate(
   template: string,
@@ -38,7 +39,7 @@ export async function checkHtmlScraper(
 
   try {
     const url = resolveTemplate(config.url, params);
-    const res = await fetch(url, {
+    const res = await safeFetch(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

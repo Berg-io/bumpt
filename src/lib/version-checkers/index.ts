@@ -62,6 +62,7 @@ interface MonitoredItem {
   status: string;
   cves?: string | null;
   rawMetadata?: string | null;
+  lastCheckError?: string | null;
 }
 
 export interface CheckResult {
@@ -114,9 +115,9 @@ export async function resolveVersion(
 ): Promise<VersionCheckResult> {
   switch (sourceType) {
     case "dockerhub":
-      return checkDockerHub(itemParams.image ?? "");
+      return checkDockerHub(itemParams.image ?? "", itemParams.branch);
     case "github":
-      return checkGitHubRelease(itemParams.repo ?? "", itemParams.repoType);
+      return checkGitHubRelease(itemParams.repo ?? "", itemParams.repoType, itemParams.branch);
     case "appstore":
       return checkAppleAppStore(itemParams.bundleId ?? "", itemParams.country ?? "de");
     case "playstore":
@@ -128,9 +129,9 @@ export async function resolveVersion(
     case "endoflife":
       return checkEndOfLife(itemParams.product ?? "", itemParams.currentVersion ?? null);
     case "npm":
-      return checkNpmRegistry(itemParams.package ?? "");
+      return checkNpmRegistry(itemParams.package ?? "", itemParams.branch);
     case "pypi":
-      return checkPyPI(itemParams.package ?? "");
+      return checkPyPI(itemParams.package ?? "", itemParams.branch);
     case "repology":
       return checkRepology(itemParams.project ?? "");
     case "homebrew":
@@ -317,7 +318,29 @@ async function handlePostCheckSecurityState(
   }
 }
 
+/**
+ * Runs a version check and records its outcome on the item, so a failing
+ * connector is visible in the UI instead of the item silently going stale.
+ */
 export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult> {
+  try {
+    const result = await runItemVersionCheck(item);
+    if (item.lastCheckError) {
+      await prisma.monitoredItem
+        .update({ where: { id: item.id }, data: { lastCheckError: null } })
+        .catch(() => {});
+    }
+    return result;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await prisma.monitoredItem
+      .update({ where: { id: item.id }, data: { lastCheckError: message.slice(0, 500) } })
+      .catch(() => {});
+    throw err;
+  }
+}
+
+async function runItemVersionCheck(item: MonitoredItem): Promise<CheckResult> {
   if (item.sourceId) {
     const source = await prisma.checkSource.findUnique({ where: { id: item.sourceId } });
     if (!source) throw new Error(`Check source not found (sourceId: ${item.sourceId})`);
@@ -383,9 +406,9 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
   let result: VersionCheckResult;
 
   if (config.source === "dockerhub" && config.image) {
-    result = await checkDockerHub(config.image);
+    result = await checkDockerHub(config.image, config.branch);
   } else if (config.source === "github" && config.repo) {
-    result = await checkGitHubRelease(config.repo, config.repoType);
+    result = await checkGitHubRelease(config.repo, config.repoType, config.branch);
   } else {
     throw new Error(`Unsupported legacy check configuration for "${item.name}"`);
   }

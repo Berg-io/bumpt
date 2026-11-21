@@ -58,6 +58,7 @@ export function FilterBar({
     { value: "", label: t.items.allStatuses },
     { value: "up_to_date", label: t.items.statuses.up_to_date },
     { value: "outdated", label: t.items.statuses.outdated },
+    { value: "critical", label: t.items.statuses.critical },
     { value: "end_of_life", label: t.itemDetail.eolReached },
   ];
 

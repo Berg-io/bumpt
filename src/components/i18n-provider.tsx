@@ -7,11 +7,16 @@ import {
   DateSettingsContext,
   getTranslation,
   getHtmlLang,
+  SUPPORTED_LOCALES,
   type SupportedLocale,
   type DateSettings,
 } from "@/i18n/config";
 
 const STORAGE_KEY = "app_language";
+
+function isSupportedLocale(value: string): value is SupportedLocale {
+  return (SUPPORTED_LOCALES as readonly string[]).includes(value);
+}
 
 const DEFAULT_DATE_SETTINGS: DateSettings = {
   timezone: "UTC",
@@ -22,9 +27,10 @@ const DEFAULT_DATE_SETTINGS: DateSettings = {
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<SupportedLocale>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem(STORAGE_KEY) as SupportedLocale) || "de";
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored && isSupportedLocale(stored)) return stored;
     }
-    return "de";
+    return "en";
   });
 
   const [dateSettings, setDateSettings] = useState<DateSettings>(DEFAULT_DATE_SETTINGS);
@@ -43,16 +49,16 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     async function fetchSettings() {
       try {
-        const res = await fetch("/api/settings");
+        // Public endpoint: works on the login page and for non-super-admin users.
+        const res = await fetch("/api/app-config");
         if (!res.ok) return;
-        const data = await res.json();
-        const s = data.settings;
+        const s = await res.json();
         if (!cancelled && s) {
-          if (s.app_language) setLocale(s.app_language as SupportedLocale);
+          if (s.language && isSupportedLocale(s.language)) setLocale(s.language);
           setDateSettings({
-            timezone: s.app_timezone || DEFAULT_DATE_SETTINGS.timezone,
-            dateFormat: s.app_date_format || DEFAULT_DATE_SETTINGS.dateFormat,
-            timeFormat: s.app_time_format || DEFAULT_DATE_SETTINGS.timeFormat,
+            timezone: s.timezone || DEFAULT_DATE_SETTINGS.timezone,
+            dateFormat: s.dateFormat || DEFAULT_DATE_SETTINGS.dateFormat,
+            timeFormat: s.timeFormat || DEFAULT_DATE_SETTINGS.timeFormat,
           });
         }
       } catch {

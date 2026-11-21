@@ -55,13 +55,15 @@ export const updateItemSchema = z.object({
 export const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  role: z.enum(["SUPER_ADMIN", "ADMIN"]).default("ADMIN"),
+  role: z.enum(["SUPER_ADMIN", "ADMIN", "VIEWER"]).default("ADMIN"),
 });
 
 export const updateUserSchema = z.object({
   email: z.string().email().optional(),
   password: z.string().min(8).optional(),
-  role: z.enum(["SUPER_ADMIN", "ADMIN"]).optional(),
+  role: z.enum(["SUPER_ADMIN", "ADMIN", "VIEWER"]).optional(),
+  /** Super admins can turn off two-factor authentication for a user who lost their device. */
+  mfaEnabled: z.literal(false).optional(),
 });
 
 export const createSourceSchema = z.object({

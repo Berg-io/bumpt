@@ -12,6 +12,7 @@
 
 import type { VersionCheckResult } from "./types";
 import { extractCves } from "./types";
+import { safeFetch } from "@/lib/outbound-url";
 
 function resolveTemplate(
   template: string,
@@ -50,7 +51,7 @@ export async function checkJsonApi(
 
   try {
     const url = resolveTemplate(config.url, params);
-    const res = await fetch(url, {
+    const res = await safeFetch(url, {
       headers: {
         Accept: "application/json",
         ...(config.headers ?? {}),

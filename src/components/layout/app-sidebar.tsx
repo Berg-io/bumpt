@@ -16,6 +16,7 @@ import {
   ArrowUpCircle,
   Calendar,
   BookOpen,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useAuth } from "@/hooks/use-auth";
@@ -48,11 +49,13 @@ export function AppSidebar() {
       href: "/admin/items",
       label: t.nav.items,
       icon: <Package className="h-5 w-5" />,
+      roles: ["SUPER_ADMIN", "ADMIN"],
     },
     {
       href: "/admin/sources",
       label: t.nav.sources,
       icon: <Plug className="h-5 w-5" />,
+      roles: ["SUPER_ADMIN", "ADMIN"],
     },
     {
       href: "/admin/users",
@@ -64,6 +67,7 @@ export function AppSidebar() {
       href: "/admin/logs",
       label: t.nav.logs,
       icon: <FileText className="h-5 w-5" />,
+      roles: ["SUPER_ADMIN", "ADMIN"],
     },
     {
       href: "/admin/reports",
@@ -77,6 +81,11 @@ export function AppSidebar() {
       label: t.nav.settings,
       icon: <Settings className="h-5 w-5" />,
       roles: ["SUPER_ADMIN"],
+    },
+    {
+      href: "/account",
+      label: t.nav.account,
+      icon: <UserCog className="h-5 w-5" />,
     },
   ];
 
@@ -140,7 +149,9 @@ export function AppSidebar() {
         {showLabels && user && (
           <div className="mb-2 px-3 py-1">
             <p className="text-sm font-medium truncate">{user.email}</p>
-            <p className="text-xs text-muted-foreground">{user.role}</p>
+            <p className="text-xs text-muted-foreground">
+              {t.users.roles[user.role as keyof typeof t.users.roles] || user.role}
+            </p>
           </div>
         )}
         <button
