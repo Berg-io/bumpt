@@ -1,96 +1,4 @@
 import { NextResponse } from "next/server";
-import { proOpenApiPaths, proOpenApiSchemas, proOpenApiSecuritySchemes, proOpenApiTags } from "@/pro/openapi";
-
-const errorResponse = (description: string) => ({
-  description,
-  content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
-});
-
-const timelinePaths = {
-  "/api/timeline": {
-    get: {
-      tags: ["Timeline"],
-      summary: "CVE events of the monitored items",
-      description:
-        "CVE published, detected on the installed version, added to CISA KEV and resolved, newest first. Only items with monitoring enabled. At most 500 events are returned (truncated = true when more match). Every role, VIEWER included.",
-      parameters: [
-        { name: "days", in: "query", schema: { type: "integer", enum: [7, 30, 90, 365, 0], default: 90 }, description: "Period in days, 0 = all time" },
-        { name: "types", in: "query", schema: { type: "string" }, description: "Comma-separated event types: published, detected, kev, resolved" },
-        { name: "severity", in: "query", schema: { type: "string" }, description: "Comma-separated severities: CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN" },
-        { name: "itemId", in: "query", schema: { type: "string" }, description: "Only this item" },
-        { name: "kevOnly", in: "query", schema: { type: "boolean" }, description: "Only CVEs listed in CISA KEV" },
-        { name: "openOnly", in: "query", schema: { type: "boolean" }, description: "Only CVEs not resolved yet" },
-        { name: "search", in: "query", schema: { type: "string" }, description: "Search on the CVE id or the item name" },
-      ],
-      responses: {
-        "200": {
-          description: "Timeline events and counters",
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  days: { type: "integer" },
-                  total: { type: "integer" },
-                  truncated: { type: "boolean" },
-                  events: { type: "array", items: { $ref: "#/components/schemas/TimelineEvent" } },
-                  stats: {
-                    type: "object",
-                    properties: {
-                      openCount: { type: "integer" },
-                      openKev: { type: "integer" },
-                      openCritical: { type: "integer" },
-                      monitoredWithCves: { type: "integer" },
-                      resolvedInPeriod: { type: "integer" },
-                    },
-                  },
-                  items: {
-                    type: "array",
-                    items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" } } },
-                  },
-                },
-              },
-            },
-          },
-        },
-        "401": errorResponse("Not authenticated"),
-      },
-    },
-  },
-};
-
-const timelineSchemas = {
-  TimelineEvent: {
-    type: "object",
-    properties: {
-      id: { type: "string" },
-      type: { type: "string", enum: ["published", "detected", "kev", "resolved"] },
-      date: { type: "string", format: "date-time" },
-      cveId: { type: "string", example: "CVE-2025-23083" },
-      summary: { type: "string", nullable: true },
-      severity: { type: "string", nullable: true, enum: ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
-      cvssScore: { type: "number", nullable: true },
-      epss: { type: "number", nullable: true, description: "FIRST EPSS probability (0 to 1)" },
-      isKev: { type: "boolean", description: "Listed in CISA Known Exploited Vulnerabilities" },
-      knownRansomware: { type: "boolean" },
-      kevDueDate: { type: "string", format: "date-time", nullable: true },
-      fixedVersion: { type: "string", nullable: true },
-      affectedVersion: { type: "string", nullable: true },
-      resolvedInVersion: { type: "string", nullable: true },
-      open: { type: "boolean" },
-      item: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          name: { type: "string" },
-          type: { type: "string" },
-          currentVersion: { type: "string", nullable: true },
-        },
-      },
-    },
-  },
-};
-
 
 const spec = {
   openapi: "3.1.0",
@@ -123,11 +31,8 @@ const spec = {
         bearerFormat: "JWT",
         description: "JWT token obtained via POST /api/auth/login",
       },
-      ...proOpenApiSecuritySchemes,
     },
     schemas: {
-      ...timelineSchemas,
-      ...proOpenApiSchemas,
       Error: {
         type: "object",
         properties: {
@@ -428,8 +333,6 @@ const spec = {
     },
   },
   paths: {
-    ...timelinePaths,
-    ...proOpenApiPaths,
     "/api/health": {
       get: {
         tags: ["Health"],
@@ -988,8 +891,6 @@ const spec = {
     { name: "API Keys", description: "API key management (SUPER_ADMIN)" },
     { name: "Webhooks", description: "Webhook management and delivery logs" },
     { name: "Reports", description: "Scheduled reports management (Professional)" },
-    { name: "Timeline", description: "CVE history of the monitored items" },
-    ...proOpenApiTags,
   ],
 };
 
