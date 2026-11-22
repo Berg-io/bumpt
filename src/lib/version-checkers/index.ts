@@ -127,7 +127,7 @@ export async function resolveVersion(
     case "chrome":
       return checkChromeVersion(itemParams.platform ?? "win64", itemParams.channel ?? "stable");
     case "endoflife":
-      return checkEndOfLife(itemParams.product ?? "", itemParams.currentVersion ?? null);
+      return checkEndOfLife(itemParams.product ?? "", itemParams.currentVersion ?? null, itemParams.sameCycle === "true");
     case "npm":
       return checkNpmRegistry(itemParams.package ?? "", itemParams.branch);
     case "pypi":

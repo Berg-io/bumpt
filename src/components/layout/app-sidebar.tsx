@@ -17,6 +17,7 @@ import {
   Calendar,
   BookOpen,
   UserCog,
+  Server,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useAuth } from "@/hooks/use-auth";
@@ -29,6 +30,8 @@ interface NavItem {
   icon: React.ReactNode;
   roles?: string[];
   licenseFeature?: "reportsEnabled" | "webhooksEnabled" | "apiKeysEnabled" | "ssoEnabled" | "aiEnabled";
+  /** Shown only with a valid Professional license. */
+  professionalOnly?: boolean;
 }
 
 export function AppSidebar() {
@@ -56,6 +59,13 @@ export function AppSidebar() {
       label: t.nav.sources,
       icon: <Plug className="h-5 w-5" />,
       roles: ["SUPER_ADMIN", "ADMIN"],
+    },
+    {
+      href: "/admin/agents",
+      label: t.nav.agents,
+      icon: <Server className="h-5 w-5" />,
+      roles: ["SUPER_ADMIN", "ADMIN"],
+      professionalOnly: true,
     },
     {
       href: "/admin/users",
@@ -92,6 +102,7 @@ export function AppSidebar() {
   const filteredItems = navItems.filter((item) => {
     if (item.roles && (!user || !item.roles.includes(user.role))) return false;
     if (item.licenseFeature && !license?.[item.licenseFeature]) return false;
+    if (item.professionalOnly && !(license?.valid && license.edition === "professional")) return false;
     return true;
   });
 

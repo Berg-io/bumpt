@@ -40,6 +40,8 @@ export const GET = withAuth(
     const monitoringEnabled = searchParams.get("monitoringEnabled");
 
     const tags = searchParams.get("tags");
+    // Items created by collection agents carry the "agent" tag.
+    const origin = searchParams.get("origin");
 
     const where: Record<string, unknown> = {};
     if (type) where.type = type;
@@ -74,6 +76,11 @@ export const GET = withAuth(
       } else {
         where.OR = searchClause.OR;
       }
+    }
+    if (origin === "agent" || origin === "manual") {
+      const agentClause = { tags: { contains: '"agent"' } };
+      const existingAnd = Array.isArray(where.AND) ? where.AND : [];
+      where.AND = [...existingAnd, origin === "agent" ? agentClause : { OR: [{ tags: null }, { NOT: agentClause }] }];
     }
     if (tags) {
       const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);

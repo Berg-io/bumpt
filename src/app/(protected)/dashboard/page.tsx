@@ -13,6 +13,7 @@ import { PaginationControls } from "@/components/ui/pagination-controls";
 import { useTranslation } from "@/i18n/config";
 import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useLicense } from "@/hooks/use-license";
 import { exportToCsv } from "@/utils/csv";
 import {
   isItemAtRisk,
@@ -53,6 +54,9 @@ export default function DashboardPage() {
   const [selectedPageSize, setSelectedPageSize] = useState<number | "all" | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState("");
+  const [filterOrigin, setFilterOrigin] = useState("");
+  const { license } = useLicense();
+  const agentsAvailable = !!license?.valid && license.edition === "professional";
   const [filterStatus, setFilterStatus] = useState("");
   const [search, setSearch] = useState("");
   const [checkingAll, setCheckingAll] = useState(false);
@@ -72,6 +76,7 @@ export default function DashboardPage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (filterType) params.set("type", filterType);
+    if (filterOrigin) params.set("origin", filterOrigin);
     if (filterStatus === "critical") {
       params.set("riskState", "at_risk");
     } else if (filterStatus) {
@@ -98,7 +103,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [filterType, filterStatus, search, page, selectedPageSize]);
+  }, [filterType, filterOrigin, filterStatus, search, page, selectedPageSize]);
 
   useEffect(() => {
     fetchItems();
@@ -106,7 +111,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [filterType, filterStatus, search]);
+  }, [filterType, filterOrigin, filterStatus, search]);
 
   useEffect(() => {
     const interval = setInterval(fetchItems, 60000);
@@ -324,6 +329,8 @@ export default function DashboardPage() {
                 }}
                 onExportCsv={handleExportCsv}
                 onPrint={handlePrint}
+                origin={filterOrigin}
+                onOriginChange={agentsAvailable ? (value) => { setFilterOrigin(value); setPage(1); } : undefined}
               />
             </div>
             {loading ? (

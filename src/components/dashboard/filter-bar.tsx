@@ -18,6 +18,9 @@ interface FilterBarProps {
   availableTags?: string[];
   selectedTags?: string[];
   onTagsChange?: (tags: string[]) => void;
+  /** Origin filter ("" all, "manual", "agent"); shown only when onOriginChange is set. */
+  origin?: string;
+  onOriginChange?: (origin: string) => void;
 }
 
 export function FilterBar({
@@ -32,6 +35,8 @@ export function FilterBar({
   availableTags = [],
   selectedTags = [],
   onTagsChange,
+  origin = "",
+  onOriginChange,
 }: FilterBarProps) {
   const t = useTranslation();
 
@@ -86,6 +91,19 @@ export function FilterBar({
         onChange={(e) => onStatusChange(e.target.value)}
         className="w-full sm:w-40"
       />
+      {onOriginChange && (
+        <Select
+          aria-label={t.items.origin}
+          options={[
+            { value: "", label: t.items.allOrigins },
+            { value: "manual", label: t.items.originManual },
+            { value: "agent", label: t.items.originAgent },
+          ]}
+          value={origin}
+          onChange={(e) => onOriginChange(e.target.value)}
+          className="w-full sm:w-40"
+        />
+      )}
       {onTagsChange && availableTags.length > 0 && (
         <Select
           options={[

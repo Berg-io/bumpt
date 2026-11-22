@@ -40,7 +40,33 @@ function findBestCycleMatch(cycles: Cycle[], currentVersion?: string | null): Cy
   return null;
 }
 
-export async function checkEndOfLife(product: string, currentVersion?: string | null): Promise<VersionCheckResult> {
+/**
+ * Cycle the installed version belongs to: "3.11" for 3.11.9, "6.0" for 6.0.16,
+ * "24" for 24.11.1, or the cycle whose latest build prefixes it (Windows
+ * 10.0.26200.9974 belongs to the cycle whose latest is 10.0.26200).
+ */
+export function findInstalledCycle<T extends { cycle: string; latest?: string }>(cycles: T[], currentVersion?: string | null): T | null {
+  const v = (currentVersion ?? "").trim().toLowerCase();
+  if (!v) return null;
+  const byCycle = cycles
+    .filter((c) => {
+      const cy = String(c.cycle).toLowerCase();
+      return v === cy || v.startsWith(`${cy}.`);
+    })
+    .sort((a, b) => String(b.cycle).length - String(a.cycle).length);
+  if (byCycle[0]) return byCycle[0];
+  return (
+    cycles
+      .filter((c) => c.latest && (v === String(c.latest).toLowerCase() || v.startsWith(`${String(c.latest).toLowerCase()}.`)))
+      .sort((a, b) => String(b.latest).length - String(a.latest).length)[0] ?? null
+  );
+}
+
+/**
+ * With sameCycle, the latest version is the latest of the installed cycle
+ * (Python 3.11.x stays compared with 3.11), used for items reported by agents.
+ */
+export async function checkEndOfLife(product: string, currentVersion?: string | null, sameCycle = false): Promise<VersionCheckResult> {
   if (!product) return { version: null };
 
   const url = `https://endoflife.date/api/${encodeURIComponent(product)}.json`;
@@ -58,8 +84,9 @@ export async function checkEndOfLife(product: string, currentVersion?: string | 
     throw new Error(`EndOfLife.date returned no cycles for product "${product}"`);
   }
 
-  const latest = cycles[0];
-  const eolCycle = findBestCycleMatch(cycles, currentVersion) ?? latest;
+  const installed = sameCycle ? findInstalledCycle(cycles, currentVersion) : null;
+  const latest = installed ?? cycles[0];
+  const eolCycle = installed ?? findBestCycleMatch(cycles, currentVersion) ?? latest;
   const version = latest.latest || latest.cycle || null;
 
   const eolValue = eolCycle.eol;

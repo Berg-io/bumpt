@@ -28,9 +28,14 @@ export type AuditAction =
   | "webhook.deleted"
   | "report.created"
   | "report.updated"
-  | "report.deleted";
+  | "report.deleted"
+  | "agent.created"
+  | "agent.updated"
+  | "agent.revoked"
+  | "agent.token_rotated"
+  | "agent.deleted";
 
-export type AuditEntityType = "item" | "user" | "auth" | "source" | "settings" | "database" | "csvdata" | "logs" | "webhook" | "report";
+export type AuditEntityType = "item" | "user" | "auth" | "source" | "settings" | "database" | "csvdata" | "logs" | "webhook" | "report" | "agent";
 
 interface AuditEntry {
   action: AuditAction;
