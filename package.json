@@ -18,7 +18,7 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:studio": "npx prisma studio",
     "test:ai": "tsx --test src/lib/ai-enrichment/**/*.test.ts",
-    "test:unit": "tsx --test src/lib/safe-redirect.test.ts src/lib/version-prerelease.test.ts src/lib/version-utils.test.ts src/lib/item-classification.test.ts src/lib/cors.test.ts src/lib/outbound-url.test.ts src/lib/totp.test.ts src/lib/version-branch.test.ts"
+    "test:unit": "tsx --test src/lib/safe-redirect.test.ts src/lib/version-prerelease.test.ts src/lib/version-utils.test.ts src/lib/item-classification.test.ts src/lib/cors.test.ts src/lib/outbound-url.test.ts src/lib/totp.test.ts src/lib/version-branch.test.ts src/lib/cve-enrichment/version-range.test.ts src/lib/cve-enrichment/nvd.test.ts src/lib/cve-enrichment/settings.test.ts src/lib/timeline/events.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",

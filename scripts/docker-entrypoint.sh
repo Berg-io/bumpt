@@ -75,6 +75,7 @@ if [ "$PRISMA_PROVIDER" != "sqlite" ]; then
   sed -i '/  description.*@map("description")/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
   sed -i '/  cves.*@map("cves")/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
   sed -i '/aiSummary/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
+  sed -i 's/^  summary           String?$/  summary           String?   @db.Text/' /app/prisma/schema/*.prisma
   npx prisma generate 2>&1 | tail -1
 fi
 

@@ -17,6 +17,7 @@ import {
   Calendar,
   BookOpen,
   UserCog,
+  History,
   Server,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -48,6 +49,11 @@ export function AppSidebar() {
       href: "/dashboard",
       label: t.nav.dashboard,
       icon: <LayoutDashboard className="h-5 w-5" />,
+    },
+    {
+      href: "/timeline",
+      label: t.nav.timeline,
+      icon: <History className="h-5 w-5" />,
     },
     {
       href: "/admin/items",

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/middleware-auth";
 import { logAudit } from "@/lib/audit";
+import { resolveFixedVulnerabilities } from "@/lib/cve-enrichment/vulnerability-store";
 import type { JWTPayload } from "@/types";
 
 function isEolPast(eolDate: string | null | undefined): boolean {
@@ -67,6 +68,10 @@ export const POST = withAuth(
         securityState: "no_known_vuln",
         rawMetadata: JSON.stringify(rawMetadata),
       },
+    });
+
+    await resolveFixedVulnerabilities(id, item.latestVersion).catch((error) => {
+      console.warn(`[CVE history] ${item.name}: could not close fixed CVEs:`, error);
     });
 
     if (oldVersion !== item.latestVersion) {
