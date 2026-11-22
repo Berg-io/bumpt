@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const zh: TranslationKeys = {
   common: {
+    accessDenied: "您无权访问此页面。",
+    networkError: "网络错误",
     save: "保存",
     cancel: "取消",
     delete: "删除",
@@ -43,6 +45,9 @@ export const zh: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "展开侧边栏",
+    collapseSidebar: "收起侧边栏",
+    openMenu: "打开菜单",
     dashboard: "仪表盘",
     account: "我的账户",
     items: "监控项",
@@ -55,6 +60,12 @@ export const zh: TranslationKeys = {
     docs: "文档",
   },
   dashboard: {
+    version: "版本",
+    riskColumnHint: "BPT：基于 CVE 和上下文的内部风险评分（0–100）。Ext：外部评分（如 CVSS）。",
+    atRiskFilter: "有风险（存在漏洞或 EOL）",
+    atRiskHint: "存在已知漏洞或已停止支持的项目。颜色表示 BPT 风险评分。",
+    atRisk: "有风险",
+    checkFailed: "检查失败",
     title: "概览",
     subtitle: "所有监控项的状态",
     upToDate: "已更新",
@@ -86,6 +97,12 @@ export const zh: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "例如：HA 对，数据中心 2",
+    note: "备注",
+    statusAuto: "每次检查后自动计算。",
+    latestVersionAuto: "由来源自动填写",
+    provider: "模块/提供方",
+    allMonitoring: "全部（无论是否监控）",
     branchLabel: "跟踪的分支（可选）",
     branchHint: "只有该分支的版本才算作“最新”，例如 PostgreSQL 16.x 填 16，Python 3.11.x 填 3.11。留空 = 最新版本。",
     title: "监控项",
@@ -121,7 +138,7 @@ export const zh: TranslationKeys = {
     statuses: {
       up_to_date: "已更新",
       outdated: "已过期",
-      critical: "严重",
+      critical: "存在漏洞",
     },
     methods: {
       manual: "手动",
@@ -338,6 +355,11 @@ export const zh: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "完全访问权限，包括用户和设置。",
+      ADMIN: "管理项目、来源和日志。无法访问用户和设置。",
+      VIEWER: "只能查看仪表板，不能做任何更改。",
+    },
     title: "用户管理",
     email: "邮箱",
     role: "角色",
@@ -831,11 +853,16 @@ export const zh: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "切换到深色模式",
+    switchToLight: "切换到浅色模式",
     light: "浅色",
     dark: "深色",
     system: "跟随系统",
   },
   account: {
+    mfaRecoveryHint: "请妥善保管此密钥。如果手机丢失，超级管理员可以为您关闭双重验证。",
+    mfaKeyCopied: "密钥已复制",
+    mfaCopyKey: "复制",
     title: "我的账户",
     subtitle: "密码和双重身份验证",
     passwordTitle: "修改密码",

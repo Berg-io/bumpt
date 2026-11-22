@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Plug, Lock, Globe, Zap, FileText, AlertTriangle, FlaskConical } from "lucide-react";
+import { Plus, Pencil, Trash2, Plug, Globe, Zap, FileText, AlertTriangle, FlaskConical, Search } from "lucide-react";
+import Link from "next/link";
 import {
   SiDocker,
   SiGithub,
@@ -170,6 +171,7 @@ export default function AdminSourcesPage() {
   const [editSource, setEditSource] = useState<CheckSource | null>(null);
   const [testSource, setTestSource] = useState<CheckSource | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
   const [configuredKeys, setConfiguredKeys] = useState<Record<string, boolean>>({});
   const t = useTranslation();
   const { toast } = useToast();
@@ -220,7 +222,7 @@ export default function AdminSourcesPage() {
         toast(err.error || "Error", "error");
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     }
     setEditSource(null);
   };
@@ -237,7 +239,7 @@ export default function AdminSourcesPage() {
         toast(err.error || "Error", "error");
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     }
     setDeleteId(null);
   };
@@ -257,20 +259,46 @@ export default function AdminSourcesPage() {
   };
 
   const deleteSource = sources.find((s) => s.id === deleteId);
+  const query = search.trim().toLowerCase();
+  const visibleSources = query
+    ? sources.filter((s) =>
+        [s.name, s.type, s.description ?? ""].some((value) => value.toLowerCase().includes(query))
+      )
+    : sources;
 
   return (
     <>
       <Header
         title={t.sources.title}
         actions={
-          <Button onClick={openCreate} size="sm">
-            <Plus className="h-4 w-4 mr-1" />
-            {t.sources.addSource}
+          <Button onClick={openCreate} size="sm" title={t.sources.addSource} aria-label={t.sources.addSource}>
+            <Plus className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">{t.sources.addSource}</span>
           </Button>
         }
       />
 
-      <div className="flex-1 p-4 lg:p-8">
+      <div className="flex-1 space-y-4 p-4 lg:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative sm:w-80">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={t.common.search}
+              aria-label={t.common.search}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-medium">{t.sources.legend.title}</span>
+            <Badge variant="success" className="text-[10px]">{t.sources.legend.officialStable}</Badge>
+            <Badge variant="info" className="text-[10px]">{t.sources.legend.communityThirdParty}</Badge>
+            <Badge variant="warning" className="text-[10px]">{t.sources.legend.scrapingVariableReliability}</Badge>
+            <Badge variant="outline" className="text-[10px]">{t.sources.legend.manualSource}</Badge>
+          </div>
+        </div>
         <Card>
           <CardContent className="p-0">
             {loading ? (
@@ -288,14 +316,14 @@ export default function AdminSourcesPage() {
                   <thead>
                     <tr className="border-b text-left text-sm text-muted-foreground">
                       <th className="px-4 py-1.5 font-medium">{t.sources.name}</th>
-                      <th className="px-4 py-1.5 font-medium">{t.sources.type}</th>
+                      <th className="px-4 py-1.5 font-medium hidden lg:table-cell">{t.sources.type}</th>
                       <th className="px-4 py-1.5 font-medium hidden md:table-cell">{t.sources.description}</th>
                       <th className="px-4 py-1.5 font-medium hidden sm:table-cell">{t.sources.linkedItems}</th>
                       <th className="px-4 py-1.5 font-medium text-right">{t.common.actions}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sources.map((source) => (
+                    {visibleSources.map((source) => (
                       <tr key={source.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
                         <td className="px-4 py-1.5">
                           <div className="flex items-center gap-2">
@@ -303,21 +331,20 @@ export default function AdminSourcesPage() {
                               {typeIcons[source.type] || <Plug className="h-4 w-4" />}
                             </span>
                             <span className={`font-medium ${isSourceMissingCredentials(source.type) ? "text-muted-foreground" : ""}`}>{source.name}</span>
-                            {source.isBuiltIn && (
-                              <Badge variant="outline" className="text-xs gap-1">
-                                <Lock className="h-3 w-3" />
-                                {t.sources.builtIn}
-                              </Badge>
+                            {!source.isBuiltIn && (
+                              <Badge variant="outline" className="text-xs">{t.sources.custom}</Badge>
                             )}
                             {isSourceMissingCredentials(source.type) && (
-                              <Badge variant="warning" className="text-xs gap-1">
-                                <AlertTriangle className="h-3 w-3" />
-                                {t.sources.credentialsRequired}
-                              </Badge>
+                              <Link href="/admin/settings#apiKeys" title={t.sources.credentialsRequired}>
+                                <Badge variant="warning" className="text-xs gap-1 hover:underline">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  {t.sources.credentialsRequired}
+                                </Badge>
+                              </Link>
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-1.5">
+                        <td className="px-4 py-1.5 hidden lg:table-cell">
                           <Badge variant={typeBadgeVariants[source.type] || "outline"}>
                             {t.sources.types[source.type as keyof typeof t.sources.types] || source.type}
                           </Badge>
@@ -350,15 +377,6 @@ export default function AdminSourcesPage() {
                     ))}
                   </tbody>
                 </table>
-                <div className="border-t px-4 py-3 text-xs text-muted-foreground">
-                  <span className="font-medium mr-2">{t.sources.legend.title}</span>
-                  <span className="inline-flex flex-wrap items-center gap-2">
-                    <Badge variant="success" className="text-[10px]">{t.sources.legend.officialStable}</Badge>
-                    <Badge variant="info" className="text-[10px]">{t.sources.legend.communityThirdParty}</Badge>
-                    <Badge variant="warning" className="text-[10px]">{t.sources.legend.scrapingVariableReliability}</Badge>
-                    <Badge variant="outline" className="text-[10px]">{t.sources.legend.manualSource}</Badge>
-                  </span>
-                </div>
               </div>
             )}
           </CardContent>

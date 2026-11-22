@@ -63,8 +63,10 @@ export function FilterBar({
     { value: "", label: t.items.allStatuses },
     { value: "up_to_date", label: t.items.statuses.up_to_date },
     { value: "outdated", label: t.items.statuses.outdated },
+    { value: "check_failed", label: t.dashboard.checkFailed },
     { value: "critical", label: t.items.statuses.critical },
     { value: "end_of_life", label: t.itemDetail.eolReached },
+    { value: "at_risk", label: t.dashboard.atRiskFilter },
   ];
 
   return (
@@ -76,17 +78,22 @@ export function FilterBar({
           placeholder={t.common.search}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
+          aria-label={t.common.search}
           className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </div>
+      {/* Phones: the two filters share a row instead of taking a full screen. */}
+      <div className="grid grid-cols-2 gap-3 sm:contents">
       <Select
         options={typeOptions}
+        aria-label={t.items.type}
         value={type}
         onChange={(e) => onTypeChange(e.target.value)}
         className="w-full sm:w-40"
       />
       <Select
         options={statusOptions}
+        aria-label={t.items.status}
         value={status}
         onChange={(e) => onStatusChange(e.target.value)}
         className="w-full sm:w-40"
@@ -115,18 +122,21 @@ export function FilterBar({
           className="w-full sm:w-40"
         />
       )}
+      </div>
+      <div className="flex gap-2 sm:contents">
       {onExportCsv && (
-        <Button onClick={onExportCsv} size="sm" variant="outline" className="w-full sm:w-auto">
+        <Button onClick={onExportCsv} size="sm" variant="outline" className="flex-1 sm:flex-none">
           <Download className="h-4 w-4 mr-1" />
           {t.items.exportCsv}
         </Button>
       )}
       {onPrint && (
-        <Button onClick={onPrint} size="sm" variant="outline" className="w-full sm:w-auto">
+        <Button onClick={onPrint} size="sm" variant="outline" className="flex-1 sm:flex-none">
           <Printer className="h-4 w-4 mr-1" />
           {t.items.printTable}
         </Button>
       )}
+      </div>
     </div>
   );
 }

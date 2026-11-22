@@ -86,6 +86,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 const statusVariants: Record<string, "success" | "warning" | "critical"> = {
   up_to_date: "success",
   outdated: "warning",
+  check_failed: "warning",
   critical: "critical",
   end_of_life: "critical",
 };
@@ -191,10 +192,10 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
         onRefresh();
       } else {
         const data = await res.json();
-        toast(`${itemName}: ${data.error || "Check failed"}`, "error");
+        toast(`${itemName}: ${data.error || t.dashboard.checkFailed}`, "error");
       }
     } catch {
-      toast(`${itemName}: Netzwerkfehler`, "error");
+      toast(`${itemName}: ${t.common.networkError}`, "error");
     } finally {
       setCheckingId(null);
     }
@@ -209,10 +210,10 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
         onRefresh();
       } else {
         const data = await res.json();
-        toast(data.error || "Error", "error");
+        toast(data.error || t.common.error, "error");
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     } finally {
       setAcknowledgingId(null);
     }
@@ -226,6 +227,7 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
   const statusLabel = (status: string) => {
     if (status === "critical") return t.items.statuses.critical;
     if (status === "end_of_life") return t.itemDetail.eolReached;
+    if (status === "check_failed") return t.dashboard.checkFailed;
     return t.items.statuses[status as keyof typeof t.items.statuses] || status;
   };
 
@@ -252,22 +254,27 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
     return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
   };
 
-  const ThSortable = ({ col, label, className: cls }: { col: SortKey; label: string; className?: string }) => (
+  const ThSortable = ({ col, label, className: cls, title }: { col: SortKey; label: string; className?: string; title?: string }) => (
     <th
-      className={cn("pb-3 pr-4 font-medium cursor-pointer select-none hover:text-foreground transition-colors", cls)}
-      onClick={() => toggleSort(col)}
+      className={cn("pb-3 pr-4 font-medium select-none", cls)}
+      aria-sort={sortKey === col ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
     >
-      <span className="inline-flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => toggleSort(col)}
+        title={title}
+        className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+      >
         {label}
         <SortIcon col={col} />
-      </span>
+      </button>
     </th>
   );
 
   return (
     <div>
       {/* Phones: one card per item instead of a table that needs horizontal scrolling. */}
-      <ul className="divide-y md:hidden print:hidden">
+      <ul className="divide-y xl:hidden print:hidden">
         {sortedItems.map((item) => {
           const cveCount = parseCveCount(item.cves);
           const displayStatus = getDisplayStatus(item);
@@ -287,11 +294,21 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                 className="flex flex-col gap-2 px-4 py-3 active:bg-muted/50 cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-2">
+                  {/* Names wrap instead of being cut: badges go to the next line when needed. */}
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="shrink-0 text-muted-foreground">
                       {typeIcons[item.type] || <Package className="h-4 w-4" />}
                     </span>
-                    <span className="truncate font-medium">{item.name}</span>
+                    <span className="min-w-0 break-words font-medium">{item.name}</span>
+                    {typeof item.internalScore === "number" && (
+                      <Badge
+                        variant={bptVariants[item.internalSeverity || ""] || "outline"}
+                        className="shrink-0 text-[10px] px-1.5 py-0 font-semibold"
+                        title={t.itemDetail.bptTooltip}
+                      >
+                        {t.itemDetail.bpt} {Math.round(item.internalScore)}
+                      </Badge>
+                    )}
                     {cveCount > 0 && (
                       <Badge variant="critical" className="shrink-0 text-[10px] px-1.5 py-0 [&>span:first-child]:hidden !gap-1">
                         <Shield className="h-3 w-3 mr-0.5" />
@@ -299,7 +316,11 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                       </Badge>
                     )}
                   </div>
-                  <Badge variant={statusVariants[displayStatus] || "default"} className="shrink-0">
+                  <Badge
+                    variant={statusVariants[displayStatus] || "default"}
+                    className="shrink-0"
+                    title={item.lastCheckError ?? undefined}
+                  >
                     {statusLabel(displayStatus)}
                   </Badge>
                 </div>
@@ -352,14 +373,14 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
         })}
       </ul>
 
-      <div className="hidden overflow-x-auto md:block print:block">
+      <div className="hidden overflow-x-auto xl:block print:block">
       <table className="w-full">
         <thead>
           <tr className="border-b text-left text-sm text-muted-foreground">
             <ThSortable col="name" label={t.items.name} className="pl-6" />
-            <ThSortable col="versions" label="Version" />
+            <ThSortable col="versions" label={t.dashboard.version} />
             <ThSortable col="status" label={t.items.status} />
-            <ThSortable col="risk" label={`${t.dashboard.bptShort}/${t.dashboard.extShort}`} className="hidden md:table-cell" />
+            <ThSortable col="risk" label={`${t.dashboard.bptShort}/${t.dashboard.extShort}`} title={t.dashboard.riskColumnHint} className="hidden md:table-cell" />
             <ThSortable col="lastChecked" label={t.items.lastChecked} className="hidden md:table-cell" />
             <th className="pb-3 font-medium w-10 print-hide-action"></th>
           </tr>
@@ -441,7 +462,10 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                 )}
               </td>
               <td className="py-3 pr-4">
-                <Badge variant={statusVariants[displayStatus] || "default"}>
+                <Badge
+                  variant={statusVariants[displayStatus] || "default"}
+                  title={item.lastCheckError ? `${t.dashboard.checkFailed}: ${item.lastCheckError}` : undefined}
+                >
                   {statusLabel(displayStatus)}
                 </Badge>
               </td>

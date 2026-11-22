@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const nl: TranslationKeys = {
   common: {
+    accessDenied: "Je hebt geen toegang tot deze pagina.",
+    networkError: "Netwerkfout",
     save: "Opslaan",
     cancel: "Annuleren",
     delete: "Verwijderen",
@@ -43,6 +45,9 @@ export const nl: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "Zijbalk uitklappen",
+    collapseSidebar: "Zijbalk inklappen",
+    openMenu: "Menu openen",
     dashboard: "Dashboard",
     account: "Mijn account",
     items: "Items",
@@ -55,6 +60,12 @@ export const nl: TranslationKeys = {
     docs: "Documentatie",
   },
   dashboard: {
+    version: "Versie",
+    riskColumnHint: "BPT: interne risicoscore (0–100) op basis van CVE's en context. Ext: externe score (bijv. CVSS).",
+    atRiskFilter: "Risico (kwetsbaar of EOL)",
+    atRiskHint: "Items met bekende kwetsbaarheden of voorbij end-of-life. De kleuren tonen de BPT-risicoscore.",
+    atRisk: "risico",
+    checkFailed: "Controle mislukt",
     title: "Overzicht",
     subtitle: "Status van alle bewaakte items",
     upToDate: "Actueel",
@@ -86,6 +97,12 @@ export const nl: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "bijv. HA-paar, datacenter 2",
+    note: "Notitie",
+    statusAuto: "Wordt na elke controle automatisch berekend.",
+    latestVersionAuto: "Wordt door de bron ingevuld",
+    provider: "Module/Provider",
+    allMonitoring: "Alle (gemonitord of niet)",
     branchLabel: "Gevolgde tak (optioneel)",
     branchHint: "Alleen versies van deze tak tellen als ‘nieuwste’, bijv. 16 voor PostgreSQL 16.x of 3.11 voor Python 3.11.x. Leeg = nieuwste versie.",
     title: "Bewaakte items",
@@ -121,7 +138,7 @@ export const nl: TranslationKeys = {
     statuses: {
       up_to_date: "Actueel",
       outdated: "Verouderd",
-      critical: "Kritiek",
+      critical: "Kwetsbaar",
     },
     methods: {
       manual: "Handmatig",
@@ -338,6 +355,11 @@ export const nl: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Volledige toegang, inclusief gebruikers en instellingen.",
+      ADMIN: "Beheert items, bronnen en logs. Geen toegang tot gebruikers of instellingen.",
+      VIEWER: "Ziet alleen het dashboard. Kan niets wijzigen.",
+    },
     title: "Gebruikersbeheer",
     email: "E-mail",
     role: "Rol",
@@ -831,11 +853,16 @@ export const nl: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "Naar donkere modus",
+    switchToLight: "Naar lichte modus",
     light: "Licht",
     dark: "Donker",
     system: "Systeem",
   },
   account: {
+    mfaRecoveryHint: "Bewaar deze sleutel op een veilige plek. Raak je je telefoon kwijt, dan kan een superbeheerder tweestapsverificatie voor je uitschakelen.",
+    mfaKeyCopied: "Sleutel gekopieerd",
+    mfaCopyKey: "Kopiëren",
     title: "Mijn account",
     subtitle: "Wachtwoord en tweestapsverificatie",
     passwordTitle: "Wachtwoord wijzigen",

@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const en: TranslationKeys = {
   common: {
+    accessDenied: "You don't have access to this page.",
+    networkError: "Network error",
     save: "Save",
     cancel: "Cancel",
     delete: "Delete",
@@ -43,6 +45,9 @@ export const en: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "Expand sidebar",
+    collapseSidebar: "Collapse sidebar",
+    openMenu: "Open menu",
     dashboard: "Dashboard",
     account: "My account",
     items: "Items",
@@ -55,6 +60,12 @@ export const en: TranslationKeys = {
     docs: "Documentation",
   },
   dashboard: {
+    version: "Version",
+    riskColumnHint: "BPT: internal risk score (0–100) from CVEs and context. Ext: external score (e.g. CVSS).",
+    atRiskFilter: "At risk (vulnerable or EOL)",
+    atRiskHint: "Items with known vulnerabilities or past end of life. The colours show the BPT risk score.",
+    atRisk: "at risk",
+    checkFailed: "Check failed",
     title: "Dashboard",
     subtitle: "Status of all monitored items",
     upToDate: "Up to date",
@@ -86,6 +97,12 @@ export const en: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "e.g. HA pair, datacenter 2",
+    note: "Note",
+    statusAuto: "Calculated automatically after each check.",
+    latestVersionAuto: "Filled in by the source",
+    provider: "Module/Provider",
+    allMonitoring: "All (monitored or not)",
     branchLabel: "Tracked branch (optional)",
     branchHint: "Only versions of this branch count as \"latest\", e.g. 16 for PostgreSQL 16.x or 3.11 for Python 3.11.x. Empty = newest version.",
     title: "Monitored Items",
@@ -121,7 +138,7 @@ export const en: TranslationKeys = {
     statuses: {
       up_to_date: "Up to date",
       outdated: "Outdated",
-      critical: "Critical",
+      critical: "Vulnerable",
     },
     methods: {
       manual: "Manual",
@@ -338,6 +355,11 @@ export const en: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Full access, including users and settings.",
+      ADMIN: "Manages items, sources and logs. No access to users or settings.",
+      VIEWER: "Sees the dashboard only. Cannot change anything.",
+    },
     title: "User Management",
     email: "Email",
     role: "Role",
@@ -831,11 +853,16 @@ export const en: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "Switch to dark mode",
+    switchToLight: "Switch to light mode",
     light: "Light",
     dark: "Dark",
     system: "System",
   },
   account: {
+    mfaRecoveryHint: "Keep this key somewhere safe. If you lose your phone, a super admin can turn off two-factor authentication for you.",
+    mfaKeyCopied: "Key copied",
+    mfaCopyKey: "Copy",
     title: "My account",
     subtitle: "Password and two-factor authentication",
     passwordTitle: "Change password",

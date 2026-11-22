@@ -51,7 +51,7 @@ export const PUT = withAuth(
         });
         if (emailTaken) {
           return NextResponse.json(
-            { error: "E-Mail-Adresse bereits vergeben" },
+            { error: "Email address already in use" },
             { status: 409 }
           );
         }

@@ -44,7 +44,7 @@ export const POST = withAuth(
 
       if (existing) {
         return NextResponse.json(
-          { error: "E-Mail-Adresse bereits vergeben" },
+          { error: "Email address already in use" },
           { status: 409 }
         );
       }

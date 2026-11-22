@@ -210,7 +210,7 @@ export default function AdminItemsPage() {
         }
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     }
     setEditItem(null);
   };
@@ -227,7 +227,7 @@ export default function AdminItemsPage() {
         toast(err.error || "Error", "error");
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     }
     setDeleteId(null);
   };
@@ -558,35 +558,31 @@ export default function AdminItemsPage() {
               className="hidden"
               onChange={handleImportCsv}
             />
-            <button
-              onClick={() => setShowDeleteAllConfirm(true)}
-              disabled={items.length === 0 || loading}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/5 px-3 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-            >
-              <Flame className="h-3.5 w-3.5" />
-              {t.items.deleteAll}
-            </button>
             <Button
               onClick={() => fileInputRef.current?.click()}
               size="sm"
               variant="outline"
               disabled={importing}
+              title={t.items.importCsv}
+              aria-label={t.items.importCsv}
             >
-              <Upload className="h-4 w-4 mr-1" />
-              {t.items.importCsv}
+              <Upload className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">{t.items.importCsv}</span>
             </Button>
             <Button
               onClick={handleExportCsv}
               size="sm"
               variant="outline"
               disabled={items.length === 0}
+              title={t.items.exportCsv}
+              aria-label={t.items.exportCsv}
             >
-              <Download className="h-4 w-4 mr-1" />
-              {t.items.exportCsv}
+              <Download className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">{t.items.exportCsv}</span>
             </Button>
-            <Button onClick={openCreate} size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              {t.items.addItem}
+            <Button onClick={openCreate} size="sm" title={t.items.addItem} aria-label={t.items.addItem}>
+              <Plus className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">{t.items.addItem}</span>
             </Button>
           </div>
         }
@@ -630,37 +626,12 @@ export default function AdminItemsPage() {
             onChange={(e) => setFilterMonitored(e.target.value as "" | "true" | "false")}
             className="h-10 rounded-md border bg-background px-3 text-sm"
           >
-            <option value="">{t.items.monitoringEnabled}</option>
+            <option value="">{t.items.allMonitoring}</option>
             <option value="true">{t.items.monitoringEnabled}</option>
             <option value="false">{t.items.monitoringDisabled}</option>
           </select>
         </div>
 
-        {showDeleteAllConfirm && (
-          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-destructive font-medium">
-                {t.items.deleteAllConfirm}
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowDeleteAllConfirm(false)}
-                  disabled={deletingAll}
-                  className="inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium bg-background hover:bg-muted transition-colors cursor-pointer"
-                >
-                  {t.common.cancel}
-                </button>
-                <button
-                  onClick={handleDeleteAll}
-                  disabled={deletingAll}
-                  className="inline-flex h-8 items-center gap-2 rounded-md border border-destructive/40 px-3 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-60 transition-colors cursor-pointer"
-                >
-                  {deletingAll ? t.items.deletingAll : t.common.confirm}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         <Card>
           <CardContent className="p-0">
@@ -689,7 +660,7 @@ export default function AdminItemsPage() {
                         <span className="inline-flex items-center gap-1">{t.items.source}<SortIcon col="source" /></span>
                       </th>
                       <th className="p-4 font-medium hidden lg:table-cell cursor-pointer select-none" onClick={() => toggleSort("providerPrefix")}>
-                        <span className="inline-flex items-center gap-1">Module/Provider<SortIcon col="providerPrefix" /></span>
+                        <span className="inline-flex items-center gap-1">{t.items.provider}<SortIcon col="providerPrefix" /></span>
                       </th>
                       <th className="p-4 font-medium hidden xl:table-cell cursor-pointer select-none" onClick={() => toggleSort("lastChecked")}>
                         <span className="inline-flex items-center gap-1">{t.items.lastChecked}<SortIcon col="lastChecked" /></span>
@@ -713,7 +684,9 @@ export default function AdminItemsPage() {
                                 </Badge>
                               ))}
                             </div>
-                            <div className="text-xs text-muted-foreground font-mono">{item.id}</div>
+                            {item.userNote && (
+                              <div className="text-xs text-muted-foreground truncate max-w-[28rem]">{item.userNote}</div>
+                            )}
                           </div>
                         </td>
                         <td className="p-4 hidden sm:table-cell text-sm text-muted-foreground">
@@ -767,6 +740,45 @@ export default function AdminItemsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Destructive bulk action, kept away from the everyday buttons in the header. */}
+        {showDeleteAllConfirm && (
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-destructive font-medium">
+                {t.items.deleteAllConfirm} ({items.length})
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowDeleteAllConfirm(false)}
+                  disabled={deletingAll}
+                  className="inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium bg-background hover:bg-muted transition-colors cursor-pointer"
+                >
+                  {t.common.cancel}
+                </button>
+                <button
+                  onClick={handleDeleteAll}
+                  disabled={deletingAll}
+                  className="inline-flex h-8 items-center gap-2 rounded-md border border-destructive/40 px-3 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-60 transition-colors cursor-pointer"
+                >
+                  {deletingAll ? t.items.deletingAll : t.common.confirm}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {!showDeleteAllConfirm && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowDeleteAllConfirm(true)}
+              disabled={items.length === 0 || loading}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-destructive/80 hover:bg-destructive/10 hover:text-destructive disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+            >
+              <Flame className="h-3.5 w-3.5" />
+              {t.items.deleteAll}
+            </button>
+          </div>
+        )}
       </div>
 
       <ItemForm

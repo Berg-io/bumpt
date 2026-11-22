@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { LicenseProvider } from "@/hooks/use-license";
-import { ToastProvider } from "@/components/ui/toast";
+import { ToastProvider, useToast } from "@/components/ui/toast";
+import { canAccessPath } from "@/lib/route-access";
+import { useTranslation } from "@/i18n/config";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { LicenseBanner } from "@/components/license-banner";
 import { I18nProvider } from "@/components/i18n-provider";
@@ -13,12 +15,24 @@ import { ReleaseBadge } from "@/components/layout/release-badge";
 function ProtectedContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const { toast } = useToast();
+  const t = useTranslation();
+  const allowed = !user || canAccessPath(pathname, user.role);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [loading, user, router]);
+
+  // A page the role may not use: one consistent answer, whatever the page.
+  useEffect(() => {
+    if (!loading && user && !allowed) {
+      toast(t.common.accessDenied, "error");
+      router.replace("/dashboard");
+    }
+  }, [loading, user, allowed, router, toast, t.common.accessDenied]);
 
   if (loading) {
     return (
@@ -28,7 +42,7 @@ function ProtectedContent({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return null;
+  if (!user || !allowed) return null;
 
   return (
     <div className="flex h-screen overflow-hidden">

@@ -25,7 +25,7 @@ export function UserForm({ open, onClose, onSave, user }: UserFormProps) {
   const [data, setData] = useState<UserData>({
     email: "",
     password: "",
-    role: "ADMIN",
+    role: "VIEWER",
   });
   const [saving, setSaving] = useState(false);
   const t = useTranslation();
@@ -34,7 +34,7 @@ export function UserForm({ open, onClose, onSave, user }: UserFormProps) {
     if (user) {
       setData({ email: user.email, password: "", role: user.role, id: user.id });
     } else {
-      setData({ email: "", password: "", role: "ADMIN" });
+      setData({ email: "", password: "", role: "VIEWER" });
     }
   }, [user, open]);
 
@@ -86,6 +86,9 @@ export function UserForm({ open, onClose, onSave, user }: UserFormProps) {
           value={data.role}
           onChange={(e) => setData({ ...data, role: e.target.value })}
         />
+        <p className="text-xs text-muted-foreground -mt-2">
+          {t.users.roleHints[data.role as keyof typeof t.users.roleHints] ?? ""}
+        </p>
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>

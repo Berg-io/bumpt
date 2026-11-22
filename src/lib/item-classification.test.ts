@@ -57,3 +57,17 @@ test("up-to-date vulnerable item displays as critical", () => {
   assert.equal(isItemAtRisk(item), true);
   assert.equal(getDisplayStatus(item), "critical");
 });
+
+test("an item whose last check failed is never displayed as up to date", () => {
+  assert.equal(getDisplayStatus({ status: "up_to_date", lastCheckError: "No version found" }), "check_failed");
+  assert.equal(getDisplayStatus({ status: "outdated", lastCheckError: "timeout" }), "check_failed");
+  assert.equal(getDisplayStatus({ status: "up_to_date", lastCheckError: null }), "up_to_date");
+});
+
+test("end of life and vulnerabilities still win over a failed check", () => {
+  assert.equal(getDisplayStatus({ status: "end_of_life", lastCheckError: "x" }), "end_of_life");
+  assert.equal(
+    getDisplayStatus({ status: "up_to_date", cves: '["CVE-2024-0001"]', lastCheckError: "x" }),
+    "critical"
+  );
+});

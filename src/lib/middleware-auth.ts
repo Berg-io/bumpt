@@ -65,11 +65,11 @@ export function withAuth(handler: RouteHandler, options: AuthOptions = {}) {
     const user = await resolveUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     if (options.roles && !hasRole(user.role, options.roles)) {
-      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     return handler(request, { ...context, user });

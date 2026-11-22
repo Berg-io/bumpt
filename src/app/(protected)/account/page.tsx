@@ -118,7 +118,7 @@ export default function AccountPage() {
   return (
     <>
       <Header title={t.account.title} subtitle={user?.email ?? t.account.subtitle} />
-      <div className="flex-1 space-y-6 p-4 lg:p-8 max-w-2xl">
+      <div className="grid flex-1 content-start items-start gap-6 p-4 lg:p-8 xl:grid-cols-2 xl:max-w-6xl">
         <Card>
           <CardContent className="space-y-4 p-6">
             <div className="flex items-center gap-2">
@@ -148,6 +148,7 @@ export default function AccountPage() {
                   minLength={8}
                   required
                 />
+                <p className="-mt-1 text-xs text-muted-foreground">{t.users.passwordHint}</p>
                 <Input
                   id="confirm-password"
                   type="password"
@@ -159,7 +160,6 @@ export default function AccountPage() {
                   required
                   error={passwordError || undefined}
                 />
-                <p className="text-xs text-muted-foreground">{t.users.passwordHint}</p>
                 <Button type="submit" size="sm" disabled={savingPassword}>
                   {t.account.savePassword}
                 </Button>
@@ -195,7 +195,25 @@ export default function AccountPage() {
                   <p className="text-sm">{t.account.mfaScan}</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={setup.qrCode} alt="QR code" width={220} height={220} className="rounded-md border bg-white p-2" />
-                  <code className="block break-all rounded-md bg-muted px-3 py-2 text-sm">{setup.secret}</code>
+                  <div className="flex items-center gap-2">
+                    <code className="block min-w-0 flex-1 break-all rounded-md bg-muted px-3 py-2 text-sm">{setup.secret}</code>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(setup.secret);
+                          toast(t.account.mfaKeyCopied, "success");
+                        } catch {
+                          toast(t.common.error, "error");
+                        }
+                      }}
+                    >
+                      {t.account.mfaCopyKey}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{t.account.mfaRecoveryHint}</p>
                   <Input
                     id="mfa-code"
                     inputMode="numeric"
@@ -206,9 +224,22 @@ export default function AccountPage() {
                     maxLength={6}
                     error={mfaError || undefined}
                   />
-                  <Button size="sm" onClick={() => mfaAction("enable")} disabled={mfaBusy || code.length < 6}>
-                    {t.account.mfaConfirm}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => mfaAction("enable")} disabled={mfaBusy || code.length < 6}>
+                      {t.account.mfaConfirm}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSetup(null);
+                        setCode("");
+                      }}
+                      disabled={mfaBusy}
+                    >
+                      {t.common.cancel}
+                    </Button>
+                  </div>
                 </div>
               )}
 

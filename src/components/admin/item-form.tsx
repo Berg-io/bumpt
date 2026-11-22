@@ -150,6 +150,14 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
   }, [item, open]);
 
   const selectedSource = sources.find((s) => s.id === data.sourceId);
+  const hasRiskContext = [
+    data.assetCriticality,
+    data.environment,
+    data.networkExposure,
+    data.hostsSensitiveData,
+    data.hasPrivilegedAccess,
+    data.hasCompensatingControls,
+  ].some((value) => value !== null && value !== undefined);
 
   const handleSourceChange = (sourceId: string) => {
     if (sourceId) {
@@ -318,17 +326,17 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           id="name"
-          label={t.items.name}
+          label={`${t.items.name} *`}
           value={data.name}
           onChange={(e) => setData({ ...data, name: e.target.value })}
           required
         />
         <Input
           id="userNote"
-          label="Note"
+          label={t.items.note}
           value={data.userNote ?? ""}
           onChange={(e) => setData({ ...data, userNote: e.target.value.slice(0, 30) })}
-          placeholder="Note"
+          placeholder={t.items.notePlaceholder}
           maxLength={30}
         />
         <p className="text-xs text-muted-foreground -mt-2 text-right">
@@ -384,115 +392,20 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
             value={data.type}
             onChange={(e) => setData({ ...data, type: e.target.value })}
           />
-          <Select
-            id="status"
-            label={t.items.status}
-            options={statusOptions}
-            value={data.status}
-            onChange={(e) => setData({ ...data, status: e.target.value })}
-          />
-        </div>
-
-        <div className="rounded-lg border p-3 bg-muted/20 space-y-3">
-          <p className="text-sm font-medium">{t.items.riskContextTitle}</p>
-          <p className="text-xs text-muted-foreground">
-            {t.items.riskContextHint}
-          </p>
-          <div className="grid grid-cols-2 gap-3">
+          {data.sourceId ? (
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium text-foreground">{t.items.status}</p>
+              <p className="flex h-10 items-center text-xs text-muted-foreground">{t.items.statusAuto}</p>
+            </div>
+          ) : (
             <Select
-              id="assetCriticality"
-              label={t.items.assetCriticality}
-              options={[
-                { value: "", label: t.items.notSpecified },
-                { value: "0", label: `0 - ${t.itemDetail.bptLow}` },
-                { value: "1", label: "1" },
-                { value: "2", label: "2" },
-                { value: "3", label: `3 - ${t.itemDetail.bptMedium}` },
-                { value: "4", label: "4" },
-                { value: "5", label: `5 - ${t.itemDetail.bptCritical}` },
-              ]}
-              value={data.assetCriticality === null || data.assetCriticality === undefined ? "" : String(data.assetCriticality)}
-              onChange={(e) => setData({
-                ...data,
-                assetCriticality: e.target.value === "" ? null : Number(e.target.value),
-              })}
+              id="status"
+              label={t.items.status}
+              options={statusOptions}
+              value={data.status}
+              onChange={(e) => setData({ ...data, status: e.target.value })}
             />
-            <Select
-              id="environment"
-              label={t.items.environment}
-              options={[
-                { value: "", label: t.items.notSpecified },
-                { value: "prod", label: t.items.environmentProd },
-                { value: "preprod", label: t.items.environmentPreprod },
-                { value: "test", label: t.items.environmentTest },
-                { value: "dev", label: t.items.environmentDev },
-              ]}
-              value={data.environment ?? ""}
-              onChange={(e) => setData({ ...data, environment: e.target.value || null })}
-            />
-            <Select
-              id="networkExposure"
-              label={t.items.networkExposure}
-              options={[
-                { value: "", label: t.items.notSpecified },
-                { value: "internet", label: t.items.networkExposureInternet },
-                { value: "intranet", label: t.items.networkExposureIntranet },
-                { value: "isolated", label: t.items.networkExposureIsolated },
-              ]}
-              value={data.networkExposure ?? ""}
-              onChange={(e) => setData({ ...data, networkExposure: e.target.value || null })}
-            />
-            <Select
-              id="hostsSensitiveData"
-              label={t.items.sensitiveData}
-              options={[
-                { value: "", label: t.items.notSpecified },
-                { value: "yes", label: t.common.yes },
-                { value: "no", label: t.common.no },
-              ]}
-              value={boolToSelect(data.hostsSensitiveData)}
-              onChange={(e) => setData({ ...data, hostsSensitiveData: selectToBool(e.target.value) })}
-            />
-            <Select
-              id="hasPrivilegedAccess"
-              label={t.items.privilegedAccess}
-              options={[
-                { value: "", label: t.items.notSpecified },
-                { value: "yes", label: t.common.yes },
-                { value: "no", label: t.common.no },
-              ]}
-              value={boolToSelect(data.hasPrivilegedAccess)}
-              onChange={(e) => setData({ ...data, hasPrivilegedAccess: selectToBool(e.target.value) })}
-            />
-            <Select
-              id="hasCompensatingControls"
-              label={t.items.compensatingControls}
-              options={[
-                { value: "", label: t.items.notSpecified },
-                { value: "yes", label: t.common.yes },
-                { value: "no", label: t.common.no },
-              ]}
-              value={boolToSelect(data.hasCompensatingControls)}
-              onChange={(e) => setData({ ...data, hasCompensatingControls: selectToBool(e.target.value) })}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            id="currentVersion"
-            label={t.items.currentVersion}
-            value={data.currentVersion}
-            onChange={(e) => setData({ ...data, currentVersion: e.target.value })}
-            placeholder="1.0.0"
-          />
-          <Input
-            id="latestVersion"
-            label={t.items.latestVersion}
-            value={data.latestVersion}
-            onChange={(e) => setData({ ...data, latestVersion: e.target.value })}
-            placeholder="1.0.0"
-          />
+          )}
         </div>
 
         <Select
@@ -990,6 +903,109 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
             </p>
           </div>
         )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            id="currentVersion"
+            label={t.items.currentVersion}
+            value={data.currentVersion}
+            onChange={(e) => setData({ ...data, currentVersion: e.target.value })}
+            placeholder="1.0.0"
+          />
+          <Input
+            id="latestVersion"
+            label={t.items.latestVersion}
+            value={data.latestVersion}
+            onChange={(e) => setData({ ...data, latestVersion: e.target.value })}
+            placeholder={data.sourceId ? t.items.latestVersionAuto : "1.0.0"}
+          />
+        </div>
+
+        {/* Optional context: folded away so the essentials stay on one screen. */}
+        <details className="group rounded-lg border p-3 bg-muted/20 space-y-3" open={hasRiskContext}>
+          <summary className="cursor-pointer text-sm font-medium select-none">{t.items.riskContextTitle}</summary>
+          <p className="text-xs text-muted-foreground">
+            {t.items.riskContextHint}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <Select
+              id="assetCriticality"
+              label={t.items.assetCriticality}
+              options={[
+                { value: "", label: t.items.notSpecified },
+                { value: "0", label: `0 - ${t.itemDetail.bptLow}` },
+                { value: "1", label: "1" },
+                { value: "2", label: "2" },
+                { value: "3", label: `3 - ${t.itemDetail.bptMedium}` },
+                { value: "4", label: "4" },
+                { value: "5", label: `5 - ${t.itemDetail.bptCritical}` },
+              ]}
+              value={data.assetCriticality === null || data.assetCriticality === undefined ? "" : String(data.assetCriticality)}
+              onChange={(e) => setData({
+                ...data,
+                assetCriticality: e.target.value === "" ? null : Number(e.target.value),
+              })}
+            />
+            <Select
+              id="environment"
+              label={t.items.environment}
+              options={[
+                { value: "", label: t.items.notSpecified },
+                { value: "prod", label: t.items.environmentProd },
+                { value: "preprod", label: t.items.environmentPreprod },
+                { value: "test", label: t.items.environmentTest },
+                { value: "dev", label: t.items.environmentDev },
+              ]}
+              value={data.environment ?? ""}
+              onChange={(e) => setData({ ...data, environment: e.target.value || null })}
+            />
+            <Select
+              id="networkExposure"
+              label={t.items.networkExposure}
+              options={[
+                { value: "", label: t.items.notSpecified },
+                { value: "internet", label: t.items.networkExposureInternet },
+                { value: "intranet", label: t.items.networkExposureIntranet },
+                { value: "isolated", label: t.items.networkExposureIsolated },
+              ]}
+              value={data.networkExposure ?? ""}
+              onChange={(e) => setData({ ...data, networkExposure: e.target.value || null })}
+            />
+            <Select
+              id="hostsSensitiveData"
+              label={t.items.sensitiveData}
+              options={[
+                { value: "", label: t.items.notSpecified },
+                { value: "yes", label: t.common.yes },
+                { value: "no", label: t.common.no },
+              ]}
+              value={boolToSelect(data.hostsSensitiveData)}
+              onChange={(e) => setData({ ...data, hostsSensitiveData: selectToBool(e.target.value) })}
+            />
+            <Select
+              id="hasPrivilegedAccess"
+              label={t.items.privilegedAccess}
+              options={[
+                { value: "", label: t.items.notSpecified },
+                { value: "yes", label: t.common.yes },
+                { value: "no", label: t.common.no },
+              ]}
+              value={boolToSelect(data.hasPrivilegedAccess)}
+              onChange={(e) => setData({ ...data, hasPrivilegedAccess: selectToBool(e.target.value) })}
+            />
+            <Select
+              id="hasCompensatingControls"
+              label={t.items.compensatingControls}
+              options={[
+                { value: "", label: t.items.notSpecified },
+                { value: "yes", label: t.common.yes },
+                { value: "no", label: t.common.no },
+              ]}
+              value={boolToSelect(data.hasCompensatingControls)}
+              onChange={(e) => setData({ ...data, hasCompensatingControls: selectToBool(e.target.value) })}
+            />
+          </div>
+        </details>
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>

@@ -22,14 +22,14 @@ export const POST = withAuth(
 
     if (!item.latestVersion) {
       return NextResponse.json(
-        { error: "Keine neueste Version vorhanden" },
+        { error: "No latest version available" },
         { status: 400 }
       );
     }
 
     if (item.currentVersion === item.latestVersion) {
       return NextResponse.json(
-        { error: "Version ist bereits aktuell" },
+        { error: "Version is already up to date" },
         { status: 400 }
       );
     }

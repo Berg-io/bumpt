@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const pt: TranslationKeys = {
   common: {
+    accessDenied: "Você não tem acesso a esta página.",
+    networkError: "Erro de rede",
     save: "Guardar",
     cancel: "Cancelar",
     delete: "Eliminar",
@@ -43,6 +45,9 @@ export const pt: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "Expandir barra lateral",
+    collapseSidebar: "Recolher barra lateral",
+    openMenu: "Abrir menu",
     dashboard: "Painel",
     account: "A minha conta",
     items: "Itens",
@@ -55,6 +60,12 @@ export const pt: TranslationKeys = {
     docs: "Documentação",
   },
   dashboard: {
+    version: "Versão",
+    riskColumnHint: "BPT: pontuação de risco interna (0–100) a partir de CVEs e contexto. Ext: pontuação externa (ex. CVSS).",
+    atRiskFilter: "Em risco (vulnerável ou EOL)",
+    atRiskHint: "Itens com vulnerabilidades conhecidas ou em fim de vida. As cores mostram a pontuação de risco BPT.",
+    atRisk: "em risco",
+    checkFailed: "Verificação falhou",
     title: "Visão geral",
     subtitle: "Estado de todos os itens monitorizados",
     upToDate: "Atualizado",
@@ -86,6 +97,12 @@ export const pt: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "ex. par HA, datacenter 2",
+    note: "Nota",
+    statusAuto: "Calculado automaticamente após cada verificação.",
+    latestVersionAuto: "Preenchido pela fonte",
+    provider: "Módulo/Provedor",
+    allMonitoring: "Todos (monitorados ou não)",
     branchLabel: "Ramo seguido (opcional)",
     branchHint: "Apenas as versões deste ramo contam como «mais recente», p. ex. 16 para PostgreSQL 16.x ou 3.11 para Python 3.11.x. Vazio = versão mais recente.",
     title: "Itens monitorizados",
@@ -121,7 +138,7 @@ export const pt: TranslationKeys = {
     statuses: {
       up_to_date: "Atualizado",
       outdated: "Desatualizado",
-      critical: "Crítico",
+      critical: "Vulnerável",
     },
     methods: {
       manual: "Manual",
@@ -338,6 +355,11 @@ export const pt: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Acesso total, incluindo usuários e configurações.",
+      ADMIN: "Gerencia itens, fontes e logs. Sem acesso a usuários ou configurações.",
+      VIEWER: "Vê apenas o painel. Não pode alterar nada.",
+    },
     title: "Gestão de utilizadores",
     email: "Email",
     role: "Função",
@@ -831,11 +853,16 @@ export const pt: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "Mudar para modo escuro",
+    switchToLight: "Mudar para modo claro",
     light: "Claro",
     dark: "Escuro",
     system: "Sistema",
   },
   account: {
+    mfaRecoveryHint: "Guarde esta chave em local seguro. Se perder o telefone, um super admin pode desativar a autenticação de dois fatores para você.",
+    mfaKeyCopied: "Chave copiada",
+    mfaCopyKey: "Copiar",
     title: "A minha conta",
     subtitle: "Palavra-passe e autenticação de dois fatores",
     passwordTitle: "Alterar palavra-passe",

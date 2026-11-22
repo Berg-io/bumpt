@@ -35,11 +35,27 @@ function normalizeFlattenedMarkdown(raw: string): string {
     .trim();
 }
 
+// CI / shields badges from READMEs carry no information here and often render as broken images.
+const LINKED_BADGE_RE = /\[!\[[^\]]*]\([^)]*\)](\([^)]*\)|\[[^\]]*])/g;
+const BADGE_IMAGE_RE = /!\[[^\]]*]\([^)]*(shields\.io|badge|badgen\.net|\/workflows\/)[^)]*\)/gi;
+const HTML_BADGE_RE = /<img[^>]*src="[^"]*(shields\.io|badge|badgen\.net|\/workflows\/)[^"]*"[^>]*>/gi;
+const REFERENCE_DEFINITION_RE = /^\s*\[[^\]]+]:\s*\S+.*$/gm;
+
+function stripBadges(raw: string): string {
+  return raw.replace(LINKED_BADGE_RE, "").replace(BADGE_IMAGE_RE, "").replace(HTML_BADGE_RE, "");
+}
+
 function renderRichContent(raw: string): string {
-  const normalized = looksLikeFlattenedMarkdown(raw) ? normalizeFlattenedMarkdown(raw) : raw;
-  const isHtml = HTML_TAG_RE.test(raw);
-  const html = isHtml ? normalized : (marked.parse(normalized, { async: false }) as string);
-  return DOMPurify.sanitize(html, {
+  const cleaned = stripBadges(raw);
+  const normalized = looksLikeFlattenedMarkdown(cleaned) ? normalizeFlattenedMarkdown(cleaned) : cleaned;
+  const isHtml = HTML_TAG_RE.test(cleaned);
+  const hasMarkdown = MARKDOWN_SIGNALS.some((re) => re.test(cleaned));
+  // READMEs often mix HTML and Markdown: marked keeps the HTML and renders the rest.
+  const html =
+    isHtml && !hasMarkdown
+      ? normalized
+      : (marked.parse(normalized.replace(REFERENCE_DEFINITION_RE, ""), { async: false }) as string);
+  return DOMPurify.sanitize(html.replace(HTML_BADGE_RE, ""), {
     ALLOWED_TAGS: [
       "h1","h2","h3","h4","h5","h6","p","br","hr","ul","ol","li",
       "a","strong","em","b","i","code","pre","blockquote",
@@ -54,12 +70,12 @@ export function RenderedContent({ content, className }: { content: string; class
   return (
     <div
       className={cn(
-        "prose prose-sm dark:prose-invert max-w-none",
+        "prose prose-sm dark:prose-invert max-w-none break-words [overflow-wrap:anywhere]",
         "prose-headings:text-sm prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1",
         "prose-p:text-xs prose-p:leading-relaxed prose-p:my-1",
         "prose-li:text-xs prose-li:my-0",
         "prose-code:text-xs prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded",
-        "prose-pre:text-xs prose-pre:bg-muted prose-pre:p-2 prose-pre:rounded-md",
+        "prose-pre:text-xs prose-pre:bg-muted prose-pre:p-2 prose-pre:rounded-md prose-pre:overflow-x-auto",
         "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
         "prose-img:max-w-full prose-img:rounded",
         className

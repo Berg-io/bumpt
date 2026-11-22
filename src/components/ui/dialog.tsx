@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/utils/cn";
 import { X } from "lucide-react";
+import { useTranslation } from "@/i18n/config";
 
 interface DialogProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onClose, title, children, className }: DialogProps) {
+  const t = useTranslation();
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,7 +55,9 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
         <div className="flex items-center justify-between p-6 pb-4 shrink-0">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t.common.close}
             className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <X className="h-4 w-4" />

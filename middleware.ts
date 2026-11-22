@@ -107,7 +107,7 @@ async function handleRequest(request: NextRequest) {
 
     if (!rl.allowed) {
       return NextResponse.json(
-        { error: "Trop de requêtes, veuillez réessayer plus tard" },
+        { error: "Too many requests, please try again later" },
         {
           status: 429,
           headers: {
@@ -136,7 +136,7 @@ async function handleRequest(request: NextRequest) {
 
   if (!jwtToken) {
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
@@ -148,7 +148,7 @@ async function handleRequest(request: NextRequest) {
     await jwtVerify(jwtToken, secret);
   } catch {
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Token invalide ou expiré" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);

@@ -66,9 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      return { success: false, error: data.error || "Anmeldung fehlgeschlagen" };
+      return { success: false, error: data.error || "Login failed" };
     } catch {
-      return { success: false, error: "Netzwerkfehler" };
+      return { success: false, error: "Network error" };
     }
   }, []);
 

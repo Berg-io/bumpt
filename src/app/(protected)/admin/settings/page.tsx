@@ -34,6 +34,7 @@ import {
   Check,
   ExternalLink,
   Crown,
+  Lock,
   Bot,
   Server,
   Bell,
@@ -42,6 +43,7 @@ import {
 } from "lucide-react";
 
 type Tab = "apiKeys" | "sso" | "general" | "database" | "csvData" | "ai" | "notifications" | "license";
+const TAB_IDS: readonly Tab[] = ["general", "sso", "apiKeys", "csvData", "ai", "notifications", "database", "license"];
 
 // Keep a local default template so Community build does not depend on Pro-only AI prompt modules.
 const DEFAULT_AI_PROMPT_TEMPLATE = [
@@ -133,7 +135,16 @@ export default function SettingsPage() {
   const { license, refresh: refreshLicense } = useLicense();
   const dateSettings = useDateSettings();
   const { toast: addToast } = useToast();
-  const [activeTab, setActiveTab] = useState<Tab>("general");
+  const [activeTab, setActiveTabState] = useState<Tab>("general");
+  // The tab lives in the URL hash, so a reload or a shared link opens the same tab.
+  const setActiveTab = useCallback((tab: Tab) => {
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") window.history.replaceState(null, "", `#${tab}`);
+  }, []);
+  useEffect(() => {
+    const fromHash = window.location.hash.slice(1) as Tab;
+    if (TAB_IDS.includes(fromHash)) setActiveTabState(fromHash);
+  }, []);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasValues, setHasValues] = useState<Record<string, boolean>>({});
@@ -432,7 +443,7 @@ export default function SettingsPage() {
   if (user?.role !== "SUPER_ADMIN") {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-muted-foreground">Access denied</p>
+        <p className="text-muted-foreground">{t.common.accessDenied}</p>
       </div>
     );
   }
@@ -827,13 +838,13 @@ export default function SettingsPage() {
     }
   };
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  const tabs: { id: Tab; label: string; icon: React.ReactNode; locked?: boolean }[] = [
     { id: "general", label: t.settings.tabs.general, icon: <Globe className="h-4 w-4" /> },
-    { id: "sso", label: t.settings.tabs.sso, icon: <Shield className="h-4 w-4" /> },
+    { id: "sso", label: t.settings.tabs.sso, icon: <Shield className="h-4 w-4" />, locked: !license?.ssoEnabled },
     { id: "apiKeys", label: t.settings.tabs.apiKeys, icon: <Key className="h-4 w-4" /> },
     { id: "csvData", label: t.settings.tabs.csvData, icon: <FileSpreadsheet className="h-4 w-4" /> },
-    { id: "ai", label: t.settings.tabs.ai, icon: <Bot className="h-4 w-4" /> },
-    { id: "notifications", label: t.settings.tabs.notifications, icon: <Bell className="h-4 w-4" /> },
+    { id: "ai", label: t.settings.tabs.ai, icon: <Bot className="h-4 w-4" />, locked: !license?.aiEnabled },
+    { id: "notifications", label: t.settings.tabs.notifications, icon: <Bell className="h-4 w-4" />, locked: !license?.webhooksEnabled },
     { id: "database", label: t.settings.tabs.database, icon: <Database className="h-4 w-4" /> },
     { id: "license", label: t.settings.tabs.license, icon: <Crown className="h-4 w-4" /> },
   ];
@@ -882,9 +893,16 @@ export default function SettingsPage() {
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
+            title={tab.locked ? t.license.featureDisabled : undefined}
           >
             {tab.icon}
             {tab.label}
+            {tab.locked && (
+              <span className="inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-semibold uppercase text-amber-600 dark:text-amber-400">
+                <Lock className="h-2.5 w-2.5" aria-hidden="true" />
+                Pro
+              </span>
+            )}
           </button>
         ))}
       </div>

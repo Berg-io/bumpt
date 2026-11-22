@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const tr: TranslationKeys = {
   common: {
+    accessDenied: "Bu sayfaya erişiminiz yok.",
+    networkError: "Ağ hatası",
     save: "Kaydet",
     cancel: "İptal",
     delete: "Sil",
@@ -43,6 +45,9 @@ export const tr: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "Kenar çubuğunu genişlet",
+    collapseSidebar: "Kenar çubuğunu daralt",
+    openMenu: "Menüyü aç",
     dashboard: "Kontrol Paneli",
     account: "Hesabım",
     items: "Öğeler",
@@ -55,6 +60,12 @@ export const tr: TranslationKeys = {
     docs: "Dokümantasyon",
   },
   dashboard: {
+    version: "Sürüm",
+    riskColumnHint: "BPT: CVE'ler ve bağlamdan hesaplanan iç risk puanı (0–100). Ext: dış puan (ör. CVSS).",
+    atRiskFilter: "Risk altında (savunmasız veya EOL)",
+    atRiskHint: "Bilinen güvenlik açığı olan veya ömrünü tamamlamış öğeler. Renkler BPT risk puanını gösterir.",
+    atRisk: "risk altında",
+    checkFailed: "Kontrol başarısız",
     title: "Genel Bakış",
     subtitle: "Tüm izlenen öğelerin durumu",
     upToDate: "Güncel",
@@ -86,6 +97,12 @@ export const tr: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "ör. HA çifti, veri merkezi 2",
+    note: "Not",
+    statusAuto: "Her kontrolden sonra otomatik hesaplanır.",
+    latestVersionAuto: "Kaynak tarafından doldurulur",
+    provider: "Modül/Sağlayıcı",
+    allMonitoring: "Tümü (izlenen veya izlenmeyen)",
     branchLabel: "İzlenen dal (isteğe bağlı)",
     branchHint: "Yalnızca bu dalın sürümleri «en son» sayılır; örn. PostgreSQL 16.x için 16 veya Python 3.11.x için 3.11. Boş = en yeni sürüm.",
     title: "İzlenen Öğeler",
@@ -121,7 +138,7 @@ export const tr: TranslationKeys = {
     statuses: {
       up_to_date: "Güncel",
       outdated: "Güncel değil",
-      critical: "Kritik",
+      critical: "Savunmasız",
     },
     methods: {
       manual: "Manuel",
@@ -338,6 +355,11 @@ export const tr: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Kullanıcılar ve ayarlar dahil tam erişim.",
+      ADMIN: "Öğeleri, kaynakları ve günlükleri yönetir. Kullanıcılara ve ayarlara erişemez.",
+      VIEWER: "Yalnızca paneli görür. Hiçbir şeyi değiştiremez.",
+    },
     title: "Kullanıcı Yönetimi",
     email: "E-posta",
     role: "Rol",
@@ -831,11 +853,16 @@ export const tr: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "Koyu moda geç",
+    switchToLight: "Açık moda geç",
     light: "Açık",
     dark: "Koyu",
     system: "Sistem",
   },
   account: {
+    mfaRecoveryHint: "Bu anahtarı güvenli bir yerde saklayın. Telefonunuzu kaybederseniz bir süper yönetici iki faktörlü doğrulamayı sizin için kapatabilir.",
+    mfaKeyCopied: "Anahtar kopyalandı",
+    mfaCopyKey: "Kopyala",
     title: "Hesabım",
     subtitle: "Parola ve iki adımlı doğrulama",
     passwordTitle: "Parolayı değiştir",

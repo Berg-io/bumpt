@@ -23,6 +23,7 @@ import { cn } from "@/utils/cn";
 import { useAuth } from "@/hooks/use-auth";
 import { useLicense } from "@/hooks/use-license";
 import { useTranslation } from "@/i18n/config";
+import { ROUTE_ROLES } from "@/lib/route-access";
 
 interface NavItem {
   href: string;
@@ -52,45 +53,45 @@ export function AppSidebar() {
       href: "/admin/items",
       label: t.nav.items,
       icon: <Package className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ROUTE_ROLES["/admin/items"],
     },
     {
       href: "/admin/sources",
       label: t.nav.sources,
       icon: <Plug className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ROUTE_ROLES["/admin/sources"],
     },
     {
       href: "/admin/agents",
       label: t.nav.agents,
       icon: <Server className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ROUTE_ROLES["/admin/agents"],
       professionalOnly: true,
     },
     {
       href: "/admin/users",
       label: t.nav.users,
       icon: <Users className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN"],
+      roles: ROUTE_ROLES["/admin/users"],
     },
     {
       href: "/admin/logs",
       label: t.nav.logs,
       icon: <FileText className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ROUTE_ROLES["/admin/logs"],
     },
     {
       href: "/admin/reports",
       label: t.nav.reports,
       icon: <Calendar className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN"],
+      roles: ROUTE_ROLES["/admin/reports"],
       licenseFeature: "reportsEnabled",
     },
     {
       href: "/admin/settings",
       label: t.nav.settings,
       icon: <Settings className="h-5 w-5" />,
-      roles: ["SUPER_ADMIN"],
+      roles: ROUTE_ROLES["/admin/settings"],
     },
     {
       href: "/account",
@@ -184,6 +185,8 @@ export function AppSidebar() {
           className="fixed left-4 top-4 z-50 rounded-md border p-2 shadow-sm lg:hidden"
           style={{ backgroundColor: "hsl(var(--background))" }}
           onClick={() => setMobileOpen(true)}
+          aria-label={t.nav.openMenu}
+          aria-expanded={false}
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -208,6 +211,7 @@ export function AppSidebar() {
         <button
           className="absolute right-3 top-4 z-10 rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
           onClick={() => setMobileOpen(false)}
+          aria-label={t.common.close}
         >
           <X className="h-5 w-5" />
         </button>
@@ -226,6 +230,8 @@ export function AppSidebar() {
         </aside>
         <button
           onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
+          title={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
           className="absolute -right-3 top-14 z-20 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border bg-background shadow-sm hover:bg-accent"
         >
           <span className="text-xs">{collapsed ? "→" : "←"}</span>

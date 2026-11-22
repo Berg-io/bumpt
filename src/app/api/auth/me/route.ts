@@ -14,7 +14,7 @@ const changePasswordSchema = z.object({
 export async function PUT(request: Request) {
   const authUser = await getAuthUser();
   if (!authUser) {
-    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const parsed = changePasswordSchema.safeParse(await request.json().catch(() => null));
@@ -50,7 +50,7 @@ export async function GET() {
   const authUser = await getAuthUser();
 
   if (!authUser) {
-    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const user = await prisma.user.findUnique({

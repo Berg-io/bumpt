@@ -15,13 +15,7 @@ import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLicense } from "@/hooks/use-license";
 import { exportToCsv } from "@/utils/csv";
-import {
-  isItemAtRisk,
-  isItemOutdated,
-  parseCveCount,
-  getDisplayStatus,
-  getDisplayStatusOrder,
-} from "@/lib/item-classification";
+import { isItemAtRisk, parseCveCount, getDisplayStatus } from "@/lib/item-classification";
 
 interface MonitoredItem {
   id: string;
@@ -33,6 +27,7 @@ interface MonitoredItem {
   checkMethod: string;
   status: string;
   lastChecked: string | null;
+  lastCheckError?: string | null;
   releaseNotes?: string | null;
   cves?: string | null;
   eolDate?: string | null;
@@ -48,6 +43,8 @@ interface MonitoredItem {
 
 export default function DashboardPage() {
   const [items, setItems] = useState<MonitoredItem[]>([]);
+  // All monitored items, unfiltered: the counters always describe the whole fleet.
+  const [allItems, setAllItems] = useState<MonitoredItem[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [pageSize, setPageSize] = useState<number | "all">(25);
@@ -77,10 +74,10 @@ export default function DashboardPage() {
     const params = new URLSearchParams();
     if (filterType) params.set("type", filterType);
     if (filterOrigin) params.set("origin", filterOrigin);
-    if (filterStatus === "critical") {
+    if (filterStatus === "at_risk") {
       params.set("riskState", "at_risk");
     } else if (filterStatus) {
-      params.set("status", filterStatus);
+      params.set("displayStatus", filterStatus);
     }
     if (search) params.set("search", search);
     params.set("monitoringEnabled", "true");
@@ -88,7 +85,14 @@ export default function DashboardPage() {
     if (selectedPageSize !== null) params.set("pageSize", String(selectedPageSize));
 
     try {
-      const res = await fetch(`/api/items?${params}`);
+      const [res, allRes] = await Promise.all([
+        fetch(`/api/items?${params}`),
+        fetch("/api/items?monitoringEnabled=true&pageSize=all"),
+      ]);
+      if (allRes.ok) {
+        const allData = await allRes.json();
+        setAllItems(Array.isArray(allData.data) ? allData.data : []);
+      }
       if (res.ok) {
         const data = await res.json();
         setItems(data.data);
@@ -168,33 +172,27 @@ export default function DashboardPage() {
     };
   }, [fetchItems, patchItemInState]);
 
+  const displayCounts = allItems.reduce(
+    (acc, item) => {
+      acc[getDisplayStatus(item)] += 1;
+      return acc;
+    },
+    { up_to_date: 0, outdated: 0, critical: 0, end_of_life: 0, check_failed: 0 }
+  );
+
   const counts = {
-    up_to_date: items.filter((i) => i.status === "up_to_date").length,
-    outdated: items.filter((i) => isItemOutdated(i)).length,
-    critical: items.filter((i) => isItemAtRisk(i)).length,
-    total: items.length,
-    totalVulnerabilities: items.reduce((sum, item) => sum + parseCveCount(item.cves), 0),
-    avgInternalScore: (() => {
-      const values = items
-        .map((item) => item.internalScore)
-        .filter((value): value is number => typeof value === "number");
-      if (values.length === 0) return null;
-      return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10;
-    })(),
-    avgExternalScore: (() => {
-      const values = items
-        .map((item) => item.externalScore)
-        .filter((value): value is number => typeof value === "number");
-      if (values.length === 0) return null;
-      return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10;
-    })(),
-    severityBreakdown: items.reduce(
+    up_to_date: displayCounts.up_to_date,
+    outdated: displayCounts.outdated,
+    at_risk: displayCounts.critical + displayCounts.end_of_life,
+    check_failed: displayCounts.check_failed,
+    total: allItems.length,
+    totalVulnerabilities: allItems.reduce((sum, item) => sum + parseCveCount(item.cves), 0),
+    severityBreakdown: allItems.reduce(
       (acc, item) => {
         const severity = item.internalSeverity ?? item.externalSeverity;
         if (severity === "critical" || severity === "high" || severity === "medium" || severity === "low") {
           acc[severity] += 1;
         } else if (isItemAtRisk(item)) {
-          // Fallback: keep critical bucket aligned with critical status cards.
           acc.critical += 1;
         }
         return acc;

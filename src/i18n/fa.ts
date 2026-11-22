@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const fa: TranslationKeys = {
   common: {
+    accessDenied: "شما به این صفحه دسترسی ندارید.",
+    networkError: "خطای شبکه",
     save: "ذخیره",
     cancel: "لغو",
     delete: "حذف",
@@ -43,6 +45,9 @@ export const fa: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "باز کردن نوار کناری",
+    collapseSidebar: "جمع کردن نوار کناری",
+    openMenu: "باز کردن منو",
     dashboard: "داشبورد",
     account: "حساب من",
     items: "آیتم‌ها",
@@ -55,6 +60,12 @@ export const fa: TranslationKeys = {
     docs: "مستندات",
   },
   dashboard: {
+    version: "نسخه",
+    riskColumnHint: "BPT: امتیاز ریسک داخلی (۰ تا ۱۰۰) بر اساس CVE و زمینه. Ext: امتیاز خارجی (مثلاً CVSS).",
+    atRiskFilter: "در معرض خطر (آسیب‌پذیر یا EOL)",
+    atRiskHint: "مواردی با آسیب‌پذیری شناخته‌شده یا پایان پشتیبانی. رنگ‌ها امتیاز ریسک BPT را نشان می‌دهند.",
+    atRisk: "در معرض خطر",
+    checkFailed: "بررسی ناموفق",
     title: "نمای کلی",
     subtitle: "وضعیت تمام آیتم‌های تحت نظارت",
     upToDate: "به‌روز",
@@ -86,6 +97,12 @@ export const fa: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "مثلاً جفت HA، دیتاسنتر ۲",
+    note: "یادداشت",
+    statusAuto: "پس از هر بررسی به‌طور خودکار محاسبه می‌شود.",
+    latestVersionAuto: "توسط منبع پر می‌شود",
+    provider: "ماژول/ارائه‌دهنده",
+    allMonitoring: "همه (پایش‌شده یا نه)",
     branchLabel: "شاخه پیگیری‌شده (اختیاری)",
     branchHint: "فقط نسخه‌های این شاخه «آخرین» حساب می‌شوند، مثلاً 16 برای PostgreSQL 16.x یا 3.11 برای Python 3.11.x. خالی = جدیدترین نسخه.",
     title: "آیتم‌های تحت نظارت",
@@ -121,7 +138,7 @@ export const fa: TranslationKeys = {
     statuses: {
       up_to_date: "به‌روز",
       outdated: "منقضی",
-      critical: "بحرانی",
+      critical: "آسیب‌پذیر",
     },
     methods: {
       manual: "دستی",
@@ -338,6 +355,11 @@ export const fa: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "دسترسی کامل، شامل کاربران و تنظیمات.",
+      ADMIN: "موارد، منابع و گزارش‌ها را مدیریت می‌کند. به کاربران و تنظیمات دسترسی ندارد.",
+      VIEWER: "فقط داشبورد را می‌بیند. نمی‌تواند چیزی را تغییر دهد.",
+    },
     title: "مدیریت کاربران",
     email: "ایمیل",
     role: "نقش",
@@ -831,11 +853,16 @@ export const fa: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "رفتن به حالت تیره",
+    switchToLight: "رفتن به حالت روشن",
     light: "روشن",
     dark: "تاریک",
     system: "سیستم",
   },
   account: {
+    mfaRecoveryHint: "این کلید را در جای امنی نگه دارید. اگر گوشی خود را گم کنید، مدیر ارشد می‌تواند احراز هویت دومرحله‌ای را برایتان غیرفعال کند.",
+    mfaKeyCopied: "کلید کپی شد",
+    mfaCopyKey: "کپی",
     title: "حساب من",
     subtitle: "رمز عبور و احراز هویت دومرحله‌ای",
     passwordTitle: "تغییر رمز عبور",

@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const ja: TranslationKeys = {
   common: {
+    accessDenied: "このページにアクセスする権限がありません。",
+    networkError: "ネットワークエラー",
     save: "保存",
     cancel: "キャンセル",
     delete: "削除",
@@ -43,6 +45,9 @@ export const ja: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "サイドバーを展開する",
+    collapseSidebar: "サイドバーを折りたたむ",
+    openMenu: "メニューを開く",
     dashboard: "ダッシュボード",
     account: "マイアカウント",
     items: "項目",
@@ -55,6 +60,12 @@ export const ja: TranslationKeys = {
     docs: "ドキュメント",
   },
   dashboard: {
+    version: "バージョン",
+    riskColumnHint: "BPT：CVEとコンテキストに基づく内部リスクスコア（0〜100）。Ext：外部スコア（例：CVSS）。",
+    atRiskFilter: "リスクあり（脆弱またはEOL）",
+    atRiskHint: "既知の脆弱性があるか、サポート終了の項目。色はBPTリスクスコアを示します。",
+    atRisk: "リスクあり",
+    checkFailed: "チェック失敗",
     title: "概要",
     subtitle: "監視中の全項目のステータス",
     upToDate: "最新",
@@ -86,6 +97,12 @@ export const ja: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "例：HAペア、データセンター2",
+    note: "メモ",
+    statusAuto: "チェックのたびに自動計算されます。",
+    latestVersionAuto: "ソースが自動入力",
+    provider: "モジュール/プロバイダー",
+    allMonitoring: "すべて（監視の有無を問わず）",
     branchLabel: "追跡するブランチ（任意）",
     branchHint: "このブランチのバージョンのみを「最新」とみなします。例：PostgreSQL 16.x なら 16、Python 3.11.x なら 3.11。空欄 = 最新バージョン。",
     title: "監視項目",
@@ -121,7 +138,7 @@ export const ja: TranslationKeys = {
     statuses: {
       up_to_date: "最新",
       outdated: "古い",
-      critical: "重要",
+      critical: "脆弱性あり",
     },
     methods: {
       manual: "手動",
@@ -338,6 +355,11 @@ export const ja: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "ユーザーと設定を含むフルアクセス。",
+      ADMIN: "項目・ソース・ログを管理。ユーザーと設定にはアクセス不可。",
+      VIEWER: "ダッシュボードの閲覧のみ。変更はできません。",
+    },
     title: "ユーザー管理",
     email: "Email",
     role: "ロール",
@@ -831,11 +853,16 @@ export const ja: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "ダークモードに切り替え",
+    switchToLight: "ライトモードに切り替え",
     light: "ライト",
     dark: "ダーク",
     system: "システム",
   },
   account: {
+    mfaRecoveryHint: "このキーは安全な場所に保管してください。スマートフォンを紛失した場合は、スーパー管理者が二要素認証を無効にできます。",
+    mfaKeyCopied: "キーをコピーしました",
+    mfaCopyKey: "コピー",
     title: "マイアカウント",
     subtitle: "パスワードと二要素認証",
     passwordTitle: "パスワードを変更",

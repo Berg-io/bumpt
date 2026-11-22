@@ -1,5 +1,7 @@
 export const de = {
   common: {
+    accessDenied: "Sie haben keinen Zugriff auf diese Seite.",
+    networkError: "Netzwerkfehler",
     save: "Speichern",
     cancel: "Abbrechen",
     delete: "Löschen",
@@ -41,6 +43,9 @@ export const de = {
     ssoNotConfigured: "SSO ist nicht konfiguriert",
   },
   nav: {
+    expandSidebar: "Seitenleiste ausklappen",
+    collapseSidebar: "Seitenleiste einklappen",
+    openMenu: "Menü öffnen",
     dashboard: "Übersicht",
     account: "Mein Konto",
     items: "Elemente",
@@ -53,6 +58,12 @@ export const de = {
     docs: "Dokumentation",
   },
   dashboard: {
+    version: "Version",
+    riskColumnHint: "BPT: interner Risikowert (0–100) aus CVEs und Kontext. Ext: externer Wert (z. B. CVSS).",
+    atRiskFilter: "Gefährdet (verwundbar oder EOL)",
+    atRiskHint: "Elemente mit bekannten Schwachstellen oder am Ende des Supports. Die Farben zeigen den BPT-Risikowert.",
+    atRisk: "gefährdet",
+    checkFailed: "Prüfung fehlgeschlagen",
     title: "Übersicht",
     subtitle: "Status aller überwachten Elemente",
     upToDate: "Aktuell",
@@ -84,6 +95,12 @@ export const de = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "z. B. HA-Paar, Rechenzentrum 2",
+    note: "Notiz",
+    statusAuto: "Wird nach jeder Prüfung automatisch berechnet.",
+    latestVersionAuto: "Wird von der Quelle ermittelt",
+    provider: "Modul/Anbieter",
+    allMonitoring: "Alle (überwacht oder nicht)",
     branchLabel: "Verfolgter Zweig (optional)",
     branchHint: "Nur Versionen dieses Zweigs gelten als „neueste“, z. B. 16 für PostgreSQL 16.x oder 3.11 für Python 3.11.x. Leer = neueste Version.",
     title: "Überwachte Elemente",
@@ -119,7 +136,7 @@ export const de = {
     statuses: {
       up_to_date: "Aktuell",
       outdated: "Veraltet",
-      critical: "Kritisch",
+      critical: "Verwundbar",
     },
     methods: {
       manual: "Manuell",
@@ -336,6 +353,11 @@ export const de = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Voller Zugriff, inklusive Benutzer und Einstellungen.",
+      ADMIN: "Verwaltet Elemente, Quellen und Protokolle. Kein Zugriff auf Benutzer und Einstellungen.",
+      VIEWER: "Sieht nur das Dashboard. Kann nichts ändern.",
+    },
     title: "Benutzerverwaltung",
     email: "E-Mail",
     role: "Rolle",
@@ -829,11 +851,16 @@ export const de = {
     bptCritical: "Kritisch",
   },
   theme: {
+    switchToDark: "Zum dunklen Modus wechseln",
+    switchToLight: "Zum hellen Modus wechseln",
     light: "Hell",
     dark: "Dunkel",
     system: "System",
   },
   account: {
+    mfaRecoveryHint: "Bewahren Sie diesen Schlüssel sicher auf. Wenn Sie Ihr Telefon verlieren, kann ein Super-Admin die Zwei-Faktor-Authentifizierung für Sie deaktivieren.",
+    mfaKeyCopied: "Schlüssel kopiert",
+    mfaCopyKey: "Kopieren",
     title: "Mein Konto",
     subtitle: "Passwort und Zwei-Faktor-Authentifizierung",
     passwordTitle: "Passwort ändern",

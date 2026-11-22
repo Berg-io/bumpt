@@ -44,7 +44,32 @@ async function initSettingIfMissing(key: string, value: string) {
   }
 }
 
+// Built-in source descriptions were first seeded in German. Existing databases keep
+// whatever text they got, so rewrite only the untouched old strings.
+const LEGACY_SOURCE_DESCRIPTIONS: [string, string][] = [
+    ["Docker Hub Registry — automatische Tag-Erkennung", "Docker Hub Registry — automatic tag detection"],
+    ["GitHub Releases API — letzte stabile Version", "GitHub Releases API — latest stable release"],
+    ["Apple App Store — Version über iTunes Lookup API", "Apple App Store — version via iTunes Lookup API"],
+    ["Google Play Store — Version über Play Store Seite", "Google Play Store — version from the Play Store page"],
+    ["Microsoft Store — Version über die Store-Webseite", "Microsoft Store — version from the Store web page"],
+    ["EndOfLife.date — Versionen und Support-Daten für 400+ Produkte", "EndOfLife.date — versions and support dates for 400+ products"],
+    ["NPM Registry — neueste Paketversion", "NPM Registry — latest package version"],
+    ["Python Package Index — neueste Paketversion", "Python Package Index — latest package version"],
+    ["Repology — Softwareversionen über mehrere Repositories", "Repology — software versions across many repositories"],
+    ["Homebrew Formulae — macOS-Paketversionen", "Homebrew Formulae — macOS package versions"],
+    ["WordPress.org Plugin API — Plugin-Versionen", "WordPress.org Plugin API — plugin versions"],
+    ["winget.run — Windows-Paketversionen (API-Schlüssel erforderlich)", "winget.run — Windows package versions (API key required)"],
+    ["CSV-Datenquelle — Versionen aus hochgeladenen CSV-Dateien", "CSV data source — versions from uploaded CSV files"],
+];
+
 async function main() {
+  for (const [legacy, current] of LEGACY_SOURCE_DESCRIPTIONS) {
+    await prisma.checkSource.updateMany({
+      where: { isBuiltIn: true, description: legacy },
+      data: { description: current },
+    });
+  }
+
   // --- Seed built-in CheckSources ---
   const dockerHubSource = await prisma.checkSource.upsert({
     where: { id: "builtin-dockerhub" },
@@ -55,7 +80,7 @@ async function main() {
       type: "dockerhub",
       config: "{}",
       isBuiltIn: true,
-      description: "Docker Hub Registry — automatische Tag-Erkennung",
+      description: "Docker Hub Registry — automatic tag detection",
     },
   });
 
@@ -68,7 +93,7 @@ async function main() {
       type: "github",
       config: "{}",
       isBuiltIn: true,
-      description: "GitHub Releases API — letzte stabile Version",
+      description: "GitHub Releases API — latest stable release",
     },
   });
 
@@ -81,7 +106,7 @@ async function main() {
       type: "appstore",
       config: "{}",
       isBuiltIn: true,
-      description: "Apple App Store — Version über iTunes Lookup API",
+      description: "Apple App Store — version via iTunes Lookup API",
     },
   });
 
@@ -94,7 +119,7 @@ async function main() {
       type: "playstore",
       config: "{}",
       isBuiltIn: true,
-      description: "Google Play Store — Version über Play Store Seite",
+      description: "Google Play Store — version from the Play Store page",
     },
   });
 
@@ -107,7 +132,7 @@ async function main() {
       type: "msstore",
       config: "{}",
       isBuiltIn: true,
-      description: "Microsoft Store — Version über die Store-Webseite",
+      description: "Microsoft Store — version from the Store web page",
     },
   });
 
@@ -133,7 +158,7 @@ async function main() {
       type: "endoflife",
       config: "{}",
       isBuiltIn: true,
-      description: "EndOfLife.date — Versionen und Support-Daten für 400+ Produkte",
+      description: "EndOfLife.date — versions and support dates for 400+ products",
     },
   });
 
@@ -146,7 +171,7 @@ async function main() {
       type: "npm",
       config: "{}",
       isBuiltIn: true,
-      description: "NPM Registry — neueste Paketversion",
+      description: "NPM Registry — latest package version",
     },
   });
 
@@ -159,7 +184,7 @@ async function main() {
       type: "pypi",
       config: "{}",
       isBuiltIn: true,
-      description: "Python Package Index — neueste Paketversion",
+      description: "Python Package Index — latest package version",
     },
   });
 
@@ -172,7 +197,7 @@ async function main() {
       type: "repology",
       config: "{}",
       isBuiltIn: true,
-      description: "Repology — Softwareversionen über mehrere Repositories",
+      description: "Repology — software versions across many repositories",
     },
   });
 
@@ -185,7 +210,7 @@ async function main() {
       type: "homebrew",
       config: "{}",
       isBuiltIn: true,
-      description: "Homebrew Formulae — macOS-Paketversionen",
+      description: "Homebrew Formulae — macOS package versions",
     },
   });
 
@@ -198,7 +223,7 @@ async function main() {
       type: "wordpress",
       config: "{}",
       isBuiltIn: true,
-      description: "WordPress.org Plugin API — Plugin-Versionen",
+      description: "WordPress.org Plugin API — plugin versions",
     },
   });
 
@@ -211,7 +236,7 @@ async function main() {
       type: "winget",
       config: "{}",
       isBuiltIn: true,
-      description: "winget.run — Windows-Paketversionen (API-Schlüssel erforderlich)",
+      description: "winget.run — Windows package versions (API key required)",
     },
   });
 
@@ -224,7 +249,7 @@ async function main() {
       type: "csv_data",
       config: "{}",
       isBuiltIn: true,
-      description: "CSV-Datenquelle — Versionen aus hochgeladenen CSV-Dateien",
+      description: "CSV data source — versions from uploaded CSV files",
     },
   });
 

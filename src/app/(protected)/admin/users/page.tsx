@@ -142,7 +142,7 @@ export default function AdminUsersPage() {
         toast(err.error || "Error", "error");
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     }
     setEditUser(null);
   };
@@ -166,7 +166,7 @@ export default function AdminUsersPage() {
         toast(err.error || "Error", "error");
       }
     } catch {
-      toast("Netzwerkfehler", "error");
+      toast(t.common.networkError, "error");
     }
     setDeleteId(null);
   };

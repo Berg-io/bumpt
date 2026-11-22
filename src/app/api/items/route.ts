@@ -5,6 +5,7 @@ import { createItemSchema } from "@/lib/validations";
 import { logAudit } from "@/lib/audit";
 import { canCreateItem } from "@/lib/license";
 import { getAppSetting } from "@/lib/settings";
+import { displayStatusWhere, isDisplayStatus } from "@/lib/item-classification";
 import type { JWTPayload } from "@/types";
 
 const ALLOWED_PAGE_SIZES = new Set([25, 50, 100, 500]);
@@ -31,6 +32,7 @@ export const GET = withAuth(
     const status = searchParams.get("status");
     const securityState = searchParams.get("securityState");
     const riskState = searchParams.get("riskState");
+    const displayStatus = searchParams.get("displayStatus");
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1", 10);
     const dashboardDefaultPageSize = await getAppSetting("dashboard_default_page_size");
@@ -44,51 +46,37 @@ export const GET = withAuth(
     const origin = searchParams.get("origin");
 
     const where: Record<string, unknown> = {};
+    // Every extra condition goes into AND, so the filters never overwrite each other's OR.
+    const and: Record<string, unknown>[] = [];
     if (type) where.type = type;
-    if (status) where.status = status;
+    if (isDisplayStatus(displayStatus)) {
+      and.push(displayStatusWhere(displayStatus));
+    } else if (status) {
+      where.status = status;
+    }
     if (securityState) where.securityState = securityState;
     if (riskState === "at_risk") {
-      where.OR = [
-        { securityState: "vulnerable" },
-        { status: "end_of_life" },
-        { status: "critical" }, // legacy value, see isItemVulnerable()
-        {
-          AND: [
-            { cves: { not: null } },
-            { NOT: { cves: "" } },
-            { NOT: { cves: "[]" } },
-          ],
-        },
-      ];
+      and.push({ OR: [displayStatusWhere("end_of_life"), displayStatusWhere("critical")] });
     }
     if (monitoringEnabled === "true") where.monitoringEnabled = true;
     if (monitoringEnabled === "false") where.monitoringEnabled = false;
     if (search) {
-      const searchClause = {
+      and.push({
         OR: [
           { name: { contains: search } },
           { tags: { contains: search } },
         ],
-      };
-      if (riskState === "at_risk") {
-        const existingAnd = Array.isArray(where.AND) ? where.AND : [];
-        where.AND = [...existingAnd, searchClause];
-      } else {
-        where.OR = searchClause.OR;
-      }
+      });
     }
     if (origin === "agent" || origin === "manual") {
       const agentClause = { tags: { contains: '"agent"' } };
-      const existingAnd = Array.isArray(where.AND) ? where.AND : [];
-      where.AND = [...existingAnd, origin === "agent" ? agentClause : { OR: [{ tags: null }, { NOT: agentClause }] }];
+      and.push(origin === "agent" ? agentClause : { OR: [{ tags: null }, { NOT: agentClause }] });
     }
     if (tags) {
       const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
-      if (tagList.length > 0) {
-        const existingAnd = Array.isArray(where.AND) ? where.AND : [];
-        where.AND = [...existingAnd, ...tagList.map((tag) => ({ tags: { contains: tag } }))];
-      }
+      and.push(...tagList.map((tag) => ({ tags: { contains: tag } })));
     }
+    if (and.length > 0) where.AND = and;
 
     const [items, total] = await Promise.all([
       prisma.monitoredItem.findMany({

@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const ru: TranslationKeys = {
   common: {
+    accessDenied: "У вас нет доступа к этой странице.",
+    networkError: "Ошибка сети",
     save: "Сохранить",
     cancel: "Отмена",
     delete: "Удалить",
@@ -43,6 +45,9 @@ export const ru: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "Развернуть панель",
+    collapseSidebar: "Свернуть панель",
+    openMenu: "Открыть меню",
     dashboard: "Обзор",
     account: "Мой аккаунт",
     items: "Элементы",
@@ -55,6 +60,12 @@ export const ru: TranslationKeys = {
     docs: "Документация",
   },
   dashboard: {
+    version: "Версия",
+    riskColumnHint: "BPT: внутренняя оценка риска (0–100) по CVE и контексту. Ext: внешняя оценка (например, CVSS).",
+    atRiskFilter: "Под угрозой (уязвимо или EOL)",
+    atRiskHint: "Элементы с известными уязвимостями или без поддержки. Цвета показывают оценку риска BPT.",
+    atRisk: "под угрозой",
+    checkFailed: "Проверка не удалась",
     title: "Обзор",
     subtitle: "Статус всех отслеживаемых элементов",
     upToDate: "Актуально",
@@ -86,6 +97,12 @@ export const ru: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "напр. HA-пара, ЦОД 2",
+    note: "Заметка",
+    statusAuto: "Рассчитывается автоматически после каждой проверки.",
+    latestVersionAuto: "Заполняется источником",
+    provider: "Модуль/Провайдер",
+    allMonitoring: "Все (с мониторингом и без)",
     branchLabel: "Отслеживаемая ветка (необязательно)",
     branchHint: "Только версии этой ветки считаются «последними», например 16 для PostgreSQL 16.x или 3.11 для Python 3.11.x. Пусто = самая новая версия.",
     title: "Отслеживаемые элементы",
@@ -121,7 +138,7 @@ export const ru: TranslationKeys = {
     statuses: {
       up_to_date: "Актуально",
       outdated: "Устарело",
-      critical: "Критично",
+      critical: "Уязвимо",
     },
     methods: {
       manual: "Вручную",
@@ -338,6 +355,11 @@ export const ru: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Полный доступ, включая пользователей и настройки.",
+      ADMIN: "Управляет элементами, источниками и журналами. Нет доступа к пользователям и настройкам.",
+      VIEWER: "Видит только панель. Ничего не может менять.",
+    },
     title: "Управление пользователями",
     email: "Email",
     role: "Роль",
@@ -831,11 +853,16 @@ export const ru: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "Тёмная тема",
+    switchToLight: "Светлая тема",
     light: "Светлая",
     dark: "Тёмная",
     system: "Системная",
   },
   account: {
+    mfaRecoveryHint: "Сохраните этот ключ в надёжном месте. Если вы потеряете телефон, суперадминистратор может отключить двухфакторную аутентификацию.",
+    mfaKeyCopied: "Ключ скопирован",
+    mfaCopyKey: "Копировать",
     title: "Мой аккаунт",
     subtitle: "Пароль и двухфакторная аутентификация",
     passwordTitle: "Изменить пароль",

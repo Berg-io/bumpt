@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const gsw: TranslationKeys = {
   common: {
+    accessDenied: "Du häsch kei Zuegriff uf die Siite.",
+    networkError: "Netzwärchfähler",
     save: "Speichere",
     cancel: "Abbräche",
     delete: "Lösche",
@@ -43,6 +45,9 @@ export const gsw: TranslationKeys = {
     ssoNotConfigured: "SSO is not configured",
   },
   nav: {
+    expandSidebar: "Siiteleischte uftue",
+    collapseSidebar: "Siiteleischte zuemache",
+    openMenu: "Menü uftue",
     dashboard: "Überblick",
     account: "Mis Konto",
     items: "Elemänt",
@@ -55,6 +60,12 @@ export const gsw: TranslationKeys = {
     docs: "Dokumentation",
   },
   dashboard: {
+    version: "Version",
+    riskColumnHint: "BPT: interne Risikowärt (0–100) us CVEs und Kontext. Ext: externe Wärt (z. B. CVSS).",
+    atRiskFilter: "Gfährdet (verwundbar oder EOL)",
+    atRiskHint: "Elemänt mit bekannte Schwachstelle oder am Änd vom Support. D Farbe zeiged de BPT-Risikowärt.",
+    atRisk: "gfährdet",
+    checkFailed: "Prüefig fählgschlage",
     title: "Überblick",
     subtitle: "Status vo allne überwachte Elemänt",
     upToDate: "Aktuell",
@@ -86,6 +97,12 @@ export const gsw: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "z. B. HA-Paar, Rächezäntrum 2",
+    note: "Notiz",
+    statusAuto: "Wird nach jedere Prüefig automatisch berächnet.",
+    latestVersionAuto: "Wird vo de Quelle usgfüllt",
+    provider: "Modul/Aabieter",
+    allMonitoring: "Alli (überwacht oder nöd)",
     branchLabel: "Verfolgte Zwiig (optional)",
     branchHint: "Nur Versione vo dem Zwiig gälted als „neuschti“, z. B. 16 für PostgreSQL 16.x oder 3.11 für Python 3.11.x. Leer = neuschti Version.",
     title: "Überwachti Elemänt",
@@ -121,7 +138,7 @@ export const gsw: TranslationKeys = {
     statuses: {
       up_to_date: "Aktuell",
       outdated: "Veraltet",
-      critical: "Kritisch",
+      critical: "Verwundbar",
     },
     methods: {
       manual: "Manuell",
@@ -338,6 +355,11 @@ export const gsw: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Volle Zuegriff, inklusiv Benutzer und Iistellige.",
+      ADMIN: "Verwaltet Elemänt, Quelle und Protokoll. Kei Zuegriff uf Benutzer und Iistellige.",
+      VIEWER: "Gseht nur s Dashboard. Cha nüt ändere.",
+    },
     title: "Benutzerverwautig",
     email: "E-Mail",
     role: "Rolle",
@@ -831,11 +853,16 @@ export const gsw: TranslationKeys = {
     bptCritical: "Critical",
   },
   theme: {
+    switchToDark: "Uf dunkle Modus wächsle",
+    switchToLight: "Uf hälle Modus wächsle",
     light: "Hell",
     dark: "Dunkel",
     system: "System",
   },
   account: {
+    mfaRecoveryHint: "Bhalt dä Schlüssel sicher uf. Wänn du dis Telefon verlüürsch, cha en Super-Admin d Zwei-Faktor-Authentifizierig für dich abschalte.",
+    mfaKeyCopied: "Schlüssel kopiert",
+    mfaCopyKey: "Kopiere",
     title: "Mis Konto",
     subtitle: "Passwort und Zwei-Faktor-Authentifizierig",
     passwordTitle: "Passwort ändere",

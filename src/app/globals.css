@@ -38,7 +38,7 @@
   --foreground: 226 27% 14%;
   --card: 60 7% 98%;
   --card-foreground: 226 27% 14%;
-  --primary: 207 37% 54%;
+  --primary: 207 44% 42%;
   --primary-foreground: 210 33% 98%;
   --secondary: 43 18% 93%;
   --secondary-foreground: 220 18% 20%;
@@ -50,7 +50,7 @@
   --destructive-foreground: 210 40% 98%;
   --border: 40 10% 89%;
   --input: 40 10% 89%;
-  --ring: 207 37% 54%;
+  --ring: 207 44% 42%;
   --radius: 0.5rem;
   --success: 142.1 76.2% 36.3%;
   --success-foreground: 355.7 100% 97.3%;

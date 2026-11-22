@@ -39,6 +39,7 @@ interface ItemDetail {
   latestVersion: string | null;
   status: string;
   lastChecked: string | null;
+  lastCheckError?: string | null;
   releaseNotes: string | null;
   releaseDate: string | null;
   releaseUrl: string | null;
@@ -72,6 +73,7 @@ interface ItemDetailModalProps {
 }
 
 const statusVariants: Record<string, "success" | "warning" | "critical"> = {
+  check_failed: "warning",
   up_to_date: "success",
   outdated: "warning",
   critical: "critical",
@@ -112,6 +114,7 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
   const statusLabel = (status: string) => {
     if (status === "critical") return t.items.statuses.critical;
     if (status === "end_of_life") return t.itemDetail.eolReached;
+    if (status === "check_failed") return t.dashboard.checkFailed;
     return t.items.statuses[status as keyof typeof t.items.statuses] || status;
   };
 
@@ -183,6 +186,16 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
 
       {!loading && item && (
         <div className="space-y-5">
+          {item.lastCheckError && (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500 mt-0.5" />
+              <div className="min-w-0">
+                <p className="font-medium text-amber-700 dark:text-amber-400">{t.dashboard.checkFailed}</p>
+                <p className="text-xs text-muted-foreground break-words">{item.lastCheckError}</p>
+              </div>
+            </div>
+          )}
+
           {/* Status + Versions */}
           <div className="flex items-center gap-3 flex-wrap">
             <Badge variant={statusVariants[displayStatus] || "default"}>
@@ -373,7 +386,7 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
                 <FileText className="h-4 w-4" />
                 {t.itemDetail.releaseNotes}
               </p>
-              <div className="rounded-lg border bg-muted/30 p-3 max-h-64 overflow-y-auto">
+              <div className="rounded-lg border bg-muted/30 p-3 max-h-64 overflow-y-auto overflow-x-hidden">
                 <RenderedContent content={item.releaseNotes} />
               </div>
             </div>

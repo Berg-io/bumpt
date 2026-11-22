@@ -10,14 +10,14 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, actions }: HeaderProps) {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-4 lg:px-8">
-      <div className="pl-12 lg:pl-0">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+    <header className="sticky top-0 z-30 flex min-h-14 shrink-0 items-center justify-between gap-3 border-b bg-background px-4 py-2 lg:px-8">
+      <div className="min-w-0 pl-12 lg:pl-0">
+        <h1 className="truncate text-xl font-bold tracking-tight lg:text-2xl">{title}</h1>
         {subtitle && (
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {actions}
         <ThemeToggle />
       </div>

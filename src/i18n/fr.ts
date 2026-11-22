@@ -2,6 +2,8 @@ import type { TranslationKeys } from "./de";
 
 export const fr: TranslationKeys = {
   common: {
+    accessDenied: "Vous n'avez pas accès à cette page.",
+    networkError: "Erreur réseau",
     save: "Enregistrer",
     cancel: "Annuler",
     delete: "Supprimer",
@@ -43,6 +45,9 @@ export const fr: TranslationKeys = {
     ssoNotConfigured: "Le SSO n'est pas configuré",
   },
   nav: {
+    expandSidebar: "Déplier le menu",
+    collapseSidebar: "Réduire le menu",
+    openMenu: "Ouvrir le menu",
     dashboard: "Tableau de bord",
     account: "Mon compte",
     items: "Éléments",
@@ -55,6 +60,12 @@ export const fr: TranslationKeys = {
     docs: "Documentation",
   },
   dashboard: {
+    version: "Version",
+    riskColumnHint: "BPT : score de risque interne (0–100) calculé à partir des CVE et du contexte. Ext : score externe (ex. CVSS).",
+    atRiskFilter: "À risque (vulnérable ou fin de vie)",
+    atRiskHint: "Éléments avec des vulnérabilités connues ou en fin de vie. Les couleurs montrent le score de risque BPT.",
+    atRisk: "à risque",
+    checkFailed: "Vérification échouée",
     title: "Tableau de bord",
     subtitle: "Statut de tous les éléments surveillés",
     upToDate: "À jour",
@@ -86,6 +97,12 @@ export const fr: TranslationKeys = {
     notAvailable: "N/A",
   },
   items: {
+    notePlaceholder: "ex. paire HA, datacenter 2",
+    note: "Note",
+    statusAuto: "Calculé automatiquement après chaque vérification.",
+    latestVersionAuto: "Rempli par la source",
+    provider: "Module/Fournisseur",
+    allMonitoring: "Tous (surveillés ou non)",
     branchLabel: "Branche suivie (optionnel)",
     branchHint: "Seules les versions de cette branche comptent comme « dernière », ex. 16 pour PostgreSQL 16.x ou 3.11 pour Python 3.11.x. Vide = version la plus récente.",
     title: "Éléments surveillés",
@@ -121,7 +138,7 @@ export const fr: TranslationKeys = {
     statuses: {
       up_to_date: "À jour",
       outdated: "Obsolète",
-      critical: "Critique",
+      critical: "Vulnérable",
     },
     methods: {
       manual: "Manuel",
@@ -338,6 +355,11 @@ export const fr: TranslationKeys = {
     },
   },
   users: {
+    roleHints: {
+      SUPER_ADMIN: "Accès complet, y compris utilisateurs et réglages.",
+      ADMIN: "Gère les éléments, les sources et les journaux. Pas d'accès aux utilisateurs ni aux réglages.",
+      VIEWER: "Voit uniquement le tableau de bord. Ne peut rien modifier.",
+    },
     title: "Gestion des utilisateurs",
     email: "E-mail",
     role: "Rôle",
@@ -831,11 +853,16 @@ export const fr: TranslationKeys = {
     bptCritical: "Critique",
   },
   theme: {
+    switchToDark: "Passer en mode sombre",
+    switchToLight: "Passer en mode clair",
     light: "Clair",
     dark: "Sombre",
     system: "Système",
   },
   account: {
+    mfaRecoveryHint: "Gardez cette clé en lieu sûr. Si vous perdez votre téléphone, un super administrateur peut désactiver la double authentification pour vous.",
+    mfaKeyCopied: "Clé copiée",
+    mfaCopyKey: "Copier",
     title: "Mon compte",
     subtitle: "Mot de passe et double authentification",
     passwordTitle: "Changer le mot de passe",
