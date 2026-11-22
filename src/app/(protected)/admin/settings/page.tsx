@@ -1106,8 +1106,8 @@ export default function SettingsPage() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {t.settings.apiKeys.vulndbClientSecretHint}{" "}
-                  <a href="https://vulndb.cyberriskanalytics.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    vulndb.cyberriskanalytics.com
+                  <a href="https://vulndb.flashpoint.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    vulndb.flashpoint.io
                   </a>
                 </p>
               </div>

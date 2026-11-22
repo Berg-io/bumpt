@@ -61,7 +61,7 @@ const EMPTY_ITEM: ItemData = {
 };
 
 /** Sources whose checker can follow a version branch (sourceParams.branch). */
-const BRANCH_SOURCES = new Set(["dockerhub", "github", "npm", "pypi"]);
+const BRANCH_SOURCES = new Set(["dockerhub", "github", "npm", "pypi", "oci"]);
 
 function boolToSelect(value: boolean | null | undefined): string {
   if (value === true) return "yes";
@@ -254,6 +254,8 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
         finalData.sourceParams = JSON.stringify({ pluginId: paramFields.pluginId });
       } else if (selectedSource.type === "ansible") {
         finalData.sourceParams = JSON.stringify({ collection: paramFields.collection });
+      } else if (selectedSource.type === "oci") {
+        finalData.sourceParams = JSON.stringify({ image: paramFields.image });
       } else if (selectedSource.type === "quay") {
         finalData.sourceParams = JSON.stringify({ repository: paramFields.repository });
       } else if (selectedSource.type === "bitbucket") {
@@ -844,6 +846,19 @@ export function ItemForm({ open, onClose, onSave, item }: ItemFormProps) {
               value={paramFields.collection}
               onChange={(e) => setParamFields({ ...paramFields, collection: e.target.value })}
               placeholder={t.sources.placeholders.collection}
+              required
+            />
+          </div>
+        )}
+
+        {selectedSource?.type === "oci" && (
+          <div className="rounded-lg border p-3 bg-muted/30 space-y-2">
+            <Input
+              id="ociImage"
+              label={t.sources.fields.image}
+              value={paramFields.image}
+              onChange={(e) => setParamFields({ ...paramFields, image: e.target.value })}
+              placeholder="ghcr.io/home-assistant/home-assistant"
               required
             />
           </div>

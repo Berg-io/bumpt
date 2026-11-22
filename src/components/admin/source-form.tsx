@@ -89,7 +89,7 @@ const PARAM_ONLY_TYPES = [
   "terraform", "chocolatey",
   "pub", "hex", "conda", "cocoapods", "cpan", "fdroid",
   "firefox_addon", "vscode", "jetbrains", "openvsx",
-  "aur", "ansible", "quay", "bitbucket", "libraries_io",
+  "aur", "ansible", "quay", "oci", "bitbucket", "libraries_io",
 ];
 
 function getTypeDescription(type: string): string {
@@ -133,6 +133,7 @@ function getTypeDescription(type: string): string {
     aur: "Queries the Arch User Repository (AUR). The package name is configured per item.",
     ansible: "Queries Ansible Galaxy. The collection (namespace.name) is configured per item.",
     quay: "Queries Quay.io container tags. The repository (namespace/repo) is configured per item.",
+    oci: "Reads tags from any OCI / Docker registry (ghcr.io, registry.k8s.io, mcr.microsoft.com, public.ecr.aws, registry.gitlab.com, self-hosted). The full image (registry/namespace/name) is configured per item.",
     bitbucket: "Queries Bitbucket tags. The repository (workspace/repo) is configured per item.",
     libraries_io: "Queries Libraries.io API (API key required). Platform and package name are configured per item.",
   };
@@ -187,6 +188,7 @@ function getSimpleTestParamDescriptor(type: string): TestParamDescriptor | null 
     aur: { key: "package", placeholder: "yay" },
     ansible: { key: "collection", placeholder: "community.general" },
     quay: { key: "repository", placeholder: "prometheus/prometheus" },
+    oci: { key: "image", placeholder: "ghcr.io/home-assistant/home-assistant" },
     bitbucket: { key: "repo", placeholder: "atlassian/python-bitbucket" },
   };
   return descriptors[type] || null;
@@ -365,7 +367,7 @@ export function SourceForm({ open, onClose, onSave, source, testOnly }: SourceFo
     "gitlab", "packagist", "crates", "rubygems", "goproxy", "helm",
     "snap", "flathub", "terraform", "chocolatey", "pub", "hex",
     "conda", "cocoapods", "cpan", "fdroid", "firefox_addon", "vscode",
-    "jetbrains", "openvsx", "aur", "ansible", "quay", "bitbucket",
+    "jetbrains", "openvsx", "aur", "ansible", "quay", "oci", "bitbucket",
     "libraries_io",
   ].map((type) => {
     const label = t.sources.types[type as keyof typeof t.sources.types] || type;

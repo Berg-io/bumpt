@@ -579,6 +579,19 @@ async function main() {
   });
 
   await prisma.checkSource.upsert({
+    where: { id: "builtin-oci" },
+    update: {},
+    create: {
+      id: "builtin-oci",
+      name: "OCI Registry",
+      type: "oci",
+      config: "{}",
+      isBuiltIn: true,
+      description: "Any OCI / Docker registry (ghcr.io, registry.k8s.io, mcr.microsoft.com, public.ecr.aws…) — image tag versions",
+    },
+  });
+
+  await prisma.checkSource.upsert({
     where: { id: "builtin-bitbucket" },
     update: {},
     create: {

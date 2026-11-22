@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Zap, ArrowRight, Moon, Sun, Crown, BookOpen, ShieldAlert } from "lucide-react";
+import { Zap, ArrowRight, BookOpen, ShieldAlert, Cpu, Compass } from "lucide-react";
 import { ReleaseBadge } from "@/components/layout/release-badge";
+import { DocsHeader, IS_PRO_EDITION, ProBadge } from "@/components/docs/docs-shell";
 
 function McpIcon({ className }: { className?: string }) {
   return (
@@ -14,119 +14,98 @@ function McpIcon({ className }: { className?: string }) {
   );
 }
 
-function usePersistedTheme() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const dark = stored === "dark" || (stored === "system" && prefersDark) || (!stored && prefersDark);
-    document.documentElement.classList.toggle("dark", dark);
-    setIsDark(dark);
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !isDark;
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-    setIsDark(next);
-  };
-
-  return { isDark, toggleTheme };
+interface DocCard {
+  href: string;
+  title: string;
+  description: string;
+  cta: string;
+  icon: React.ReactNode;
+  pro?: boolean;
 }
 
-export default function DocsLandingPage() {
-  const { isDark, toggleTheme } = usePersistedTheme();
+const CARDS: DocCard[] = [
+  {
+    href: "/docs/guide",
+    title: "User guide",
+    description:
+      "Install and upgrade, dashboard statuses, items and check sources, CVE with EPSS and KEV, the Timeline, roles and two-factor authentication.",
+    cta: "Read the guide",
+    icon: <Compass className="h-5 w-5 text-primary" />,
+  },
+  {
+    href: "/docs/scoring",
+    title: "Risk Scoring",
+    description:
+      "Complete guide for CVE external scoring and BPT internal prioritization: formulas, confidence, required context fields, and source methodology.",
+    cta: "Read scoring docs",
+    icon: <ShieldAlert className="h-5 w-5 text-primary" />,
+  },
+  {
+    href: "/docs/agent",
+    title: "Collection agent",
+    description:
+      "Install bumpt-agent on Linux and Windows, write agent.toml, and choose what to monitor with modes and automatic rules.",
+    cta: "Set up the agent",
+    icon: <Cpu className="h-5 w-5 text-primary" />,
+    pro: true,
+  },
+  {
+    href: "/docs/api",
+    title: "REST API",
+    description:
+      "Full OpenAPI 3.1 documentation with interactive endpoint explorer, request/response schemas, and curl examples.",
+    cta: "Explore API",
+    icon: <Zap className="h-5 w-5 text-primary" />,
+    pro: true,
+  },
+  {
+    href: "/docs/mcp",
+    title: "MCP Server",
+    description:
+      "Connect AI assistants from Slack, Teams, Cursor, or any MCP client to query and control your monitoring dashboard.",
+    cta: "View MCP docs",
+    icon: <McpIcon className="h-6 w-6 text-primary" />,
+    pro: true,
+  },
+];
 
+export default function DocsLandingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-4 lg:px-8">
-        <div className="flex items-center gap-3">
-          <BookOpen className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-bold">bum.pt Documentation</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/"
-            className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
-            Dashboard
-          </a>
-          <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-muted transition-colors">
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
-        </div>
-      </header>
+      <DocsHeader title="bum.pt Documentation" icon={BookOpen} />
 
-      <main className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-4xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-3">Professional Documentation</h2>
+          <h2 className="text-3xl font-bold mb-3">Documentation</h2>
           <p className="text-lg text-muted-foreground">
-            Access guides and integrations for your team with the REST API, Model Context Protocol, and risk scoring documentation.
+            Guides to install and use bum.pt, understand its risk scores
+            {IS_PRO_EDITION ? ", deploy the collection agent and integrate with the REST API and MCP." : "."}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <a
-            href="/docs/api"
-            className="group rounded-xl border bg-card p-6 space-y-4 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Zap className="h-5 w-5 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">REST API</h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
-                <Crown className="h-3 w-3" /> Professional
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Full OpenAPI 3.1 documentation with interactive endpoint explorer, request/response schemas, and curl examples.
-            </p>
-            <div className="flex items-center gap-1 text-sm text-primary font-medium group-hover:gap-2 transition-all">
-              Explore API <ArrowRight className="h-4 w-4" />
-            </div>
-          </a>
-
-          <a
-            href="/docs/mcp"
-            className="group rounded-xl border bg-card p-6 space-y-4 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <McpIcon className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">MCP Server</h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
-                <Crown className="h-3 w-3" /> Professional
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Connect AI assistants from Slack, Teams, Cursor, or any MCP client to query and control your monitoring dashboard.
-            </p>
-            <div className="flex items-center gap-1 text-sm text-primary font-medium group-hover:gap-2 transition-all">
-              View MCP docs <ArrowRight className="h-4 w-4" />
-            </div>
-          </a>
-
-          <a
-            href="/docs/scoring"
-            className="group rounded-xl border bg-card p-6 space-y-4 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <ShieldAlert className="h-5 w-5 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Risk Scoring</h3>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Complete guide for CVE external scoring and BPT internal prioritization: formulas, confidence, required
-              context fields, and source methodology.
-            </p>
-            <div className="flex items-center gap-1 text-sm text-primary font-medium group-hover:gap-2 transition-all">
-              Read scoring docs <ArrowRight className="h-4 w-4" />
-            </div>
-          </a>
+          {CARDS.map((card) => {
+            // The Community build has no Pro doc pages: their cards point to the website.
+            const locked = card.pro && !IS_PRO_EDITION;
+            return (
+              <a
+                key={card.href}
+                href={locked ? "https://bum.pt" : card.href}
+                {...(locked ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className="group rounded-xl border bg-card p-6 space-y-4 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">{card.icon}</div>
+                  <h3 className="text-xl font-semibold">{card.title}</h3>
+                  {card.pro && <ProBadge />}
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
+                <div className="flex items-center gap-1 text-sm text-primary font-medium group-hover:gap-2 transition-all">
+                  {locked ? "Available in Professional" : card.cta} <ArrowRight className="h-4 w-4" />
+                </div>
+              </a>
+            );
+          })}
         </div>
       </main>
       <ReleaseBadge />

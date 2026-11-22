@@ -33,7 +33,7 @@ export async function queryVulnDb(
 
   try {
     const searchQuery = version ? `${keyword} ${version}` : keyword;
-    const url = `https://vulndb.cyberriskanalytics.com/api/v1/vulnerabilities/find_by_cpe_or_keyword`;
+    const url = `https://vulndb.flashpoint.io/api/v1/vulnerabilities/find_by_cpe_or_keyword`;
 
     const res = await fetch(url, {
       method: "POST",

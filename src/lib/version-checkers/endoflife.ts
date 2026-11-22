@@ -1,3 +1,4 @@
+import { compareNormalizedVersions } from "@/lib/version-utils";
 import type { VersionCheckResult } from "./types";
 
 interface Cycle {
@@ -63,6 +64,19 @@ export function findInstalledCycle<T extends { cycle: string; latest?: string }>
 }
 
 /**
+ * Oldest cycle when the installed version predates every cycle the product
+ * lists (Node.js 0.0.1, where cycles start at 0.10): long past its end of life.
+ */
+export function cycleOlderThanAll<T extends { cycle: string }>(cycles: T[], currentVersion?: string | null): T | null {
+  const version = extractVersionFamily(currentVersion);
+  if (!version || cycles.length === 0) return null;
+  const numeric = cycles.filter((c) => /^\d/.test(String(c.cycle)));
+  if (numeric.length === 0) return null;
+  const oldest = [...numeric].sort((a, b) => compareNormalizedVersions(String(a.cycle), String(b.cycle)))[0];
+  return compareNormalizedVersions(version, String(oldest.cycle)) < 0 ? oldest : null;
+}
+
+/**
  * With sameCycle, the latest version is the latest of the installed cycle
  * (Python 3.11.x stays compared with 3.11), used for items reported by agents.
  */
@@ -86,7 +100,8 @@ export async function checkEndOfLife(product: string, currentVersion?: string | 
 
   const installed = sameCycle ? findInstalledCycle(cycles, currentVersion) : null;
   const latest = installed ?? cycles[0];
-  const eolCycle = installed ?? findBestCycleMatch(cycles, currentVersion) ?? latest;
+  const predating = installed || findBestCycleMatch(cycles, currentVersion) ? null : cycleOlderThanAll(cycles, currentVersion);
+  const eolCycle = installed ?? findBestCycleMatch(cycles, currentVersion) ?? predating ?? latest;
   const version = latest.latest || latest.cycle || null;
 
   const eolValue = eolCycle.eol;
@@ -96,6 +111,8 @@ export async function checkEndOfLife(product: string, currentVersion?: string | 
   } else if (eolValue === true) {
     eolDate = "true";
   }
+  // Older than the oldest listed cycle: end of life even when that cycle's date is unknown.
+  if (predating && !eolDate) eolDate = "true";
 
   const ltsValue = eolCycle.lts;
   let isLts: boolean | null = null;

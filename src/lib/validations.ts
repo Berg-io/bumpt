@@ -76,7 +76,7 @@ export const createSourceSchema = z.object({
     "helm", "snap", "flathub", "terraform", "chocolatey",
     "pub", "hex", "conda", "cocoapods", "cpan", "fdroid",
     "firefox_addon", "vscode", "jetbrains", "openvsx",
-    "aur", "ansible", "quay", "bitbucket", "libraries_io",
+    "aur", "ansible", "quay", "oci", "bitbucket", "libraries_io",
   ]),
   config: z.string().default("{}"),
   description: z.string().optional().nullable(),

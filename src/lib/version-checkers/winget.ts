@@ -1,92 +1,75 @@
 import { getAppSetting } from "@/lib/settings";
+import { pickWingetVersion, wingetManifestPath } from "./winget-manifest";
 import type { VersionCheckResult } from "./types";
 
-interface WingetPackageEntry {
-  Id?: string;
-  Versions?: string[];
-  UpdatedAt?: string;
-  updatedAt?: string;
-  CreatedAt?: string;
-  createdAt?: string;
-  Latest?: {
-    Name?: string;
-    Publisher?: string;
-    Description?: string;
-    Homepage?: string;
-    ReleaseNotes?: string;
-    InstallerUrl?: string;
-  };
-}
+/**
+ * WinGet versions come straight from the community manifest repository
+ * (microsoft/winget-pkgs). The previous source, api.winget.run, stopped
+ * updating in 2023 and reported PowerToys 0.68 long after 0.9x shipped.
+ */
+const REPO = "microsoft/winget-pkgs";
 
-interface WingetApiResponse {
-  Packages?: WingetPackageEntry[];
-  // Legacy single-package shape
-  Versions?: string[];
-  Id?: string;
-}
+export { pickWingetVersion, wingetManifestPath };
 
-function pickFirstString(...values: Array<string | undefined>): string | null {
-  for (const value of values) {
-    if (typeof value === "string" && value.trim()) return value;
-  }
-  return null;
-}
-
-function semverSort(a: string, b: string): number {
-  const pa = a.replace(/[^0-9.]/g, "").split(".").map(Number);
-  const pb = b.replace(/[^0-9.]/g, "").split(".").map(Number);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const diff = (pb[i] ?? 0) - (pa[i] ?? 0);
-    if (diff !== 0) return diff;
-  }
-  return 0;
+function yamlField(yaml: string, key: string): string | null {
+  const match = yaml.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
+  if (!match) return null;
+  const value = match[1].trim().replace(/^['"]|['"]$/g, "");
+  return value && value !== "|-" && value !== "|" ? value : null;
 }
 
 export async function checkWinget(packageId: string): Promise<VersionCheckResult> {
-  if (!packageId) return { version: null };
+  const path = wingetManifestPath(packageId);
+  if (!path) return { version: null };
 
-  try {
-    const apiKey = await getAppSetting("winget_api_key");
+  const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
+  const token = (await getAppSetting("github_token")) || process.env.GITHUB_TOKEN;
+  if (token) headers.Authorization = `token ${token}`;
 
-    const headers: Record<string, string> = { Accept: "application/json" };
-    if (apiKey) headers["X-API-Key"] = apiKey;
-
-    const url = `https://api.winget.run/v2/packages/${encodeURIComponent(packageId)}`;
-    const res = await fetch(url, { headers, signal: AbortSignal.timeout(10000) });
-    if (!res.ok) return { version: null };
-
-    const data = (await res.json()) as WingetApiResponse;
-
-    let versions: string[] | undefined;
-    let pkg: WingetPackageEntry | undefined;
-
-    if (data.Packages && Array.isArray(data.Packages)) {
-      pkg = data.Packages.find(
-        (p) => p.Id?.toLowerCase() === packageId.toLowerCase()
-      ) || data.Packages[0];
-      versions = pkg?.Versions;
-    } else if (data.Versions) {
-      versions = data.Versions;
-    }
-
-    if (!versions || versions.length === 0) return { version: null };
-
-    const sorted = [...versions].sort(semverSort);
-    const latest = sorted[0];
-
-    return {
-      version: latest || null,
-      description: pkg?.Latest?.Description || null,
-      releaseUrl: pkg?.Latest?.Homepage || null,
-      releaseDate: pickFirstString(pkg?.UpdatedAt, pkg?.updatedAt, pkg?.CreatedAt, pkg?.createdAt),
-      releaseNotes: pkg?.Latest?.ReleaseNotes || null,
-      downloadUrl: pickFirstString(pkg?.Latest?.InstallerUrl, pkg?.Latest?.Homepage),
-      rawMetadata: {
-        totalVersions: versions.length,
-        publisher: pkg?.Latest?.Publisher,
-      },
-    };
-  } catch {
-    return { version: null };
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    headers,
+    signal: AbortSignal.timeout(15000),
+  });
+  if (res.status === 404) throw new Error(`WinGet package "${packageId}" not found in ${REPO}`);
+  if (res.status === 403 || res.status === 429) {
+    throw new Error("GitHub API rate limit reached while reading WinGet manifests (add a GitHub token in Settings)");
   }
+  if (!res.ok) throw new Error(`GitHub API returned ${res.status} for WinGet package "${packageId}"`);
+
+  const entries = (await res.json()) as Array<{ name?: string; type?: string }>;
+  const version = Array.isArray(entries) ? pickWingetVersion(entries) : null;
+  if (!version) return { version: null };
+
+  const id = packageId.trim();
+  const versionPath = `${path}/${version}`;
+  let description: string | null = null;
+  let releaseNotes: string | null = null;
+  let releaseUrl: string | null = null;
+  let homepage: string | null = null;
+  let publisher: string | null = null;
+  try {
+    const locale = await fetch(
+      `https://raw.githubusercontent.com/${REPO}/master/${versionPath}/${encodeURIComponent(id)}.locale.en-US.yaml`,
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (locale.ok) {
+      const yaml = await locale.text();
+      description = yamlField(yaml, "ShortDescription");
+      releaseNotes = yamlField(yaml, "ReleaseNotes");
+      releaseUrl = yamlField(yaml, "ReleaseNotesUrl");
+      homepage = yamlField(yaml, "PackageUrl");
+      publisher = yamlField(yaml, "Publisher");
+    }
+  } catch {
+    // Locale manifest is optional detail.
+  }
+
+  return {
+    version,
+    description,
+    releaseNotes,
+    releaseUrl: releaseUrl || `https://github.com/${REPO}/tree/master/${versionPath}`,
+    downloadUrl: homepage,
+    rawMetadata: { publisher, manifestPath: versionPath },
+  };
 }

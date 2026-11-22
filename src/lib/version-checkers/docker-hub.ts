@@ -1,7 +1,7 @@
 import type { VersionCheckResult } from "./types";
 import { compareNormalizedVersions, matchesBranch } from "@/lib/version-utils";
 
-interface DockerTag {
+export interface DockerTag {
   name: string;
   last_updated?: string;
 }
@@ -13,7 +13,7 @@ interface DockerRepoInfo {
   pull_count?: number;
 }
 
-interface TagCandidate {
+export interface TagCandidate {
   tag: DockerTag;
   tier: number;
   version: string;
@@ -32,7 +32,7 @@ function isDistroVariant(name: string): boolean {
     name.includes("-latest");
 }
 
-function classifyTag(tag: DockerTag): TagCandidate | null {
+export function classifyTag(tag: DockerTag): TagCandidate | null {
   if (SKIP_EXACT.has(tag.name)) return null;
 
   if (CLEAN_SEMVER.test(tag.name)) {
@@ -70,7 +70,7 @@ function classifyTag(tag: DockerTag): TagCandidate | null {
   return null;
 }
 
-function pickHighestVersionTag(candidates: TagCandidate[]): TagCandidate | null {
+export function pickHighestVersionTag(candidates: TagCandidate[]): TagCandidate | null {
   if (candidates.length === 0) return null;
 
   const bestTier = Math.min(...candidates.map((candidate) => candidate.tier));

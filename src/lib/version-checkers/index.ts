@@ -40,9 +40,11 @@ import { checkOpenVsx } from "./openvsx";
 import { checkAur } from "./aur";
 import { checkAnsible } from "./ansible";
 import { checkQuay } from "./quay";
+import { checkOciRegistry } from "./oci-registry";
 import { checkBitbucket } from "./bitbucket";
 import { checkLibrariesIo } from "./libraries-io";
 import { scheduleItemCveEnrichment } from "@/lib/cve-enrichment";
+import { connectorCvesForInstalled } from "@/lib/cve-enrichment/connector-cves";
 import { dispatchWebhookEvent } from "@/lib/webhooks";
 import { isVersionOutdated } from "@/lib/version-utils";
 import type { VersionCheckResult } from "./types";
@@ -190,6 +192,8 @@ export async function resolveVersion(
       return checkAnsible(itemParams.collection ?? "");
     case "quay":
       return checkQuay(itemParams.repository ?? "");
+    case "oci":
+      return checkOciRegistry(itemParams.image ?? "", itemParams.branch);
     case "bitbucket":
       return checkBitbucket(itemParams.repo ?? "");
     case "libraries_io":
@@ -247,19 +251,35 @@ function buildCheckResult(
   };
 }
 
-function buildMetadataUpdate(result: VersionCheckResult) {
-  const hasCves = Boolean(result.cves && result.cves.length > 0);
+/**
+ * Fields a check writes on the item. CVEs a connector reads from the latest
+ * release's notes are fixed in that release, so they only mark an installed
+ * version older than it. They are kept apart in rawMetadata.connectorCves so
+ * that CVE enrichment can tell them from its own earlier findings, and the CVE
+ * metadata of the last enrichment (with its cached CPE) is carried over.
+ */
+function buildMetadataUpdate(result: VersionCheckResult, item: MonitoredItem, latestVersion: string) {
+  const connectorCves = connectorCvesForInstalled(result.cves ?? [], item.currentVersion, latestVersion);
+  const hasCves = connectorCves.length > 0;
+  const rawMetadata: Record<string, unknown> = { ...(result.rawMetadata ?? {}) };
+  rawMetadata.connectorCves = result.cves ?? [];
+  try {
+    const previous = item.rawMetadata ? (JSON.parse(item.rawMetadata) as Record<string, unknown>) : null;
+    if (previous?.cveMetadata && !("cveMetadata" in rawMetadata)) rawMetadata.cveMetadata = previous.cveMetadata;
+  } catch {
+    // previous metadata unreadable: start afresh
+  }
   return {
     releaseNotes: result.releaseNotes ?? null,
     releaseDate: result.releaseDate ?? null,
     releaseUrl: result.releaseUrl ?? null,
-    cves: hasCves ? JSON.stringify(result.cves) : null,
+    cves: hasCves ? JSON.stringify(connectorCves) : null,
     ...(hasCves ? { securityState: "vulnerable" as const } : {}),
     description: result.description ?? null,
     downloadUrl: result.downloadUrl ?? null,
     eolDate: result.eolDate ?? null,
     isLts: result.isLts ?? null,
-    rawMetadata: result.rawMetadata ? JSON.stringify(result.rawMetadata) : null,
+    rawMetadata: JSON.stringify(rawMetadata),
   };
 }
 
@@ -284,7 +304,7 @@ async function handlePostCheckSecurityState(
   sourceType: string,
   sourceParams: Record<string, string>
 ): Promise<void> {
-  const connectorHasCves = Boolean(result.cves && result.cves.length > 0);
+  const connectorHasCves = connectorCvesForInstalled(result.cves ?? [], item.currentVersion, latestVersion).length > 0;
   const enrichmentScheduled = await scheduleItemCveEnrichment({
     id: item.id,
     name: item.name,
@@ -367,7 +387,7 @@ async function runItemVersionCheck(item: MonitoredItem): Promise<CheckResult> {
         latestVersion,
         status: newStatus,
         lastChecked: new Date(),
-        ...buildMetadataUpdate(result),
+        ...buildMetadataUpdate(result, item, latestVersion),
       },
     });
 
@@ -425,7 +445,7 @@ async function runItemVersionCheck(item: MonitoredItem): Promise<CheckResult> {
       latestVersion,
       status: newStatus,
       lastChecked: new Date(),
-      ...buildMetadataUpdate(result),
+      ...buildMetadataUpdate(result, item, latestVersion),
     },
   });
 

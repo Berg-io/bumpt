@@ -338,7 +338,7 @@ export default function AdminItemsPage() {
         "helm", "snap", "flathub", "terraform", "chocolatey",
         "pub", "hex", "conda", "cocoapods", "cpan", "fdroid",
         "firefox_addon", "vscode", "jetbrains", "openvsx",
-        "aur", "ansible", "quay", "bitbucket", "libraries_io",
+        "aur", "ansible", "quay", "oci", "bitbucket", "libraries_io",
       ]);
 
       const SOURCE_DISPLAY_NAMES: Record<string, string> = {
@@ -357,7 +357,7 @@ export default function AdminItemsPage() {
         firefox_addon: "Firefox Add-ons", vscode: "VS Code Marketplace",
         jetbrains: "JetBrains Marketplace", openvsx: "Open VSX",
         aur: "AUR", ansible: "Ansible Galaxy",
-        quay: "Quay.io", bitbucket: "Bitbucket", libraries_io: "Libraries.io",
+        quay: "Quay.io", oci: "OCI Registry", bitbucket: "Bitbucket", libraries_io: "Libraries.io",
       };
 
       const sourcesRes = await fetch("/api/sources");

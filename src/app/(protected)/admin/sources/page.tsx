@@ -106,6 +106,7 @@ const typeIcons: Record<string, React.ReactNode> = {
   aur: <SiArchlinux className="h-4 w-4" />,
   ansible: <SiAnsible className="h-4 w-4" />,
   quay: <SiRedhat className="h-4 w-4" />,
+  oci: <SiDocker className="h-4 w-4" />,
   bitbucket: <SiBitbucket className="h-4 w-4" />,
   libraries_io: <SiLibrariesdotio className="h-4 w-4" />,
 };
@@ -156,6 +157,7 @@ const typeBadgeVariants: Record<string, "default" | "success" | "warning" | "inf
   aur: "info",
   ansible: "success",
   quay: "success",
+  oci: "success",
   bitbucket: "success",
   libraries_io: "success",
 };

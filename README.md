@@ -161,9 +161,10 @@ For full variable descriptions, use `.env.example` as the source of truth.
 ## API and docs
 
 - OpenAPI spec: `/api/openapi`
-- Interactive docs: `/docs`
+- Interactive docs: `/docs` (user guide `/docs/guide`, risk scoring `/docs/scoring`)
 - Health check: `/api/health`
 - MCP docs (Professional): `/docs/mcp`
+- Collection agent docs (Professional): `/docs/agent`
 
 Authentication methods:
 

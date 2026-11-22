@@ -310,6 +310,7 @@ export const de = {
       aur: "AUR (Arch Linux)",
       ansible: "Ansible Galaxy",
       quay: "Quay.io",
+      oci: "OCI-Registry (ghcr.io, mcr, ECR…)",
       bitbucket: "Bitbucket",
       libraries_io: "Libraries.io",
     },

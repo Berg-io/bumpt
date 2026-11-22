@@ -312,6 +312,7 @@ export const fa: TranslationKeys = {
       aur: "AUR (Arch Linux)",
       ansible: "Ansible Galaxy",
       quay: "Quay.io",
+      oci: "OCI registry (ghcr.io, mcr, ECR…)",
       bitbucket: "Bitbucket",
       libraries_io: "Libraries.io",
     },
