@@ -4,8 +4,14 @@ set -e
 echo "=== bum.pt - Starting ==="
 
 # Community policy: local license key installation is disabled.
-# When enabled, ignore LICENSE_KEY so UI/runtime stay Community-only.
-if [ "${BUMPT_DISABLE_LICENSE_INSTALL:-true}" = "true" ]; then
+# The edition comes from src/pro/EDITION ("pro", or "community" in the Community
+# repository, where src/pro is replaced by community-stubs/src/pro).
+EDITION="$(tr -d '[:space:]' < /app/src/pro/EDITION 2>/dev/null || echo pro)"
+DEFAULT_DISABLE_LICENSE_INSTALL=false
+if [ "$EDITION" = "community" ]; then
+  DEFAULT_DISABLE_LICENSE_INSTALL=true
+fi
+if [ "${BUMPT_DISABLE_LICENSE_INSTALL:-$DEFAULT_DISABLE_LICENSE_INSTALL}" = "true" ]; then
   unset LICENSE_KEY
   echo "Community mode: local license activation is disabled."
 fi
@@ -57,18 +63,18 @@ esac
 
 if [ "$PRISMA_PROVIDER" != "sqlite" ]; then
   echo "[0/3] Switching Prisma provider to $PRISMA_PROVIDER..."
-  sed -i "s/provider = \"sqlite\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema.prisma
-  sed -i "s/provider = \"mysql\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema.prisma
-  sed -i "s/provider = \"postgresql\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema.prisma
-  sed -i "s/provider = \"sqlserver\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema.prisma
+  sed -i "s/provider = \"sqlite\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema/*.prisma
+  sed -i "s/provider = \"mysql\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema/*.prisma
+  sed -i "s/provider = \"postgresql\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema/*.prisma
+  sed -i "s/provider = \"sqlserver\"/provider = \"$PRISMA_PROVIDER\"/" /app/prisma/schema/*.prisma
   # Ensure Text columns for long values on non-SQLite DBs
-  sed -i 's/value     String   @default("")$/value     String   @default("") @db.Text/' /app/prisma/schema.prisma
-  sed -i 's/details     String?$/details     String?  @db.Text/' /app/prisma/schema.prisma
-  sed -i '/releaseNotes/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema.prisma
-  sed -i '/rawMetadata/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema.prisma
-  sed -i '/  description.*@map("description")/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema.prisma
-  sed -i '/  cves.*@map("cves")/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema.prisma
-  sed -i '/aiSummary/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema.prisma
+  sed -i 's/value     String   @default("")$/value     String   @default("") @db.Text/' /app/prisma/schema/*.prisma
+  sed -i 's/details     String?$/details     String?  @db.Text/' /app/prisma/schema/*.prisma
+  sed -i '/releaseNotes/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
+  sed -i '/rawMetadata/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
+  sed -i '/  description.*@map("description")/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
+  sed -i '/  cves.*@map("cves")/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
+  sed -i '/aiSummary/s/String?   @map/String?  @db.Text @map/' /app/prisma/schema/*.prisma
   npx prisma generate 2>&1 | tail -1
 fi
 

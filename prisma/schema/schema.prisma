@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  // Relative to this file (prisma/schema/): the client is generated in ./generated/prisma.
+  output   = "../../generated/prisma"
 }
 
 datasource db {

@@ -1,4 +1,5 @@
 import { PrismaClient } from "../../generated/prisma/client";
+import { createMssqlAdapter } from "@/pro/mssql";
 
 function createPrismaClient() {
   const dbType = process.env.DB_TYPE || "sqlite";
@@ -13,6 +14,11 @@ function createPrismaClient() {
     case "postgresql": {
       const { PrismaPg } = require("@prisma/adapter-pg");
       const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+      return new PrismaClient({ adapter } as any);
+    }
+    case "mssql":
+    case "sqlserver": {
+      const adapter = createMssqlAdapter(process.env.DATABASE_URL!);
       return new PrismaClient({ adapter } as any);
     }
     default: {

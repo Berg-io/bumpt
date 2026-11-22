@@ -534,6 +534,7 @@ export const it: TranslationKeys = {
         sqlite: "SQLite",
         postgresql: "PostgreSQL",
         mariadb: "MariaDB",
+        mssql: "Microsoft SQL Server",
         mysql: "MySQL",
       },
       host: "Host",

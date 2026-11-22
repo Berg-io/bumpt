@@ -10,6 +10,8 @@ import { formatAppDate } from "@/lib/format-date";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/hooks/use-auth";
 import { useLicense } from "@/hooks/use-license";
+import { LicenseActivation } from "@/pro/components/license-activation";
+import { MSSQL_SUPPORTED } from "@/pro/edition";
 import { useToast } from "@/components/ui/toast";
 import { Dialog } from "@/components/ui/dialog";
 import {
@@ -266,6 +268,7 @@ export default function SettingsPage() {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [keyCopied, setKeyCopied] = useState(false);
   const [revokeConfirmId, setRevokeConfirmId] = useState<string | null>(null);
+
   const [licenseSource, setLicenseSource] = useState<"database" | "environment" | "none">("none");
 
   const loadDatabaseInfo = useCallback(async () => {
@@ -818,6 +821,7 @@ export default function SettingsPage() {
   const getDefaultPort = (type: string) => {
     switch (type) {
       case "postgresql": return "5432";
+      case "mssql": return "1433";
       case "mysql": return "3306";
       default: return "";
     }
@@ -1737,6 +1741,7 @@ export default function SettingsPage() {
                   <option value="sqlite">{t.settings.database.types.sqlite}</option>
                   <option value="postgresql">{t.settings.database.types.postgresql}</option>
                   <option value="mariadb">{t.settings.database.types.mariadb ?? "MariaDB"}</option>
+                  {MSSQL_SUPPORTED && <option value="mssql">{t.settings.database.types.mssql}</option>}
                   <option value="mysql">{t.settings.database.types.mysql}</option>
                 </select>
               </div>
@@ -2598,11 +2603,14 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
-          <div className="border-t pt-6 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              License activation is not available in this repository.
-            </p>
-          </div>
+
+          <LicenseActivation
+            license={license}
+            licenseSource={licenseSource}
+            onSourceChange={setLicenseSource}
+            onLicenseChange={refreshLicense}
+            toast={addToast}
+          />
 
           {license?.edition === "community" && (
             <div className="border-t pt-6">

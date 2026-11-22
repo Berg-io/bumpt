@@ -1,6 +1,8 @@
 import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client";
 import bcrypt from "bcrypt";
+import { loadMssqlAdapter } from "../src/pro/mssql";
+import { seedProFromEnv } from "../src/pro/seed";
 
 async function createClient() {
   const dbType = process.env.DB_TYPE || "sqlite";
@@ -15,6 +17,11 @@ async function createClient() {
     case "postgresql": {
       const { PrismaPg } = await import("@prisma/adapter-pg");
       const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+      return new (PrismaClient as any)({ adapter }) as PrismaClient;
+    }
+    case "mssql":
+    case "sqlserver": {
+      const adapter = await loadMssqlAdapter(process.env.DATABASE_URL!);
       return new (PrismaClient as any)({ adapter }) as PrismaClient;
     }
     default: {
@@ -639,6 +646,9 @@ async function main() {
   await initSettingIfMissing("saml_sso_url", process.env.SAML_SSO_URL || "");
   await initSettingIfMissing("saml_certificate", process.env.SAML_CERTIFICATE || "");
   await initSettingIfMissing("saml_callback_url", process.env.SAML_CALLBACK_URL || "");
+
+  // Professional-only seeding (webhooks from env). No-op in the Community edition.
+  await seedProFromEnv(prisma);
 
   // --- Migrate existing items without sourceId ---
   const unmigrated = await prisma.monitoredItem.findMany({

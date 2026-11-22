@@ -21,18 +21,18 @@ RUN case "$DB_TYPE" in \
       mssql|sqlserver) PRISMA_PROVIDER="sqlserver" ;; \
       *) PRISMA_PROVIDER="sqlite" ;; \
     esac \
-    && sed -i "s/provider = \"sqlite\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema.prisma \
-    && sed -i "s/provider = \"mysql\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema.prisma \
-    && sed -i "s/provider = \"postgresql\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema.prisma \
-    && sed -i "s/provider = \"sqlserver\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema.prisma \
+    && sed -i "s/provider = \"sqlite\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema/*.prisma \
+    && sed -i "s/provider = \"mysql\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema/*.prisma \
+    && sed -i "s/provider = \"postgresql\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema/*.prisma \
+    && sed -i "s/provider = \"sqlserver\"/provider = \"$PRISMA_PROVIDER\"/" prisma/schema/*.prisma \
     && if [ "$PRISMA_PROVIDER" != "sqlite" ]; then \
-      sed -i 's/value     String   @default("")/value     String   @default("") @db.Text/' prisma/schema.prisma; \
-      sed -i 's/details     String?$/details     String?  @db.Text/' prisma/schema.prisma; \
-      sed -i '/releaseNotes/s/String?   @map/String?  @db.Text @map/' prisma/schema.prisma; \
-      sed -i '/rawMetadata/s/String?   @map/String?  @db.Text @map/' prisma/schema.prisma; \
-      sed -i '/  description.*@map("description")/s/String?   @map/String?  @db.Text @map/' prisma/schema.prisma; \
-      sed -i '/  cves.*@map("cves")/s/String?   @map/String?  @db.Text @map/' prisma/schema.prisma; \
-      sed -i '/aiSummary/s/String?   @map/String?  @db.Text @map/' prisma/schema.prisma; \
+      sed -i 's/value     String   @default("")/value     String   @default("") @db.Text/' prisma/schema/*.prisma; \
+      sed -i 's/details     String?$/details     String?  @db.Text/' prisma/schema/*.prisma; \
+      sed -i '/releaseNotes/s/String?   @map/String?  @db.Text @map/' prisma/schema/*.prisma; \
+      sed -i '/rawMetadata/s/String?   @map/String?  @db.Text @map/' prisma/schema/*.prisma; \
+      sed -i '/  description.*@map("description")/s/String?   @map/String?  @db.Text @map/' prisma/schema/*.prisma; \
+      sed -i '/  cves.*@map("cves")/s/String?   @map/String?  @db.Text @map/' prisma/schema/*.prisma; \
+      sed -i '/aiSummary/s/String?   @map/String?  @db.Text @map/' prisma/schema/*.prisma; \
     fi
 RUN npx prisma generate
 RUN npm run build
@@ -62,6 +62,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/generated ./generated
 COPY --from=builder /app/scripts ./scripts
+# Edition marker and Pro seeding / adapters used by prisma/seed.ts at startup.
+COPY --from=builder /app/src/pro ./src/pro
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
