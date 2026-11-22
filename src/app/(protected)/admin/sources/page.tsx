@@ -46,6 +46,7 @@ import { VscCode } from "react-icons/vsc";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { SourceForm } from "@/components/admin/source-form";
@@ -358,17 +359,11 @@ export default function AdminSourcesPage() {
                         <td className="px-4 py-1.5">
                           <div className="flex justify-end gap-1">
                             {source.isBuiltIn ? (
-                              <Button variant="ghost" size="icon" onClick={() => openTest(source)} title={t.sources.testSource}>
-                                <FlaskConical className="h-4 w-4" />
-                              </Button>
+                              <IconButton icon={FlaskConical} label={t.sources.testSource} onClick={() => openTest(source)} />
                             ) : (
                               <>
-                                <Button variant="ghost" size="icon" onClick={() => openEdit(source)} title={t.common.edit}>
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => setDeleteId(source.id)} title={t.common.delete}>
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                                <IconButton icon={Pencil} label={t.common.edit} onClick={() => openEdit(source)} />
+                                <IconButton icon={Trash2} label={t.common.delete} tone="danger" onClick={() => setDeleteId(source.id)} />
                               </>
                             )}
                           </div>
@@ -440,7 +435,7 @@ export default function AdminSourcesPage() {
           <Button variant="outline" onClick={() => setDeleteId(null)}>
             {t.common.cancel}
           </Button>
-          <Button variant="outline" className="text-destructive border-destructive/40 hover:bg-destructive/10" onClick={handleDelete}>
+          <Button variant="danger" onClick={handleDelete}>
             {t.common.delete}
           </Button>
         </div>

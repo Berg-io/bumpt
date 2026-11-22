@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2, Users, ShieldCheck, Shield, ShieldOff, KeyRound, 
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { PaginationControls } from "@/components/ui/pagination-controls";
@@ -238,7 +239,7 @@ export default function AdminUsersPage() {
                           </Badge>
                         </td>
                         <td className="p-4 hidden md:table-cell">
-                          <Badge variant="outline" className={u.authType === "saml" ? "border-blue-500/50 text-blue-600 dark:text-blue-400" : ""}>
+                          <Badge variant={u.authType === "saml" ? "info" : "outline"}>
                             {u.authType === "saml" ? (
                               <Globe className="h-3 w-3 mr-1" />
                             ) : (
@@ -253,32 +254,24 @@ export default function AdminUsersPage() {
                         <td className="p-4">
                           <div className="flex justify-end gap-1">
                             {u.totpEnabled && authUser?.id !== u.id && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
+                              <IconButton
+                                icon={ShieldOff}
+                                label={t.users.resetMfa}
                                 onClick={() => handleResetMfa(u)}
-                                title={t.users.resetMfa}
-                              >
-                                <ShieldOff className="h-4 w-4" />
-                              </Button>
+                              />
                             )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
+                            <IconButton
+                              icon={Pencil}
+                              label={t.common.edit}
                               onClick={() => { setEditUser(u); setFormOpen(true); }}
-                              title={t.common.edit}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
+                            />
+                            <IconButton
+                              icon={Trash2}
+                              label={t.common.delete}
+                              tone="danger"
                               onClick={() => setDeleteId(u.id)}
                               disabled={authUser?.id === u.id}
-                              title={t.common.delete}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            />
                           </div>
                         </td>
                       </tr>
@@ -323,7 +316,7 @@ export default function AdminUsersPage() {
           <Button variant="outline" onClick={() => setDeleteId(null)}>
             {t.common.cancel}
           </Button>
-          <Button variant="outline" className="text-destructive border-destructive/40 hover:bg-destructive/10" onClick={handleDelete}>
+          <Button variant="danger" onClick={handleDelete}>
             {t.common.delete}
           </Button>
         </div>

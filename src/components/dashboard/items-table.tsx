@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import {
   RefreshCw,
-  CheckCircle2,
+  CheckCheck,
+  Check,
   Package,
   Server,
   Container,
@@ -26,8 +27,10 @@ import {
   ArrowDown,
   ArrowUpDown,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Tag, ScoreChip } from "@/components/ui/tag";
 import { ItemDetailModal } from "@/components/dashboard/item-detail-modal";
 import { useTranslation, useLocale, getHtmlLang, useDateSettings } from "@/i18n/config";
 import { formatAppDate } from "@/lib/format-date";
@@ -83,20 +86,6 @@ const typeIcons: Record<string, React.ReactNode> = {
   iot: <Wifi className="h-4 w-4" />,
 };
 
-const statusVariants: Record<string, "success" | "warning" | "critical"> = {
-  up_to_date: "success",
-  outdated: "warning",
-  check_failed: "warning",
-  critical: "critical",
-  end_of_life: "critical",
-};
-
-const bptVariants: Record<string, "success" | "warning" | "critical"> = {
-  low: "success",
-  medium: "warning",
-  high: "critical",
-  critical: "critical",
-};
 
 function parseTags(tags: string | string[] | null | undefined): string[] {
   if (!tags) return [];
@@ -158,6 +147,21 @@ function compareItems(a: MonitoredItem, b: MonitoredItem, key: SortKey, dir: Sor
 
 export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTableProps) {
   const [checkingId, setCheckingId] = useState<string | null>(null);
+  // Short-lived per-row feedback after a manual check: a green tick (1.5 s) or a red warning (6 s).
+  const [checkResult, setCheckResult] = useState<Record<string, "ok" | "error">>({});
+  const [checkError, setCheckError] = useState<Record<string, string>>({});
+  const flashResult = (id: string, result: "ok" | "error", message?: string) => {
+    setCheckResult((r) => ({ ...r, [id]: result }));
+    if (message) setCheckError((e) => ({ ...e, [id]: message }));
+    setTimeout(
+      () => setCheckResult((r) => {
+        const next = { ...r };
+        delete next[id];
+        return next;
+      }),
+      result === "ok" ? 1500 : 6000
+    );
+  };
   const [acknowledgingId, setAcknowledgingId] = useState<string | null>(null);
   const [detailItemId, setDetailItemId] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -189,13 +193,16 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
       const res = await fetch(`/api/items/${id}/check`, { method: "POST" });
       if (res.ok) {
         toast(`${itemName}: ${t.dashboard.checkNow} ✓`, "success");
+        flashResult(id, "ok");
         onRefresh();
       } else {
         const data = await res.json();
         toast(`${itemName}: ${data.error || t.dashboard.checkFailed}`, "error");
+        flashResult(id, "error", data.error);
       }
     } catch {
       toast(`${itemName}: ${t.common.networkError}`, "error");
+      flashResult(id, "error", t.common.networkError);
     } finally {
       setCheckingId(null);
     }
@@ -301,28 +308,26 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                     </span>
                     <span className="min-w-0 break-words font-medium">{item.name}</span>
                     {typeof item.internalScore === "number" && (
-                      <Badge
-                        variant={bptVariants[item.internalSeverity || ""] || "outline"}
-                        className="shrink-0 text-[10px] px-1.5 py-0 font-semibold"
+                      <ScoreChip
+                        label={t.itemDetail.bpt}
+                        value={Math.round(item.internalScore)}
+                        severity={item.internalSeverity}
                         title={t.itemDetail.bptTooltip}
-                      >
-                        {t.itemDetail.bpt} {Math.round(item.internalScore)}
-                      </Badge>
+                      />
                     )}
                     {cveCount > 0 && (
-                      <Badge variant="critical" className="shrink-0 text-[10px] px-1.5 py-0 [&>span:first-child]:hidden !gap-1">
-                        <Shield className="h-3 w-3 mr-0.5" />
-                        {cveCount}
-                      </Badge>
+                      <Tag tone="danger">
+                        <Shield aria-hidden="true" />
+                        {cveCount} CVE
+                      </Tag>
                     )}
                   </div>
-                  <Badge
-                    variant={statusVariants[displayStatus] || "default"}
+                  <StatusBadge
+                    status={displayStatus}
+                    label={statusLabel(displayStatus)}
                     className="shrink-0"
                     title={item.lastCheckError ?? undefined}
-                  >
-                    {statusLabel(displayStatus)}
-                  </Badge>
+                  />
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="min-w-0 truncate text-sm">
@@ -337,7 +342,7 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                     )}
                   </span>
                   <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
-                    {item.lastCheckError && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label={item.lastCheckError} />}
+                    {item.lastCheckError && <AlertTriangle className="h-3.5 w-3.5 text-st-warn-dot" aria-label={item.lastCheckError} />}
                     {formatDate(item.lastChecked)}
                   </span>
                 </div>
@@ -345,23 +350,24 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                   <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                     {item.checkMethod !== "manual" && (
                       <Button
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onClick={() => handleCheck(item.id)}
                         disabled={checkingId === item.id}
+                        aria-busy={checkingId === item.id || undefined}
                       >
-                        <RefreshCw className={cn("h-4 w-4 mr-1", checkingId === item.id && "animate-spin")} />
+                        <RefreshCw className={cn(checkingId === item.id && "animate-spin")} />
                         {t.dashboard.checkNow}
                       </Button>
                     )}
                     {item.status !== "up_to_date" && outdated && (
                       <Button
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onClick={() => handleAcknowledge(item.id)}
-                        disabled={acknowledgingId === item.id}
+                        loading={acknowledgingId === item.id}
                       >
-                        <CheckCircle2 className="h-4 w-4 mr-1 text-green-600 dark:text-green-400" />
+                        <CheckCheck />
                         {t.dashboard.acknowledge}
                       </Button>
                     )}
@@ -408,34 +414,31 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                     </span>
                     <span className="font-medium">{item.name}</span>
                     {typeof item.internalScore === "number" && (
-                      <Badge
-                        variant={bptVariants[item.internalSeverity || ""] || "outline"}
-                        className="text-[10px] px-1.5 py-0 font-semibold"
+                      <ScoreChip
+                        label={t.itemDetail.bpt}
+                        value={Math.round(item.internalScore)}
+                        severity={item.internalSeverity}
+                        compactLabel
                         title={t.itemDetail.bptTooltip}
-                      >
-                        <span className="hidden sm:inline">{t.itemDetail.bpt} {Math.round(item.internalScore)}</span>
-                        <span className="sm:hidden">{Math.round(item.internalScore)}</span>
-                      </Badge>
+                      />
                     )}
                     {cveCount > 0 && (
-                      <Badge variant="critical" className="text-[10px] px-1.5 py-0 [&>span:first-child]:hidden !gap-1">
-                        <Shield className="h-3 w-3 mr-0.5" />
-                        {cveCount}
-                      </Badge>
+                      <Tag tone="danger">
+                        <Shield aria-hidden="true" />
+                        {cveCount} CVE
+                      </Tag>
                     )}
                     {eolPast && (
-                      <Badge variant="warning" className="text-[10px] px-1.5 py-0 [&>span:first-child]:hidden !gap-1">
-                        <AlertTriangle className="h-3 w-3 mr-0.5" />
+                      <Tag tone="warning">
+                        <AlertTriangle aria-hidden="true" />
                         EOL
-                      </Badge>
+                      </Tag>
                     )}
                     {item.isLts && (
-                      <Badge variant="info" className="text-[10px] px-1.5 py-0">LTS</Badge>
+                      <Tag tone="info">LTS</Tag>
                     )}
                     {itemTags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0">
-                        {tag}
-                      </Badge>
+                      <Tag key={tag}>{tag}</Tag>
                     ))}
                     {item.releaseNotes && (
                       <span title={t.itemDetail.releaseNotes}>
@@ -462,12 +465,11 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                 )}
               </td>
               <td className="py-3 pr-4">
-                <Badge
-                  variant={statusVariants[displayStatus] || "default"}
+                <StatusBadge
+                  status={displayStatus}
+                  label={statusLabel(displayStatus)}
                   title={item.lastCheckError ? `${t.dashboard.checkFailed}: ${item.lastCheckError}` : undefined}
-                >
-                  {statusLabel(displayStatus)}
-                </Badge>
+                />
               </td>
               <td className="py-3 pr-4 hidden md:table-cell">
                 <div className="text-xs leading-tight">
@@ -487,7 +489,7 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                     <span
                       title={`${t.logs.actions["item.check_failed"]}: ${item.lastCheckError}`}
                       aria-label={`${t.logs.actions["item.check_failed"]}: ${item.lastCheckError}`}
-                      className="inline-flex text-amber-500"
+                      className="inline-flex text-st-warn-dot"
                     >
                       <AlertTriangle className="h-3.5 w-3.5" />
                     </span>
@@ -496,38 +498,37 @@ export function ItemsTable({ items, onRefresh, readOnly = false }: ItemsTablePro
                 </span>
               </td>
               <td className="py-3 print-hide-action">
-                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
                   {!readOnly && item.checkMethod !== "manual" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleCheck(item.id)}
-                      disabled={checkingId === item.id}
-                      title={t.dashboard.checkNow}
-                    >
-                      <RefreshCw
-                        className={cn(
-                          "h-4 w-4",
-                          checkingId === item.id && "animate-spin"
-                        )}
+                    checkResult[item.id] === "ok" ? (
+                      <IconButton icon={Check} label={t.dashboard.checkNow} className="text-st-ok-dot" onClick={() => handleCheck(item.id)} />
+                    ) : checkResult[item.id] === "error" ? (
+                      <IconButton
+                        icon={AlertTriangle}
+                        label={`${t.dashboard.checkFailed}${checkError[item.id] ? `: ${checkError[item.id]}` : ""}`}
+                        className="text-destructive"
+                        onClick={() => handleCheck(item.id)}
                       />
-                    </Button>
+                    ) : (
+                      <IconButton
+                        icon={RefreshCw}
+                        label={t.dashboard.checkNow}
+                        onClick={() => handleCheck(item.id)}
+                        disabled={checkingId === item.id}
+                        aria-busy={checkingId === item.id || undefined}
+                        iconClassName={cn(checkingId === item.id && "animate-spin")}
+                        className={cn(checkingId === item.id && "disabled:opacity-100")}
+                      />
+                    )
                   )}
                   {!readOnly && item.status !== "up_to_date" && item.latestVersion && item.currentVersion !== item.latestVersion && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <IconButton
+                      icon={CheckCheck}
+                      label={t.dashboard.acknowledge}
+                      tone="success"
                       onClick={() => handleAcknowledge(item.id)}
-                      disabled={acknowledgingId === item.id}
-                      title={t.dashboard.acknowledge}
-                    >
-                      <CheckCircle2
-                        className={cn(
-                          "h-4 w-4 text-green-600 dark:text-green-400",
-                          acknowledgingId === item.id && "animate-pulse"
-                        )}
-                      />
-                    </Button>
+                      loading={acknowledgingId === item.id}
+                    />
                   )}
                 </div>
               </td>

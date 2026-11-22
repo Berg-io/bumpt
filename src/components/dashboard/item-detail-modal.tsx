@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Tag } from "@/components/ui/tag";
 import { useTranslation, useLocale, getHtmlLang, useDateSettings } from "@/i18n/config";
 import { formatAppDate } from "@/lib/format-date";
 import {
@@ -72,13 +74,6 @@ interface ItemDetailModalProps {
   itemId: string | null;
 }
 
-const statusVariants: Record<string, "success" | "warning" | "critical"> = {
-  check_failed: "warning",
-  up_to_date: "success",
-  outdated: "warning",
-  critical: "critical",
-  end_of_life: "critical",
-};
 
 
 export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps) {
@@ -198,24 +193,21 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
 
           {/* Status + Versions */}
           <div className="flex items-center gap-3 flex-wrap">
-            <Badge variant={statusVariants[displayStatus] || "default"}>
-              {statusLabel(displayStatus)}
-            </Badge>
+            <StatusBadge status={displayStatus} label={statusLabel(displayStatus)} />
             {item.isLts && (
-              <Badge variant="info">LTS</Badge>
+              <Tag tone="info">LTS</Tag>
             )}
             {item.eolDate && isEolPast(item.eolDate) && (
               item.status !== "end_of_life" && (
-              <Badge variant="critical">
-                <AlertTriangle className="h-3 w-3 mr-1" />
+              <Badge variant="eol">
                 {t.itemDetail.eolReached}
               </Badge>
               )
             )}
             {item.eolDate && !isEolPast(item.eolDate) && item.eolDate !== "false" && (
-              <Badge variant="warning">
+              <Tag tone="warning">
                 EOL: {item.eolDate}
-              </Badge>
+              </Tag>
             )}
           </div>
 
@@ -335,9 +327,9 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
                   {Object.entries(cveSourceCounts)
                     .filter(([, count]) => count > 0)
                     .map(([source, count]) => (
-                      <Badge key={source} variant="outline" className="text-[10px]">
+                      <Tag key={source}>
                         {cveSourceLabels[source] || source}: {count}
-                      </Badge>
+                      </Tag>
                     ))}
                 </div>
               )}
@@ -350,9 +342,9 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
                     rel="noopener noreferrer"
                     className="hover:opacity-80 transition-opacity"
                   >
-                    <Badge variant="critical" className="text-xs cursor-pointer">
+                    <Tag tone="danger" mono className="cursor-pointer">
                       {cve}
-                    </Badge>
+                    </Tag>
                   </a>
                 ))}
               </div>
@@ -412,9 +404,9 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
                       <span className="text-muted-foreground">→</span>
                       <code className="font-medium">{log.newVersion}</code>
                       {logCves.length > 0 && (
-                        <Badge variant="critical" className="text-[10px] px-1 py-0 ml-1">
+                        <Tag tone="danger" className="ml-1">
                           {logCves.length} CVE
-                        </Badge>
+                        </Tag>
                       )}
                       <span className="ml-auto text-muted-foreground">
                         {formatDate(log.changedAt)}

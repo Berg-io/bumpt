@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -1902,8 +1903,8 @@ export default function SettingsPage() {
                 <Button
                   onClick={() => setShowWipeConfirm(true)}
                   disabled={dbActionLoading !== null}
-                  variant="outline"
-                  className="w-full border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  variant="danger-soft"
+                  className="w-full"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   {t.settings.database.wipeButton}
@@ -1924,8 +1925,8 @@ export default function SettingsPage() {
                     <Button
                       onClick={handleWipe}
                       disabled={wipeConfirmInput !== t.settings.database.wipeConfirmWord || dbActionLoading !== null}
-                      variant="outline"
-                      className="flex-1 text-destructive border-destructive/40 hover:bg-destructive/10"
+                      variant="danger"
+                      className="flex-1"
                     >
                       {dbActionLoading === "wipe" ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -2230,8 +2231,7 @@ export default function SettingsPage() {
               {csvEntries.length > 0 && (
                 <Button
                   onClick={() => setShowCsvClearConfirm(true)}
-                  variant="outline"
-                  className="text-destructive border-destructive/40 hover:bg-destructive/10"
+                  variant="danger-soft"
                   disabled={csvUploading}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -2247,7 +2247,7 @@ export default function SettingsPage() {
                   <span>{t.settings.csvData.clearConfirm}</span>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={handleCsvClearAll} variant="outline" size="sm" className="text-destructive border-destructive/40 hover:bg-destructive/10">
+                  <Button onClick={handleCsvClearAll} variant="danger" size="sm">
                     {t.common.confirm}
                   </Button>
                   <Button onClick={() => setShowCsvClearConfirm(false)} variant="outline" size="sm">
@@ -2490,10 +2490,11 @@ export default function SettingsPage() {
                           ))}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                      <div className="flex items-center gap-0.5">
+                        <IconButton
+                          icon={Send}
+                          label={t.webhooks.test}
+                          loading={testingWebhookId === wh.id}
                           onClick={async () => {
                             setTestingWebhookId(wh.id);
                             try {
@@ -2503,13 +2504,10 @@ export default function SettingsPage() {
                             } catch { addToast(t.webhooks.testFailed, "error"); }
                             finally { setTestingWebhookId(null); }
                           }}
-                          title={t.webhooks.test}
-                        >
-                          {testingWebhookId === wh.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                        />
+                        <IconButton
+                          icon={Save}
+                          label={t.common.edit}
                           onClick={() => {
                             setEditingWebhook(wh);
                             let evts: string[] = [];
@@ -2520,18 +2518,13 @@ export default function SettingsPage() {
                             });
                             setShowWebhookForm(true);
                           }}
-                          title={t.common.edit}
-                        >
-                          <Save className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                        />
+                        <IconButton
+                          icon={Trash2}
+                          label={t.common.delete}
+                          tone="danger"
                           onClick={() => setDeleteWebhookId(wh.id)}
-                          title={t.common.delete}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        />
                       </div>
                     </div>
                   );
@@ -2840,8 +2833,7 @@ export default function SettingsPage() {
             {t.common.cancel}
           </Button>
           <Button
-            variant="outline"
-            className="text-destructive border-destructive/40 hover:bg-destructive/10"
+            variant="danger"
             onClick={async () => {
               if (!deleteWebhookId) return;
               await fetch(`/api/webhooks/${deleteWebhookId}`, { method: "DELETE" });

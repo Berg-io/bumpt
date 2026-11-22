@@ -275,26 +275,26 @@ export default function DashboardPage() {
               <Button
                 onClick={handleCancelCheckAll}
                 size="sm"
-                variant="outline"
-                className="border-muted-foreground/30 text-muted-foreground hover:bg-muted hover:text-foreground"
+                variant="secondary"
+                aria-busy="true"
               >
-                <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                <RefreshCw className="animate-spin" />
                 {t.dashboard.cancelCheckAll ?? "Cancel"}
               </Button>
             ) : readOnly ? null : (
               <Button
                 onClick={handleCheckAll}
                 size="sm"
-                variant="outline"
+                variant="secondary"
                 disabled={items.length === 0}
               >
-                <RefreshCw className="h-4 w-4 mr-1" />
+                <RefreshCw />
                 {t.dashboard.checkAll}
               </Button>
             )}
             <Link
               href="/overview"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-control-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               title={t.dashboard.fullscreen}
             >
               <Monitor className="h-4 w-4" />

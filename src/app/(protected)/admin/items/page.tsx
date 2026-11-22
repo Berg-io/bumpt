@@ -9,7 +9,8 @@ import {
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { IconButton } from "@/components/ui/icon-button";
+import { Tag } from "@/components/ui/tag";
 import { Dialog } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { PaginationControls } from "@/components/ui/pagination-controls";
@@ -679,9 +680,7 @@ export default function AdminItemsPage() {
                               </span>
                               <span className="font-medium">{item.name}</span>
                               {parseTags(item.tags).map((tag) => (
-                                <Badge key={`${item.id}-${tag}`} variant="outline" className="text-[10px] px-1.5 py-0">
-                                  {tag}
-                                </Badge>
+                                <Tag key={`${item.id}-${tag}`}>{tag}</Tag>
                               ))}
                             </div>
                             {item.userNote && (
@@ -696,9 +695,7 @@ export default function AdminItemsPage() {
                           {item.source ? item.source.name : t.items.methods.manual}
                         </td>
                         <td className="p-4 hidden lg:table-cell text-sm text-muted-foreground">
-                          <Badge variant="outline" className="font-mono text-[10px] px-1.5 py-0">
-                            {item.source?.type ?? item.checkMethod}
-                          </Badge>
+                          <Tag mono>{item.source?.type ?? item.checkMethod}</Tag>
                         </td>
                         <td className="p-4 hidden xl:table-cell text-sm text-muted-foreground">
                           {formatDate(item.lastChecked)}
@@ -709,14 +706,13 @@ export default function AdminItemsPage() {
                               checked={item.monitoringEnabled}
                               onCheckedChange={() => handleToggleMonitoring(item)}
                               title={item.monitoringEnabled ? t.items.monitoringEnabled : t.items.monitoringDisabled}
-                              className="h-5 w-9"
+                              size="sm"
+                              aria-label={item.monitoringEnabled ? t.items.monitoringEnabled : t.items.monitoringDisabled}
                             />
-                            <Button variant="ghost" size="icon" onClick={() => openEdit(item)} title={t.common.edit}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => setDeleteId(item.id)} title={t.common.delete}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="flex items-center gap-0.5">
+                              <IconButton icon={Pencil} label={t.common.edit} onClick={() => openEdit(item)} />
+                              <IconButton icon={Trash2} label={t.common.delete} tone="danger" onClick={() => setDeleteId(item.id)} />
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -749,34 +745,32 @@ export default function AdminItemsPage() {
                 {t.items.deleteAllConfirm} ({items.length})
               </p>
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setShowDeleteAllConfirm(false)}
                   disabled={deletingAll}
-                  className="inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium bg-background hover:bg-muted transition-colors cursor-pointer"
                 >
                   {t.common.cancel}
-                </button>
-                <button
-                  onClick={handleDeleteAll}
-                  disabled={deletingAll}
-                  className="inline-flex h-8 items-center gap-2 rounded-md border border-destructive/40 px-3 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-60 transition-colors cursor-pointer"
-                >
+                </Button>
+                <Button variant="danger" size="sm" onClick={handleDeleteAll} loading={deletingAll}>
                   {deletingAll ? t.items.deletingAll : t.common.confirm}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         )}
         {!showDeleteAllConfirm && (
           <div className="flex justify-end">
-            <button
+            <Button
+              variant="danger-soft"
+              size="sm"
               onClick={() => setShowDeleteAllConfirm(true)}
               disabled={items.length === 0 || loading}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-destructive/80 hover:bg-destructive/10 hover:text-destructive disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
             >
-              <Flame className="h-3.5 w-3.5" />
+              <Flame />
               {t.items.deleteAll}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -815,7 +809,7 @@ export default function AdminItemsPage() {
           <Button variant="outline" onClick={() => setDeleteId(null)}>
             {t.common.cancel}
           </Button>
-          <Button variant="outline" className="text-destructive border-destructive/40 hover:bg-destructive/10" onClick={handleDelete}>
+          <Button variant="danger" onClick={handleDelete}>
             {t.common.delete}
           </Button>
         </div>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Tag } from "@/components/ui/tag";
 import { useTranslation } from "@/i18n/config";
 import { FlaskConical, CheckCircle, XCircle, Loader2, FileText, Shield, Calendar, ExternalLink } from "lucide-react";
 import { RenderedContent } from "@/components/ui/rendered-content";
@@ -643,9 +644,9 @@ export function SourceForm({ open, onClose, onSave, source, testOnly }: SourceFo
                       <Shield className="h-3 w-3 shrink-0 text-destructive" />
                       <div className="flex flex-wrap gap-1">
                         {testResult.cves.map((cve) => (
-                          <Badge key={cve} variant="critical" className="text-[10px] px-1 py-0">
+                          <Tag key={cve} tone="danger" mono>
                             {cve}
-                          </Badge>
+                          </Tag>
                         ))}
                       </div>
                     </div>

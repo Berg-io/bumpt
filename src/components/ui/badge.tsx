@@ -1,36 +1,55 @@
 import { cn } from "@/utils/cn";
 
+export type BadgeVariant =
+  | "default"
+  | "success"
+  | "warning"
+  | "critical"
+  | "eol"
+  | "info"
+  | "neutral"
+  | "outline";
+
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "success" | "warning" | "critical" | "outline" | "info";
+  variant?: BadgeVariant;
+  /** Leading colour dot. Defaults to true for status variants; pass false when the badge has its own icon. */
+  dot?: boolean;
 }
 
-export function Badge({ className, variant = "default", children, ...props }: BadgeProps) {
+const DOT_VARIANTS: BadgeVariant[] = ["success", "warning", "critical", "eol"];
+
+/**
+ * Round pill. Reserved for states (item status, role, MFA...). For metadata (tags, counters,
+ * modules, scores) use <Tag> / <ScoreChip> from ./tag instead.
+ */
+export function Badge({ className, variant = "default", dot, children, ...props }: BadgeProps) {
+  const showDot = dot ?? DOT_VARIANTS.includes(variant);
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide transition-all",
-        variant === "default" && "bg-primary/10 text-primary",
-        variant === "success" &&
-          "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-300 dark:ring-emerald-400/25",
-        variant === "warning" &&
-          "bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/20 dark:bg-amber-500/20 dark:text-amber-300 dark:ring-amber-400/25",
-        variant === "critical" &&
-          "bg-red-500/15 text-red-700 ring-1 ring-red-500/20 dark:bg-red-500/20 dark:text-red-300 dark:ring-red-400/25",
-        variant === "info" &&
-          "bg-sky-500/15 text-sky-700 ring-1 ring-sky-500/20 dark:bg-sky-500/20 dark:text-sky-300 dark:ring-sky-400/25",
-        variant === "outline" && "border border-border text-foreground",
+        "inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 text-xs font-semibold [&_svg]:size-3 [&_svg]:shrink-0",
+        variant === "default" && "border-primary/20 bg-primary/10 text-primary",
+        variant === "success" && "border-st-ok-border bg-st-ok-bg text-st-ok",
+        variant === "warning" && "border-st-warn-border bg-st-warn-bg text-st-warn",
+        variant === "critical" && "border-st-bad-border bg-st-bad-bg text-st-bad",
+        variant === "eol" && "border-st-bad-dot/70 bg-transparent text-st-bad",
+        variant === "info" && "border-st-info-border bg-st-info-bg text-st-info",
+        variant === "neutral" && "border-st-neutral-border bg-st-neutral-bg text-st-neutral",
+        variant === "outline" && "border-border text-foreground",
+        showDot && "pl-2",
         className
       )}
       {...props}
     >
-      {(variant === "success" || variant === "warning" || variant === "critical" || variant === "info") && (
+      {showDot && (
         <span
+          aria-hidden="true"
           className={cn(
-            "h-1.5 w-1.5 rounded-full",
-            variant === "success" && "bg-emerald-500 dark:bg-emerald-400",
-            variant === "warning" && "bg-amber-500 dark:bg-amber-400",
-            variant === "critical" && "bg-red-500 dark:bg-red-400 animate-pulse",
-            variant === "info" && "bg-sky-500 dark:bg-sky-400"
+            "size-[7px] shrink-0 rounded-full",
+            variant === "success" && "bg-st-ok-dot",
+            variant === "warning" && "bg-st-warn-dot",
+            variant === "critical" && "bg-st-bad-dot",
+            variant === "eol" && "bg-transparent ring-2 ring-inset ring-st-bad-dot"
           )}
         />
       )}
