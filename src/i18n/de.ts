@@ -849,6 +849,7 @@ export const de = {
       critical: "Kritische Elemente",
       cves: "Erkannte CVEs",
       eol: "End of Life",
+      checkFailed: "Fehlgeschlagene Prüfungen",
     },
     form: {
       name: "Berichtsname",

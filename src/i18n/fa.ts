@@ -851,6 +851,7 @@ export const fa: TranslationKeys = {
       critical: "موارد بحرانی",
       cves: "CVEهای شناسایی شده",
       eol: "پایان پشتیبانی",
+      checkFailed: "بررسی‌های ناموفق",
     },
     form: {
       name: "نام گزارش",

@@ -851,6 +851,7 @@ export const nl: TranslationKeys = {
       critical: "Kritieke items",
       cves: "Gedetecteerde CVE's",
       eol: "Einde levensduur",
+      checkFailed: "Mislukte controles",
     },
     form: {
       name: "Rapportnaam",

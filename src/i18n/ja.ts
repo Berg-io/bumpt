@@ -851,6 +851,7 @@ export const ja: TranslationKeys = {
       critical: "重大なアイテム",
       cves: "検出されたCVE",
       eol: "サポート終了",
+      checkFailed: "失敗したチェック",
     },
     form: {
       name: "レポート名",

@@ -851,6 +851,7 @@ export const ru: TranslationKeys = {
       critical: "Критические элементы",
       cves: "Обнаруженные CVE",
       eol: "Конец поддержки",
+      checkFailed: "Неудачные проверки",
     },
     form: {
       name: "Название отчёта",

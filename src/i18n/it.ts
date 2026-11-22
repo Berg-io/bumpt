@@ -851,6 +851,7 @@ export const it: TranslationKeys = {
       critical: "Elementi critici",
       cves: "CVE rilevati",
       eol: "Fine vita",
+      checkFailed: "Controlli falliti",
     },
     form: {
       name: "Nome del report",

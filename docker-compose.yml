@@ -16,6 +16,7 @@ services:
       - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-bum.pt}
       - APP_LANGUAGE=${APP_LANGUAGE:-fr}
       - SEED_DEMO_DATA=${SEED_DEMO_DATA:-false}
+      - SEED_EXAMPLE_REPORTS=${SEED_EXAMPLE_REPORTS:-true}
       # Database
       - DATABASE_URL=${DATABASE_URL:-file:./dev.db}
       - DB_TYPE=${DB_TYPE:-sqlite}

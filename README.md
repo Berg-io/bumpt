@@ -106,6 +106,7 @@ ADMIN_PASSWORD=change_me
   - `APP_URL` (public URL, used for SSO redirects)
   - `APP_PORT`, `APP_BIND` (direct HTTP port, bound to `127.0.0.1` by default; use Caddy)
   - `SEED_DEMO_DATA`
+  - `SEED_EXAMPLE_REPORTS` (Professional: three example reports on a fresh install, default `true`)
 - Database:
   - `DB_TYPE` (`sqlite`, `postgresql`, `mariadb`, `mssql`)
   - `DATABASE_URL`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL`

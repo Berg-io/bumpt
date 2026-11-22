@@ -851,6 +851,7 @@ export const tr: TranslationKeys = {
       critical: "Kritik Öğeler",
       cves: "Tespit Edilen CVE'ler",
       eol: "Destek Sonu",
+      checkFailed: "Başarısız kontroller",
     },
     form: {
       name: "Rapor Adı",

@@ -851,6 +851,7 @@ export const zh: TranslationKeys = {
       critical: "关键项目",
       cves: "检测到的CVE",
       eol: "生命周期终止",
+      checkFailed: "检查失败",
     },
     form: {
       name: "报告名称",

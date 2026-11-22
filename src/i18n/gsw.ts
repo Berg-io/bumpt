@@ -851,6 +851,7 @@ export const gsw: TranslationKeys = {
       critical: "Kritischi Element",
       cves: "Erkannti CVEs",
       eol: "End of Life",
+      checkFailed: "Fählgschlagni Prüefige",
     },
     form: {
       name: "Brichtname",
