@@ -16,7 +16,7 @@ import {
   ArrowUpCircle,
   Calendar,
   BookOpen,
-  UserCog,
+  ChevronRight,
   History,
   Server,
 } from "lucide-react";
@@ -99,11 +99,6 @@ export function AppSidebar() {
       icon: <Settings className="h-5 w-5" />,
       roles: ROUTE_ROLES["/admin/settings"],
     },
-    {
-      href: "/account",
-      label: t.nav.account,
-      icon: <UserCog className="h-5 w-5" />,
-    },
   ];
 
   const filteredItems = navItems.filter((item) => {
@@ -163,18 +158,47 @@ export function AppSidebar() {
         </Link>
       </div>
 
-      <div className="border-t p-3">
-        {showLabels && user && (
-          <div className="mb-2 px-3 py-1">
-            <p className="text-sm font-medium truncate">{user.email}</p>
-            <p className="text-xs text-muted-foreground">
-              {t.users.roles[user.role as keyof typeof t.users.roles] || user.role}
-            </p>
-          </div>
+      <div className="border-t p-3 space-y-1">
+        {user && (
+          <Link
+            href="/account"
+            onClick={() => setMobileOpen(false)}
+            aria-label={t.nav.account}
+            title={`${t.nav.account} · ${user.email}`}
+            aria-current={isActive("/account") ? "page" : undefined}
+            className={cn(
+              "group flex items-center rounded-md py-2 transition-colors",
+              showLabels ? "gap-3 px-3" : "justify-center px-2",
+              isActive("/account") ? "bg-accent text-primary" : "hover:bg-accent"
+            )}
+          >
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold uppercase text-primary"
+            >
+              {user.email.slice(0, 2)}
+            </span>
+            {showLabels && (
+              <>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{user.email}</span>
+                  <span className="block text-xs text-muted-foreground">
+                    {t.users.roles[user.role as keyof typeof t.users.roles] || user.role}
+                  </span>
+                </span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </>
+            )}
+          </Link>
         )}
         <button
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+          title={showLabels ? undefined : t.auth.logout}
+          aria-label={t.auth.logout}
+          className={cn(
+            "flex w-full items-center rounded-md py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer",
+            showLabels ? "gap-3 px-3" : "justify-center px-2.5"
+          )}
         >
           <LogOut className="h-5 w-5" />
           {showLabels && <span>{t.auth.logout}</span>}
@@ -238,7 +262,7 @@ export function AppSidebar() {
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
           title={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
-          className="absolute -right-3 top-14 z-20 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border bg-background shadow-sm hover:bg-accent"
+          className="absolute -right-3 top-14 z-40 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border bg-background shadow-sm hover:bg-accent"
         >
           <span className="text-xs">{collapsed ? "→" : "←"}</span>
         </button>

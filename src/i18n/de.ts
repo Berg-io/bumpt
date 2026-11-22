@@ -489,6 +489,7 @@ export const de = {
     purging: "Wird geleert...",
   },
   settings: {
+    personalHint: "Diese Einstellungen gelten für die gesamte Anwendung. Ihr eigenes Passwort und die Zwei-Faktor-Authentifizierung finden Sie unter",
     title: "Einstellungen",
     subtitle: "Anwendungskonfiguration verwalten",
     tabs: {
@@ -910,6 +911,9 @@ export const de = {
     system: "System",
   },
   account: {
+    profileTitle: "Profil",
+    signInMethod: "Anmeldemethode",
+    appSettingsLink: "Anwendungseinstellungen",
     mfaRecoveryHint: "Bewahren Sie diesen Schlüssel sicher auf. Wenn Sie Ihr Telefon verlieren, kann ein Super-Admin die Zwei-Faktor-Authentifizierung für Sie deaktivieren.",
     mfaKeyCopied: "Schlüssel kopiert",
     mfaCopyKey: "Kopieren",

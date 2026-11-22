@@ -491,6 +491,7 @@ export const en: TranslationKeys = {
     purging: "Purging...",
   },
   settings: {
+    personalHint: "These settings apply to the whole application. Your own password and two-factor authentication are in",
     title: "Settings",
     subtitle: "Manage application configuration",
     tabs: {
@@ -912,6 +913,9 @@ export const en: TranslationKeys = {
     system: "System",
   },
   account: {
+    profileTitle: "Profile",
+    signInMethod: "Sign-in method",
+    appSettingsLink: "Application settings",
     mfaRecoveryHint: "Keep this key somewhere safe. If you lose your phone, a super admin can turn off two-factor authentication for you.",
     mfaKeyCopied: "Key copied",
     mfaCopyKey: "Copy",

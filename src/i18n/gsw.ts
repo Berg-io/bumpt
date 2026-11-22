@@ -491,6 +491,7 @@ export const gsw: TranslationKeys = {
     purging: "Wird gleert...",
   },
   settings: {
+    personalHint: "Die Iistellige gälted für di ganz Aawändig. Dis eigete Passwort und d Zwei-Faktor-Authentifizierig findsch under",
     title: "Iistellige",
     subtitle: "Aawändigskonfiguration verwalte",
     tabs: {
@@ -912,6 +913,9 @@ export const gsw: TranslationKeys = {
     system: "System",
   },
   account: {
+    profileTitle: "Profil",
+    signInMethod: "Aamäldemethode",
+    appSettingsLink: "Aawändigsiistellige",
     mfaRecoveryHint: "Bhalt dä Schlüssel sicher uf. Wänn du dis Telefon verlüürsch, cha en Super-Admin d Zwei-Faktor-Authentifizierig für dich abschalte.",
     mfaKeyCopied: "Schlüssel kopiert",
     mfaCopyKey: "Kopiere",

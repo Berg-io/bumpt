@@ -491,6 +491,7 @@ export const tr: TranslationKeys = {
     purging: "Temizleniyor...",
   },
   settings: {
+    personalHint: "Bu ayarlar tüm uygulama için geçerlidir. Kendi parolanız ve iki faktörlü kimlik doğrulama şurada:",
     title: "Ayarlar",
     subtitle: "Uygulama yapılandırmasını yönetin",
     tabs: {
@@ -912,6 +913,9 @@ export const tr: TranslationKeys = {
     system: "Sistem",
   },
   account: {
+    profileTitle: "Profil",
+    signInMethod: "Oturum açma yöntemi",
+    appSettingsLink: "Uygulama ayarları",
     mfaRecoveryHint: "Bu anahtarı güvenli bir yerde saklayın. Telefonunuzu kaybederseniz bir süper yönetici iki faktörlü doğrulamayı sizin için kapatabilir.",
     mfaKeyCopied: "Anahtar kopyalandı",
     mfaCopyKey: "Kopyala",

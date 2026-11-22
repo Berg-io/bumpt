@@ -491,6 +491,7 @@ export const ja: TranslationKeys = {
     purging: "消去中...",
   },
   settings: {
+    personalHint: "これらの設定はアプリケーション全体に適用されます。ご自身のパスワードと二要素認証は次の場所にあります:",
     title: "設定",
     subtitle: "アプリケーション設定の管理",
     tabs: {
@@ -912,6 +913,9 @@ export const ja: TranslationKeys = {
     system: "システム",
   },
   account: {
+    profileTitle: "プロフィール",
+    signInMethod: "サインイン方法",
+    appSettingsLink: "アプリケーション設定",
     mfaRecoveryHint: "このキーは安全な場所に保管してください。スマートフォンを紛失した場合は、スーパー管理者が二要素認証を無効にできます。",
     mfaKeyCopied: "キーをコピーしました",
     mfaCopyKey: "コピー",

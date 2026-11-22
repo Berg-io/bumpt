@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -882,8 +883,14 @@ export default function SettingsPage() {
 
   return (
     <>
-      <Header title={t.settings.title} />
+      <Header title={t.settings.title} subtitle={t.settings.subtitle} />
       <div className="flex flex-col gap-6 p-4 lg:p-6">
+      <p className="text-sm text-muted-foreground">
+        {t.settings.personalHint}{" "}
+        <Link href="/account" className="font-medium text-primary underline-offset-4 hover:underline">
+          {t.nav.account}
+        </Link>
+      </p>
       <div className="inline-flex flex-wrap gap-1 p-1 bg-muted/50 rounded-lg border w-fit">
         {tabs.map((tab) => (
           <button

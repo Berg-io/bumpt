@@ -491,6 +491,7 @@ export const es: TranslationKeys = {
     purging: "Purgando...",
   },
   settings: {
+    personalHint: "Estos ajustes se aplican a toda la aplicación. Tu contraseña y la autenticación de dos factores están en",
     title: "Configuración",
     subtitle: "Gestionar la configuración de la aplicación",
     tabs: {
@@ -912,6 +913,9 @@ export const es: TranslationKeys = {
     system: "Sistema",
   },
   account: {
+    profileTitle: "Perfil",
+    signInMethod: "Método de inicio de sesión",
+    appSettingsLink: "Ajustes de la aplicación",
     mfaRecoveryHint: "Guarda esta clave en un lugar seguro. Si pierdes el teléfono, un superadministrador puede desactivar la autenticación de dos factores.",
     mfaKeyCopied: "Clave copiada",
     mfaCopyKey: "Copiar",

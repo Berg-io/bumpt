@@ -491,6 +491,7 @@ export const ru: TranslationKeys = {
     purging: "Очистка...",
   },
   settings: {
+    personalHint: "Эти настройки действуют для всего приложения. Ваш пароль и двухфакторная аутентификация находятся в разделе",
     title: "Настройки",
     subtitle: "Управление конфигурацией приложения",
     tabs: {
@@ -912,6 +913,9 @@ export const ru: TranslationKeys = {
     system: "Системная",
   },
   account: {
+    profileTitle: "Профиль",
+    signInMethod: "Способ входа",
+    appSettingsLink: "Настройки приложения",
     mfaRecoveryHint: "Сохраните этот ключ в надёжном месте. Если вы потеряете телефон, суперадминистратор может отключить двухфакторную аутентификацию.",
     mfaKeyCopied: "Ключ скопирован",
     mfaCopyKey: "Копировать",

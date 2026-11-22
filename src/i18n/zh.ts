@@ -491,6 +491,7 @@ export const zh: TranslationKeys = {
     purging: "正在清除...",
   },
   settings: {
+    personalHint: "这些设置适用于整个应用。您自己的密码和双因素认证位于",
     title: "设置",
     subtitle: "管理应用配置",
     tabs: {
@@ -912,6 +913,9 @@ export const zh: TranslationKeys = {
     system: "跟随系统",
   },
   account: {
+    profileTitle: "个人资料",
+    signInMethod: "登录方式",
+    appSettingsLink: "应用设置",
     mfaRecoveryHint: "请妥善保管此密钥。如果手机丢失，超级管理员可以为您关闭双重验证。",
     mfaKeyCopied: "密钥已复制",
     mfaCopyKey: "复制",

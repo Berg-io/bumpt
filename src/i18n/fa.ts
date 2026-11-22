@@ -491,6 +491,7 @@ export const fa: TranslationKeys = {
     purging: "در حال پاک‌سازی...",
   },
   settings: {
+    personalHint: "این تنظیمات برای کل برنامه اعمال می‌شوند. گذرواژه و احراز هویت دومرحله‌ای شما در این بخش است:",
     title: "تنظیمات",
     subtitle: "مدیریت پیکربندی برنامه",
     tabs: {
@@ -912,6 +913,9 @@ export const fa: TranslationKeys = {
     system: "سیستم",
   },
   account: {
+    profileTitle: "نمایه",
+    signInMethod: "روش ورود",
+    appSettingsLink: "تنظیمات برنامه",
     mfaRecoveryHint: "این کلید را در جای امنی نگه دارید. اگر گوشی خود را گم کنید، مدیر ارشد می‌تواند احراز هویت دومرحله‌ای را برایتان غیرفعال کند.",
     mfaKeyCopied: "کلید کپی شد",
     mfaCopyKey: "کپی",

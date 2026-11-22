@@ -491,6 +491,7 @@ export const fr: TranslationKeys = {
     purging: "Purge en cours...",
   },
   settings: {
+    personalHint: "Ces paramètres s'appliquent à toute l'application. Votre mot de passe et la double authentification se trouvent dans",
     title: "Paramètres",
     subtitle: "Gérer la configuration de l'application",
     tabs: {
@@ -912,6 +913,9 @@ export const fr: TranslationKeys = {
     system: "Système",
   },
   account: {
+    profileTitle: "Profil",
+    signInMethod: "Méthode de connexion",
+    appSettingsLink: "Paramètres de l'application",
     mfaRecoveryHint: "Gardez cette clé en lieu sûr. Si vous perdez votre téléphone, un super administrateur peut désactiver la double authentification pour vous.",
     mfaKeyCopied: "Clé copiée",
     mfaCopyKey: "Copier",

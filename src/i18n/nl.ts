@@ -491,6 +491,7 @@ export const nl: TranslationKeys = {
     purging: "Bezig met wissen...",
   },
   settings: {
+    personalHint: "Deze instellingen gelden voor de hele applicatie. Je eigen wachtwoord en tweestapsverificatie vind je in",
     title: "Instellingen",
     subtitle: "Applicatieconfiguratie beheren",
     tabs: {
@@ -912,6 +913,9 @@ export const nl: TranslationKeys = {
     system: "Systeem",
   },
   account: {
+    profileTitle: "Profiel",
+    signInMethod: "Aanmeldmethode",
+    appSettingsLink: "Applicatie-instellingen",
     mfaRecoveryHint: "Bewaar deze sleutel op een veilige plek. Raak je je telefoon kwijt, dan kan een superbeheerder tweestapsverificatie voor je uitschakelen.",
     mfaKeyCopied: "Sleutel gekopieerd",
     mfaCopyKey: "Kopiëren",

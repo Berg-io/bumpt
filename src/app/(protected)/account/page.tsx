@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { KeyRound, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, KeyRound, ShieldCheck, UserRound } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -119,6 +120,46 @@ export default function AccountPage() {
     <>
       <Header title={t.account.title} subtitle={user?.email ?? t.account.subtitle} />
       <div className="grid flex-1 content-start items-start gap-6 p-4 lg:p-8 xl:grid-cols-2 xl:max-w-6xl">
+        <Card className="xl:col-span-2">
+          <CardContent className="space-y-4 p-6">
+            <div className="flex items-center gap-2">
+              <UserRound className="h-5 w-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold">{t.account.profileTitle}</h2>
+            </div>
+            {user && (
+              <dl className="grid gap-4 text-sm sm:grid-cols-3">
+                <div className="min-w-0">
+                  <dt className="text-xs text-muted-foreground">{t.users.email}</dt>
+                  <dd className="truncate font-medium">{user.email}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">{t.users.role}</dt>
+                  <dd className="font-medium">
+                    {t.users.roles[user.role as keyof typeof t.users.roles] || user.role}
+                  </dd>
+                  <dd className="text-xs text-muted-foreground">
+                    {t.users.roleHints[user.role as keyof typeof t.users.roleHints]}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">{t.account.signInMethod}</dt>
+                  <dd className="font-medium">
+                    {loading ? "…" : t.users.authTypes[authType as keyof typeof t.users.authTypes] || authType}
+                  </dd>
+                </div>
+              </dl>
+            )}
+            {user?.role === "SUPER_ADMIN" && (
+              <Link
+                href="/admin/settings"
+                className="inline-flex items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
+              >
+                {t.account.appSettingsLink} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            )}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent className="space-y-4 p-6">
             <div className="flex items-center gap-2">
