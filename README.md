@@ -26,7 +26,7 @@ Change the default password immediately after first login.
 | Feature | Community | Professional |
 |---|---|---|
 | Monitored items | Up to 25 (disabled items included) | Unlimited |
-| Check sources | 43 (41 built-in + JSON API + HTML scraper) | 43 |
+| Check sources | 44 (42 built-in + JSON API + HTML scraper) | 44 |
 | Dashboard + TV/NOC mode | Yes | Yes |
 | Audit logs | Yes | Yes |
 | Release metadata + CVE enrichment | Yes | Yes |
@@ -64,9 +64,9 @@ Your data stays in the same volume: point `BUMPT_IMAGE` to the Professional imag
 
 ## Built-in check sources
 
-bum.pt includes 43 connectors across ecosystems and registries, including:
+bum.pt includes 44 connectors across ecosystems and registries, including:
 
-- Container registries: Docker Hub, Quay
+- Container registries: Docker Hub, Quay, any OCI registry (ghcr.io, registry.k8s.io, mcr.microsoft.com, ECR, Harbor)
 - Git platforms: GitHub, GitLab, Bitbucket
 - Package ecosystems: npm, PyPI, Maven, NuGet, Packagist, Crates, RubyGems, Go, Helm, Terraform, Chocolatey, Conda, CocoaPods, CPAN, and more
 - App stores and marketplaces: App Store, Play Store, Microsoft Store, VS Code Marketplace, JetBrains Marketplace, Open VSX, Firefox Add-ons
@@ -161,9 +161,10 @@ For full variable descriptions, use `.env.example` as the source of truth.
 ## API and docs
 
 - OpenAPI spec: `/api/openapi`
-- Interactive docs: `/docs`
+- Interactive docs: `/docs` (user guide `/docs/guide`, risk scoring `/docs/scoring`)
 - Health check: `/api/health`
 - MCP docs (Professional): `/docs/mcp`
+- Collection agent docs (Professional): `/docs/agent`
 
 Authentication methods:
 

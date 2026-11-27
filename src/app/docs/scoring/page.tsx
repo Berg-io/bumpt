@@ -1,10 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
-  ArrowLeft,
-  Moon,
-  Sun,
   ShieldAlert,
   Gauge,
   FlaskConical,
@@ -12,67 +8,12 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { ReleaseBadge } from "@/components/layout/release-badge";
-
-function usePersistedTheme() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const dark = stored === "dark" || (stored === "system" && prefersDark) || (!stored && prefersDark);
-    document.documentElement.classList.toggle("dark", dark);
-    setIsDark(dark);
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !isDark;
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-    setIsDark(next);
-  };
-
-  return { isDark, toggleTheme };
-}
+import { DocsHeader } from "@/components/docs/docs-shell";
 
 export default function ScoringDocsPage() {
-  const { isDark, toggleTheme } = usePersistedTheme();
-
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b bg-background px-4 lg:px-8">
-        <div className="flex items-center gap-3">
-          <a href="/docs" className="p-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Back to docs">
-            <ArrowLeft className="h-4 w-4" />
-          </a>
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-sm">Risk Scoring (CVE + BPT)</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/docs/api"
-            className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
-            REST API
-          </a>
-          <a
-            href="/docs/mcp"
-            className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
-            MCP
-          </a>
-          <a
-            href="/"
-            className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
-            Dashboard
-          </a>
-          <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-muted transition-colors">
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
-        </div>
-      </header>
+      <DocsHeader title="Risk Scoring (CVE + BPT)" icon={ShieldAlert} current="/docs/scoring" />
 
       <main className="max-w-4xl mx-auto px-6 py-10 space-y-12">
         <section className="space-y-4">
@@ -166,7 +107,7 @@ export default function ScoringDocsPage() {
                 <strong>Technical</strong>: vulnerability severity signals
               </li>
               <li>
-                <strong>Threat</strong>: exploitability/threat indicators
+                <strong>Threat</strong>: exploitability/threat indicators (EPSS probability, CISA KEV listing and ransomware use)
               </li>
               <li>
                 <strong>Business</strong>: context score from item-specific fields
@@ -248,29 +189,44 @@ export default function ScoringDocsPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">CVE Data Sources and Enrichment Flow</h2>
           <div className="rounded-xl border p-5 space-y-3">
-            <p className="text-sm text-muted-foreground">bum.pt can aggregate CVE information from:</p>
+            <p className="text-sm text-muted-foreground">
+              After each version check, bum.pt looks up the CVEs that affect the <strong>installed</strong> version of
+              the item and aggregates them from:
+            </p>
             <ul className="space-y-1 text-sm">
               <li>
-                <strong>NVD</strong> (keyword + version search)
+                <strong>NVD</strong>: the product&apos;s CPE is resolved from the endoflife.date product catalogue (exact
+                CPE and package URLs), then from the NVD CPE dictionary, or taken from the <code>cpe</code> source
+                parameter (<code>vendor:product</code>) and each CVE&apos;s version ranges are matched against the
+                installed version. A keyword search, still checked against the ranges, is the fallback when no CPE is
+                known.
               </li>
               <li>
                 <strong>OSV.dev</strong> (ecosystem-aware when package and version are known)
               </li>
               <li>
-                <strong>GitHub Advisory</strong> (package-level fallback when current version is unknown)
+                <strong>GitHub Advisory</strong> (package advisories with the patched version)
               </li>
               <li>
-                <strong>FIRST EPSS</strong> (probability signal for exploitation likelihood)
+                <strong>FIRST EPSS</strong> (probability of exploitation in the next 30 days, stored per CVE)
               </li>
               <li>
-                <strong>CISA KEV</strong> (known exploited vulnerabilities used for urgency escalation)
+                <strong>CISA KEV</strong> (known exploited vulnerabilities, with the date added, the CISA due date and
+                known ransomware use, used for urgency escalation)
               </li>
               <li>
                 <strong>VulnDB</strong> (optional enriched vulnerabilities including severity/CVSS samples)
               </li>
             </ul>
             <p className="text-sm text-muted-foreground">
-              CVEs are deduplicated, tracked by source, and persisted in item metadata with scoring details.
+              OSV, GitHub Advisory and NVD return per-CVE details: summary, CVSS, severity, publication date and fixed
+              version. The external score uses the highest CVSS reported by any provider.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              CVEs are deduplicated and recorded per item with their detection date. A CVE is marked resolved only when
+              every provider answered (an outage never closes CVEs) or when the installed version changed; acknowledging
+              an update closes the CVEs whose known fix it includes. This history feeds the{" "}
+              <a href="/docs/guide#timeline" className="text-primary hover:underline">Timeline</a>.
             </p>
             <p className="text-sm text-muted-foreground">
               To reduce misses across heterogeneous source naming, enrichment can try multiple normalized keyword aliases
