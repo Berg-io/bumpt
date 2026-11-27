@@ -1,6 +1,7 @@
 "use client";
 
 import { ThemeToggle } from "./theme-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 interface HeaderProps {
   title: string;
@@ -19,6 +20,7 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {actions}
+        <NotificationBell />
         <ThemeToggle />
       </div>
     </header>

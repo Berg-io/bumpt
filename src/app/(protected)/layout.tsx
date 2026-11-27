@@ -11,6 +11,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { LicenseBanner } from "@/components/license-banner";
 import { I18nProvider } from "@/components/i18n-provider";
 import { ReleaseBadge } from "@/components/layout/release-badge";
+import { NotificationsProvider } from "@/components/notifications/notifications-provider";
 
 function ProtectedContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -66,7 +67,9 @@ export default function ProtectedLayout({
       <I18nProvider>
         <LicenseProvider>
           <ToastProvider>
-            <ProtectedContent>{children}</ProtectedContent>
+            <NotificationsProvider>
+              <ProtectedContent>{children}</ProtectedContent>
+            </NotificationsProvider>
           </ToastProvider>
         </LicenseProvider>
       </I18nProvider>

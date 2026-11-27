@@ -176,3 +176,31 @@ model CsvDataEntry {
   @@map("csv_data_entries")
 }
 
+
+/// In-app findings of the version checks (new version, new CVE, KEV, end of life, failed scheduled checks).
+model Notification {
+  id        String   @id @default(cuid())
+  /// version_new | cve_new | kev_new | eol | check_failed
+  type      String
+  /// info | warning | critical
+  severity  String   @default("info")
+  itemId    String?  @map("item_id")
+  itemName  String?  @map("item_name")
+  /// JSON details shown in the list (versions, CVE ids, counts...). Rendered in the user's language.
+  data      String   @default("{}")
+  /// Same finding twice (e.g. the same end of life at every check) creates one notification.
+  dedupeKey String?  @unique @map("dedupe_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt], map: "notifications_created_idx")
+  @@map("notifications")
+}
+
+/// Per account: notifications created after readAt are unread.
+model NotificationReadState {
+  userId    String   @id @map("user_id")
+  readAt    DateTime @map("read_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_read_states")
+}

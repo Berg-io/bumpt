@@ -46,6 +46,7 @@ import { checkLibrariesIo } from "./libraries-io";
 import { scheduleItemCveEnrichment } from "@/lib/cve-enrichment";
 import { connectorCvesForInstalled } from "@/lib/cve-enrichment/connector-cves";
 import { dispatchWebhookEvent } from "@/lib/webhooks";
+import { recordNotification } from "@/lib/notifications";
 import { isVersionOutdated } from "@/lib/version-utils";
 import type { VersionCheckResult } from "./types";
 
@@ -65,6 +66,7 @@ interface MonitoredItem {
   cves?: string | null;
   rawMetadata?: string | null;
   lastCheckError?: string | null;
+  monitoringEnabled?: boolean;
 }
 
 export interface CheckResult {
@@ -360,6 +362,37 @@ export async function checkItemVersion(item: MonitoredItem): Promise<CheckResult
   }
 }
 
+/** In-app findings of one check: an update to install, an end of life. CVEs are recorded by the CVE store. */
+async function notifyCheckFindings(
+  item: MonitoredItem,
+  latestVersion: string,
+  changed: boolean,
+  eolDate: string | null | undefined
+): Promise<void> {
+  if (item.monitoringEnabled === false) return;
+  if (changed && item.currentVersion && isVersionOutdated(item.currentVersion, latestVersion)) {
+    const major = hasMajorUpgrade(item.currentVersion, latestVersion);
+    await recordNotification({
+      type: "version_new",
+      severity: major ? "warning" : "info",
+      itemId: item.id,
+      itemName: item.name,
+      data: { currentVersion: item.currentVersion, latestVersion, major },
+      dedupeKey: `version:${item.id}:${latestVersion}`,
+    });
+  }
+  if (isEolPast(eolDate)) {
+    await recordNotification({
+      type: "eol",
+      severity: "critical",
+      itemId: item.id,
+      itemName: item.name,
+      data: { eolDate: eolDate === "true" ? null : eolDate, currentVersion: item.currentVersion },
+      dedupeKey: `eol:${item.id}:${item.currentVersion ?? ""}`,
+    });
+  }
+}
+
 async function runItemVersionCheck(item: MonitoredItem): Promise<CheckResult> {
   if (item.sourceId) {
     const source = await prisma.checkSource.findUnique({ where: { id: item.sourceId } });
@@ -415,6 +448,8 @@ async function runItemVersionCheck(item: MonitoredItem): Promise<CheckResult> {
       }).catch((err) => console.error(`[Webhook] ${item.name}:`, err));
     }
 
+    await notifyCheckFindings(item, latestVersion, changed, result.eolDate);
+
     return buildCheckResult(result, latestVersion, newStatus, changed);
   }
 
@@ -468,6 +503,8 @@ async function runItemVersionCheck(item: MonitoredItem): Promise<CheckResult> {
       itemName: item.name, itemType: item.type, latestVersion, cves: result.cves,
     }).catch((err) => console.error(`[Webhook] ${item.name}:`, err));
   }
+
+  await notifyCheckFindings(item, latestVersion, changed, result.eolDate);
 
   return buildCheckResult(result, latestVersion, newStatus, changed);
 }

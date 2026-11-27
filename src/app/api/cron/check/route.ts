@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkItemVersion } from "@/lib/version-checkers";
 import { logAudit } from "@/lib/audit";
+import { recordNotification } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -58,6 +59,20 @@ export async function POST(request: Request) {
         },
       });
     }
+  }
+
+  // One notification per scheduled run that had failures, not one per item.
+  const failed = results.filter((result): result is { id: string; name: string; error: string } => "error" in result);
+  if (failed.length > 0) {
+    await recordNotification({
+      type: "check_failed",
+      severity: "warning",
+      data: {
+        count: failed.length,
+        total: results.length,
+        items: failed.slice(0, 5).map((result) => ({ id: result.id, name: result.name })),
+      },
+    });
   }
 
   return NextResponse.json({

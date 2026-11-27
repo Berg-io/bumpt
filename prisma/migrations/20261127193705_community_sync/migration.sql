@@ -1,3 +1,22 @@
+-- CreateTable
+CREATE TABLE "notifications" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "type" TEXT NOT NULL,
+    "severity" TEXT NOT NULL DEFAULT 'info',
+    "item_id" TEXT,
+    "item_name" TEXT,
+    "data" TEXT NOT NULL DEFAULT '{}',
+    "dedupe_key" TEXT,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "notification_read_states" (
+    "user_id" TEXT NOT NULL PRIMARY KEY,
+    "read_at" DATETIME NOT NULL,
+    "updated_at" DATETIME NOT NULL
+);
+
 -- RedefineTables
 PRAGMA defer_foreign_keys=ON;
 PRAGMA foreign_keys=OFF;
@@ -19,3 +38,9 @@ ALTER TABLE "new_users" RENAME TO "users";
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 PRAGMA foreign_keys=ON;
 PRAGMA defer_foreign_keys=OFF;
+
+-- CreateIndex
+CREATE UNIQUE INDEX "notifications_dedupe_key_key" ON "notifications"("dedupe_key");
+
+-- CreateIndex
+CREATE INDEX "notifications_created_idx" ON "notifications"("created_at");
