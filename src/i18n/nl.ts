@@ -242,6 +242,8 @@ export const nl: TranslationKeys = {
   },
   sources: {
     title: "Controlbronnen",
+    totalCount: "{count} bronnen",
+    filteredCount: "{shown} van {count} bronnen",
     name: "Naam",
     type: "Type",
     description: "Beschrijving",
@@ -576,6 +578,7 @@ export const nl: TranslationKeys = {
     general: {
       title: "Algemene instellingen",
       description: "Taal, tijdzone en algemene applicatie-opties.",
+      defaultsHint: "Dit zijn de standaardwaarden voor alle accounts en voor verzonden rapporten. Elke gebruiker kan ze wijzigen in Mijn account.",
       language: "Taal",
       languageHint: "De weergavetaal van de gebruikersinterface",
       languages: {
@@ -915,6 +918,10 @@ export const nl: TranslationKeys = {
     system: "Systeem",
   },
   account: {
+    preferencesTitle: "Weergavevoorkeuren",
+    preferencesDescription: "Taal, tijdzone en notaties alleen voor je account. ‘Standaard’ volgt de algemene instellingen van de applicatie.",
+    useDefault: "Standaard ({value})",
+    preferencesSaved: "Voorkeuren opgeslagen",
     profileTitle: "Profiel",
     signInMethod: "Aanmeldmethode",
     appSettingsLink: "Applicatie-instellingen",

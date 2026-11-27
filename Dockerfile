@@ -64,6 +64,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/generated ./generated
 COPY --from=builder /app/scripts ./scripts
 # Edition marker and Pro seeding / adapters used by prisma/seed.ts at startup.
 COPY --from=builder /app/src/pro ./src/pro
+# src/pro/seed.ts imports these at startup (tsx runs the seed from source)
+COPY --from=builder /app/src/lib/report-utils.ts /app/src/lib/item-classification.ts ./src/lib/
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 

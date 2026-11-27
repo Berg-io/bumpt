@@ -45,32 +45,36 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = getHtmlLang(locale);
   }, [locale]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function fetchSettings() {
-      try {
-        // Public endpoint: works on the login page and for non-super-admin users.
-        const res = await fetch("/api/app-config");
-        if (!res.ok) return;
-        const s = await res.json();
-        if (!cancelled && s) {
-          if (s.language && isSupportedLocale(s.language)) setLocale(s.language);
-          setDateSettings({
-            timezone: s.timezone || DEFAULT_DATE_SETTINGS.timezone,
-            dateFormat: s.dateFormat || DEFAULT_DATE_SETTINGS.dateFormat,
-            timeFormat: s.timeFormat || DEFAULT_DATE_SETTINGS.timeFormat,
-          });
-        }
-      } catch {
-        // use defaults
+  const loadAppConfig = useCallback(async (isCancelled: () => boolean = () => false) => {
+    try {
+      // Public endpoint: works on the login page and for non-super-admin users.
+      // Signed in, it returns the user's own display preferences over the app defaults.
+      const res = await fetch("/api/app-config", { cache: "no-store" });
+      if (!res.ok) return;
+      const s = await res.json();
+      if (!isCancelled() && s) {
+        if (s.language && isSupportedLocale(s.language)) setLocale(s.language);
+        setDateSettings({
+          timezone: s.timezone || DEFAULT_DATE_SETTINGS.timezone,
+          dateFormat: s.dateFormat || DEFAULT_DATE_SETTINGS.dateFormat,
+          timeFormat: s.timeFormat || DEFAULT_DATE_SETTINGS.timeFormat,
+        });
       }
+    } catch {
+      // use defaults
     }
-    fetchSettings();
-    return () => { cancelled = true; };
   }, [setLocale]);
 
+  const reloadAppConfig = useCallback(() => loadAppConfig(), [loadAppConfig]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadAppConfig(() => cancelled);
+    return () => { cancelled = true; };
+  }, [loadAppConfig]);
+
   return (
-    <LocaleContext value={{ locale, setLocale }}>
+    <LocaleContext value={{ locale, setLocale, reloadAppConfig }}>
       <DateSettingsContext value={dateSettings}>
         <I18nContext value={getTranslation(locale)}>
           {children}

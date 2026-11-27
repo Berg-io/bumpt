@@ -155,12 +155,6 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
     vulndb: "VulnDB",
     connector: "Connector",
   };
-  const DESCRIPTION_PREVIEW_MAX = 700;
-  const descriptionText = item?.description ?? "";
-  const isDescriptionLong = descriptionText.length > DESCRIPTION_PREVIEW_MAX;
-  const descriptionPreview = isDescriptionLong
-    ? `${descriptionText.slice(0, DESCRIPTION_PREVIEW_MAX).trimEnd()}...`
-    : descriptionText;
 
   return (
     <Dialog
@@ -268,7 +262,10 @@ export function ItemDetailModal({ open, onClose, itemId }: ItemDetailModalProps)
           {item.description && (
             <div className="text-sm">
               <p className="text-muted-foreground mb-1">{t.itemDetail.description}</p>
-              <p className="whitespace-pre-line break-words">{descriptionPreview}</p>
+              {/* Same renderer as the release notes: sources send Markdown, HTML or plain text. */}
+              <div className="max-h-40 overflow-y-auto overflow-x-hidden">
+                <RenderedContent content={item.description} />
+              </div>
             </div>
           )}
 

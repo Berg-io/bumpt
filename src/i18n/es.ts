@@ -242,6 +242,8 @@ export const es: TranslationKeys = {
   },
   sources: {
     title: "Fuentes de verificación",
+    totalCount: "{count} fuentes",
+    filteredCount: "{shown} de {count} fuentes",
     name: "Nombre",
     type: "Tipo",
     description: "Descripción",
@@ -576,6 +578,7 @@ export const es: TranslationKeys = {
     general: {
       title: "Configuración general",
       description: "Idioma, zona horaria y opciones generales de la aplicación.",
+      defaultsHint: "Estos valores son los predeterminados de todas las cuentas y de los informes enviados. Cada usuario puede cambiarlos en Mi cuenta.",
       language: "Idioma",
       languageHint: "Idioma de visualización de la interfaz",
       languages: {
@@ -915,6 +918,10 @@ export const es: TranslationKeys = {
     system: "Sistema",
   },
   account: {
+    preferencesTitle: "Preferencias de visualización",
+    preferencesDescription: "Idioma, zona horaria y formatos solo para tu cuenta. «Predeterminado» sigue la configuración general de la aplicación.",
+    useDefault: "Predeterminado ({value})",
+    preferencesSaved: "Preferencias guardadas",
     profileTitle: "Perfil",
     signInMethod: "Método de inicio de sesión",
     appSettingsLink: "Ajustes de la aplicación",

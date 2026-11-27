@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/i18n/config";
 import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/use-auth";
+import { DisplayPreferencesCard } from "@/components/account/display-preferences";
 
 interface MfaSetup {
   secret: string;
@@ -159,6 +160,8 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
+
+        <DisplayPreferencesCard />
 
         <Card>
           <CardContent className="space-y-4 p-6">

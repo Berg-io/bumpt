@@ -242,6 +242,8 @@ export const en: TranslationKeys = {
   },
   sources: {
     title: "Check Sources",
+    totalCount: "{count} sources",
+    filteredCount: "{shown} of {count} sources",
     name: "Name",
     type: "Type",
     description: "Description",
@@ -576,6 +578,7 @@ export const en: TranslationKeys = {
     general: {
       title: "General Settings",
       description: "Language, timezone and general application options.",
+      defaultsHint: "These are the defaults for every account and for the reports sent. Each user can override them in My account.",
       language: "Language",
       languageHint: "The display language of the user interface",
       languages: {
@@ -915,6 +918,10 @@ export const en: TranslationKeys = {
     system: "System",
   },
   account: {
+    preferencesTitle: "Display preferences",
+    preferencesDescription: "Language, time zone and formats for your account only. “Default” follows the application's General settings.",
+    useDefault: "Default ({value})",
+    preferencesSaved: "Preferences saved",
     profileTitle: "Profile",
     signInMethod: "Sign-in method",
     appSettingsLink: "Application settings",

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/components/ui/tag";
 import { useTranslation } from "@/i18n/config";
 import { FlaskConical, CheckCircle, XCircle, Loader2, FileText, Shield, Calendar, ExternalLink } from "lucide-react";
-import { RenderedContent } from "@/components/ui/rendered-content";
+import { RenderedContent, RichContentText } from "@/components/ui/rendered-content";
 
 interface SourceData {
   id?: string;
@@ -616,7 +616,7 @@ export function SourceForm({ open, onClose, onSave, source, testOnly }: SourceFo
                   {testResult.description && (
                     <div className="flex items-center gap-1.5">
                       <FileText className="h-3 w-3 shrink-0" />
-                      <span className="truncate">{testResult.description}</span>
+                      <RichContentText className="truncate" content={testResult.description} />
                     </div>
                   )}
                   {testResult.releaseNotes && (

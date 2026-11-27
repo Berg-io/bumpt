@@ -242,6 +242,8 @@ export const fr: TranslationKeys = {
   },
   sources: {
     title: "Sources de vérification",
+    totalCount: "{count} sources",
+    filteredCount: "{shown} sur {count} sources",
     name: "Nom",
     type: "Type",
     description: "Description",
@@ -576,6 +578,7 @@ export const fr: TranslationKeys = {
     general: {
       title: "Paramètres généraux",
       description: "Langue, fuseau horaire et options générales de l'application.",
+      defaultsHint: "Ces valeurs sont les valeurs par défaut de tous les comptes et des rapports envoyés. Chaque utilisateur peut les remplacer dans Mon compte.",
       language: "Langue",
       languageHint: "La langue d'affichage de l'interface utilisateur",
       languages: {
@@ -915,6 +918,10 @@ export const fr: TranslationKeys = {
     system: "Système",
   },
   account: {
+    preferencesTitle: "Préférences d'affichage",
+    preferencesDescription: "Langue, fuseau horaire et formats pour votre compte uniquement. « Par défaut » suit les paramètres généraux de l'application.",
+    useDefault: "Par défaut ({value})",
+    preferencesSaved: "Préférences enregistrées",
     profileTitle: "Profil",
     signInMethod: "Méthode de connexion",
     appSettingsLink: "Paramètres de l'application",

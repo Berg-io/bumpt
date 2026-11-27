@@ -79,10 +79,11 @@ export default function AdminUsersPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/settings");
+        // The signed-in user's own preference, else the app-wide default.
+        const res = await fetch("/api/app-config");
         if (!res.ok) return;
         const data = await res.json();
-        const next = parseDefaultPageSize(data?.settings?.dashboard_default_page_size);
+        const next = parseDefaultPageSize(data?.pageSize);
         if (!cancelled && next !== null) {
           setPageSize(next);
         }

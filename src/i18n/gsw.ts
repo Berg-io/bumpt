@@ -242,6 +242,8 @@ export const gsw: TranslationKeys = {
   },
   sources: {
     title: "Prüefquälle",
+    totalCount: "{count} Quälle",
+    filteredCount: "{shown} vo {count} Quälle",
     name: "Name",
     type: "Typ",
     description: "Beschriibig",
@@ -576,6 +578,7 @@ export const gsw: TranslationKeys = {
     general: {
       title: "Allgemeini Iistellige",
       description: "Spraach, Ziitzone und allgemeini Optione vo de Aawändig.",
+      defaultsHint: "Die Wärt gälted als Standard für alli Konte und für versändeti Bricht. Jede Benutzer cha sie under Mys Konto überschriibe.",
       language: "Spraach",
       languageHint: "D Aazeigspraach vo de Benutzeroberflächi",
       languages: {
@@ -915,6 +918,10 @@ export const gsw: TranslationKeys = {
     system: "System",
   },
   account: {
+    preferencesTitle: "Aazeigiistellige",
+    preferencesDescription: "Sprach, Zytzone und Format nume für dys Konto. „Standard“ folgt de allgemeine Iistellige vo de Aawändig.",
+    useDefault: "Standard ({value})",
+    preferencesSaved: "Iistellige gspeicheret",
     profileTitle: "Profil",
     signInMethod: "Aamäldemethode",
     appSettingsLink: "Aawändigsiistellige",

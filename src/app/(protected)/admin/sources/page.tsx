@@ -273,6 +273,15 @@ export default function AdminSourcesPage() {
     <>
       <Header
         title={t.sources.title}
+        subtitle={
+          loading
+            ? undefined
+            : query
+              ? t.sources.filteredCount
+                  .replace("{shown}", String(visibleSources.length))
+                  .replace("{count}", String(sources.length))
+              : t.sources.totalCount.replace("{count}", String(sources.length))
+        }
         actions={
           <Button onClick={openCreate} size="sm" title={t.sources.addSource} aria-label={t.sources.addSource}>
             <Plus className="h-4 w-4 sm:mr-1" />

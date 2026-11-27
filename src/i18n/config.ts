@@ -16,8 +16,8 @@ import { nl } from "./nl";
 import { zh } from "./zh";
 import type { TranslationKeys } from "./de";
 
-export const SUPPORTED_LOCALES = ["de", "en", "fr", "gsw", "it", "es", "pt", "ru", "ja", "tr", "fa", "nl", "zh"] as const;
-export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+import { SUPPORTED_LOCALES, type SupportedLocale } from "./locales";
+export { SUPPORTED_LOCALES, type SupportedLocale };
 
 const translations: Record<string, TranslationKeys> = { de, en, fr, gsw, it, es, pt, ru, ja, tr, fa, nl, zh };
 
@@ -42,11 +42,14 @@ const I18nContext = createContext<TranslationKeys>(de);
 interface LocaleContextValue {
   locale: SupportedLocale;
   setLocale: (locale: SupportedLocale) => void;
+  /** Re-reads /api/app-config (user preferences over app defaults) and applies it. */
+  reloadAppConfig: () => Promise<void>;
 }
 
 export const LocaleContext = createContext<LocaleContextValue>({
   locale: "de",
   setLocale: () => {},
+  reloadAppConfig: async () => {},
 });
 
 export interface DateSettings {

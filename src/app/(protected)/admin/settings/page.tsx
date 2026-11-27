@@ -43,6 +43,7 @@ import {
   Plus,
   Send,
 } from "lucide-react";
+import { COMMON_TIMEZONES, DATE_FORMATS, formatTzLabel } from "@/lib/display-options";
 
 type Tab = "apiKeys" | "sso" | "general" | "database" | "csvData" | "ai" | "notifications" | "license";
 const TAB_IDS: readonly Tab[] = ["general", "sso", "apiKeys", "csvData", "ai", "notifications", "database", "license"];
@@ -72,41 +73,6 @@ const DEFAULT_AI_PROMPT_TEMPLATE = [
   "{{input_json}}",
 ].join("\n");
 
-const COMMON_TIMEZONES = [
-  "UTC",
-  "Europe/London", "Europe/Paris", "Europe/Berlin", "Europe/Zurich",
-  "Europe/Rome", "Europe/Madrid", "Europe/Amsterdam", "Europe/Brussels",
-  "Europe/Vienna", "Europe/Warsaw", "Europe/Prague", "Europe/Budapest",
-  "Europe/Bucharest", "Europe/Athens", "Europe/Helsinki", "Europe/Moscow",
-  "Europe/Istanbul",
-  "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
-  "America/Anchorage", "America/Sao_Paulo", "America/Argentina/Buenos_Aires",
-  "America/Mexico_City", "America/Toronto", "America/Vancouver",
-  "Asia/Tokyo", "Asia/Shanghai", "Asia/Hong_Kong", "Asia/Singapore",
-  "Asia/Seoul", "Asia/Kolkata", "Asia/Dubai", "Asia/Tehran",
-  "Asia/Riyadh", "Asia/Bangkok", "Asia/Jakarta",
-  "Australia/Sydney", "Australia/Melbourne",
-  "Pacific/Auckland", "Pacific/Honolulu",
-  "Africa/Cairo", "Africa/Johannesburg", "Africa/Lagos",
-];
-
-const DATE_FORMATS = ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD", "DD.MM.YYYY"];
-
-function formatTzLabel(tz: string): string {
-  try {
-    const now = new Date();
-    const utc = new Date(now.toLocaleString("en-US", { timeZone: "UTC" }));
-    const local = new Date(now.toLocaleString("en-US", { timeZone: tz }));
-    const diff = (local.getTime() - utc.getTime()) / 60000;
-    const sign = diff >= 0 ? "+" : "-";
-    const h = String(Math.floor(Math.abs(diff) / 60)).padStart(2, "0");
-    const m = String(Math.abs(diff) % 60).padStart(2, "0");
-    return `(UTC${sign}${h}:${m}) ${tz.replace(/_/g, " ")}`;
-  } catch {
-    return tz;
-  }
-}
-
 function parseCsvLine(line: string): string[] {
   const result: string[] = [];
   let field = "";
@@ -132,7 +98,7 @@ function parseCsvLine(line: string): string[] {
 
 export default function SettingsPage() {
   const t = useTranslation();
-  const { locale, setLocale } = useLocale();
+  const { locale, setLocale, reloadAppConfig } = useLocale();
   const { user } = useAuth();
   const { license, refresh: refreshLicense } = useLicense();
   const dateSettings = useDateSettings();
@@ -535,7 +501,10 @@ export default function SettingsPage() {
     });
     if (!saved) {
       setLocale(previousLocale as SupportedLocale);
+      return;
     }
+    // A user's own display preferences (Mon compte) win over these defaults.
+    await reloadAppConfig();
   };
 
   const handleSaveDatabase = () => {
@@ -1625,6 +1594,7 @@ export default function SettingsPage() {
           <div>
             <h2 className="text-lg font-semibold">{t.settings.general.title}</h2>
             <p className="text-sm text-muted-foreground">{t.settings.general.description}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t.settings.general.defaultsHint}</p>
           </div>
 
           <div className="space-y-4">

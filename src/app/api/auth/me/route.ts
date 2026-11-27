@@ -4,6 +4,7 @@ import { getAuthUser } from "@/lib/middleware-auth";
 import { prisma } from "@/lib/prisma";
 import { comparePassword, hashPassword } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { parseUserPreferences, userPreferencesSchema } from "@/lib/user-preferences";
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
@@ -62,11 +63,12 @@ export async function GET() {
       authType: true,
       totpEnabled: true,
       createdAt: true,
+      preferences: true,
     },
   });
 
   if (user) {
-    return NextResponse.json({ user });
+    return NextResponse.json({ user: { ...user, preferences: parseUserPreferences(user.preferences) } });
   }
 
   return NextResponse.json({
@@ -76,4 +78,40 @@ export async function GET() {
       role: authUser.role,
     },
   });
+}
+
+/**
+ * Saves the signed-in user's display preferences. A field sent as null or "" goes back
+ * to the app-wide default; fields left out are kept.
+ */
+export async function PATCH(request: Request) {
+  const authUser = await getAuthUser();
+  if (!authUser) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+  const body = await request.json().catch(() => null);
+  const input = body?.preferences;
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return NextResponse.json({ error: "Invalid input data" }, { status: 400 });
+  }
+  const user = await prisma.user.findUnique({ where: { id: authUser.id }, select: { id: true, preferences: true } });
+  if (!user) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const next: Record<string, unknown> = { ...parseUserPreferences(user.preferences) };
+  const toSet: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    if (!(key in userPreferencesSchema.shape)) continue;
+    if (value === null || value === "") delete next[key];
+    else toSet[key] = value;
+  }
+  const parsed = userPreferencesSchema.safeParse(toSet);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid input data" }, { status: 400 });
+  }
+  Object.assign(next, parsed.data);
+
+  await prisma.user.update({ where: { id: user.id }, data: { preferences: JSON.stringify(next) } });
+  return NextResponse.json({ preferences: next });
 }

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, LogIn, Mail, Lock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/i18n/config";
+import { useTranslation, useLocale } from "@/i18n/config";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 
 interface SsoStatus {
@@ -24,6 +24,7 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslation();
+  const { reloadAppConfig } = useLocale();
 
   useEffect(() => {
     fetch("/api/auth/sso/status")
@@ -59,6 +60,8 @@ export function LoginForm() {
       const data = await res.json();
 
       if (res.ok) {
+        // Apply this account's display preferences (language, time zone, formats).
+        void reloadAppConfig();
         const redirect = safeRedirectPath(searchParams.get("redirect"));
         router.push(redirect);
         router.refresh();

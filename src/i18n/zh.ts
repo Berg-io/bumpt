@@ -242,6 +242,8 @@ export const zh: TranslationKeys = {
   },
   sources: {
     title: "检查来源",
+    totalCount: "共 {count} 个来源",
+    filteredCount: "{count} 个来源中的 {shown} 个",
     name: "名称",
     type: "类型",
     description: "描述",
@@ -576,6 +578,7 @@ export const zh: TranslationKeys = {
     general: {
       title: "常规设置",
       description: "语言、时区和常规应用选项。",
+      defaultsHint: "这些是所有账户和发送报告的默认值。每个用户都可以在“我的账户”中覆盖它们。",
       language: "语言",
       languageHint: "用户界面显示语言",
       languages: {
@@ -915,6 +918,10 @@ export const zh: TranslationKeys = {
     system: "跟随系统",
   },
   account: {
+    preferencesTitle: "显示偏好",
+    preferencesDescription: "仅适用于您账户的语言、时区和格式。“默认”跟随应用的常规设置。",
+    useDefault: "默认 ({value})",
+    preferencesSaved: "偏好已保存",
     profileTitle: "个人资料",
     signInMethod: "登录方式",
     appSettingsLink: "应用设置",

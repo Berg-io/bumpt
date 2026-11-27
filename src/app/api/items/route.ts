@@ -5,6 +5,7 @@ import { createItemSchema } from "@/lib/validations";
 import { logAudit } from "@/lib/audit";
 import { canCreateItem } from "@/lib/license";
 import { getAppSetting } from "@/lib/settings";
+import { getUserPreferences } from "@/lib/user-preferences";
 import { displayStatusWhere, isDisplayStatus } from "@/lib/item-classification";
 import type { JWTPayload } from "@/types";
 
@@ -26,7 +27,7 @@ function resolvePageSize(rawPageSize: string | null, settingPageSize: string | n
 }
 
 export const GET = withAuth(
-  async (request: Request) => {
+  async (request: Request, { user }) => {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const status = searchParams.get("status");
@@ -35,7 +36,8 @@ export const GET = withAuth(
     const displayStatus = searchParams.get("displayStatus");
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const dashboardDefaultPageSize = await getAppSetting("dashboard_default_page_size");
+    const dashboardDefaultPageSize =
+      (await getUserPreferences(user.id)).pageSize ?? (await getAppSetting("dashboard_default_page_size"));
     const pageSize = resolvePageSize(searchParams.get("pageSize"), dashboardDefaultPageSize);
     const effectivePage = pageSize === undefined ? 1 : Math.max(page, 1);
 

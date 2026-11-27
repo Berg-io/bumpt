@@ -242,6 +242,8 @@ export const tr: TranslationKeys = {
   },
   sources: {
     title: "Kontrol Kaynakları",
+    totalCount: "{count} kaynak",
+    filteredCount: "{count} kaynaktan {shown} tanesi",
     name: "Ad",
     type: "Tür",
     description: "Açıklama",
@@ -576,6 +578,7 @@ export const tr: TranslationKeys = {
     general: {
       title: "Genel Ayarlar",
       description: "Dil, saat dilimi ve genel uygulama seçenekleri.",
+      defaultsHint: "Bunlar tüm hesaplar ve gönderilen raporlar için varsayılan değerlerdir. Her kullanıcı bunları Hesabım bölümünde değiştirebilir.",
       language: "Dil",
       languageHint: "Kullanıcı arayüzünün görüntüleme dili",
       languages: {
@@ -915,6 +918,10 @@ export const tr: TranslationKeys = {
     system: "Sistem",
   },
   account: {
+    preferencesTitle: "Görüntüleme tercihleri",
+    preferencesDescription: "Yalnızca hesabınız için dil, saat dilimi ve biçimler. “Varsayılan”, uygulamanın genel ayarlarını izler.",
+    useDefault: "Varsayılan ({value})",
+    preferencesSaved: "Tercihler kaydedildi",
     profileTitle: "Profil",
     signInMethod: "Oturum açma yöntemi",
     appSettingsLink: "Uygulama ayarları",

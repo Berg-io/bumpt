@@ -242,6 +242,8 @@ export const ru: TranslationKeys = {
   },
   sources: {
     title: "Источники проверки",
+    totalCount: "Источников: {count}",
+    filteredCount: "{shown} из {count} источников",
     name: "Название",
     type: "Тип",
     description: "Описание",
@@ -576,6 +578,7 @@ export const ru: TranslationKeys = {
     general: {
       title: "Общие настройки",
       description: "Язык, часовой пояс и общие параметры приложения.",
+      defaultsHint: "Это значения по умолчанию для всех учётных записей и отправляемых отчётов. Каждый пользователь может изменить их в разделе «Мой аккаунт».",
       language: "Язык",
       languageHint: "Язык интерфейса",
       languages: {
@@ -915,6 +918,10 @@ export const ru: TranslationKeys = {
     system: "Системная",
   },
   account: {
+    preferencesTitle: "Настройки отображения",
+    preferencesDescription: "Язык, часовой пояс и форматы только для вашей учётной записи. «По умолчанию» следует общим настройкам приложения.",
+    useDefault: "По умолчанию ({value})",
+    preferencesSaved: "Настройки сохранены",
     profileTitle: "Профиль",
     signInMethod: "Способ входа",
     appSettingsLink: "Настройки приложения",

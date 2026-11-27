@@ -242,6 +242,8 @@ export const fa: TranslationKeys = {
   },
   sources: {
     title: "منابع بررسی",
+    totalCount: "{count} منبع",
+    filteredCount: "{shown} از {count} منبع",
     name: "نام",
     type: "نوع",
     description: "توضیحات",
@@ -576,6 +578,7 @@ export const fa: TranslationKeys = {
     general: {
       title: "تنظیمات عمومی",
       description: "زبان، منطقه زمانی و گزینه‌های کلی برنامه.",
+      defaultsHint: "این مقادیر پیش‌فرض همهٔ حساب‌ها و گزارش‌های ارسالی هستند. هر کاربر می‌تواند آن‌ها را در حساب من تغییر دهد.",
       language: "زبان",
       languageHint: "زبان نمایش رابط کاربری",
       languages: {
@@ -915,6 +918,10 @@ export const fa: TranslationKeys = {
     system: "سیستم",
   },
   account: {
+    preferencesTitle: "تنظیمات نمایش",
+    preferencesDescription: "زبان، منطقهٔ زمانی و قالب‌ها فقط برای حساب شما. «پیش‌فرض» از تنظیمات عمومی برنامه پیروی می‌کند.",
+    useDefault: "پیش‌فرض ({value})",
+    preferencesSaved: "تنظیمات ذخیره شد",
     profileTitle: "نمایه",
     signInMethod: "روش ورود",
     appSettingsLink: "تنظیمات برنامه",

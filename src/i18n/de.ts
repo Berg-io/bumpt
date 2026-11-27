@@ -240,6 +240,8 @@ export const de = {
   },
   sources: {
     title: "Prüfquellen",
+    totalCount: "{count} Quellen",
+    filteredCount: "{shown} von {count} Quellen",
     name: "Name",
     type: "Typ",
     description: "Beschreibung",
@@ -574,6 +576,7 @@ export const de = {
     general: {
       title: "Allgemeine Einstellungen",
       description: "Sprache, Zeitzone und allgemeine Optionen der Anwendung.",
+      defaultsHint: "Diese Werte gelten als Standard für alle Konten und für versendete Berichte. Jeder Benutzer kann sie unter Mein Konto überschreiben.",
       language: "Sprache",
       languageHint: "Die Anzeigesprache der Benutzeroberfläche",
       languages: {
@@ -913,6 +916,10 @@ export const de = {
     system: "System",
   },
   account: {
+    preferencesTitle: "Anzeigeeinstellungen",
+    preferencesDescription: "Sprache, Zeitzone und Formate nur für Ihr Konto. „Standard“ folgt den allgemeinen Einstellungen der Anwendung.",
+    useDefault: "Standard ({value})",
+    preferencesSaved: "Einstellungen gespeichert",
     profileTitle: "Profil",
     signInMethod: "Anmeldemethode",
     appSettingsLink: "Anwendungseinstellungen",

@@ -242,6 +242,8 @@ export const ja: TranslationKeys = {
   },
   sources: {
     title: "チェック元",
+    totalCount: "{count} 件のソース",
+    filteredCount: "{count} 件中 {shown} 件のソース",
     name: "名前",
     type: "タイプ",
     description: "説明",
@@ -576,6 +578,7 @@ export const ja: TranslationKeys = {
     general: {
       title: "一般設定",
       description: "言語、タイムゾーン、アプリケーションの一般オプション。",
+      defaultsHint: "これらはすべてのアカウントと送信されるレポートのデフォルト値です。各ユーザーはマイアカウントで変更できます。",
       language: "言語",
       languageHint: "ユーザーインターフェースの表示言語",
       languages: {
@@ -915,6 +918,10 @@ export const ja: TranslationKeys = {
     system: "システム",
   },
   account: {
+    preferencesTitle: "表示設定",
+    preferencesDescription: "このアカウントのみに適用される言語、タイムゾーン、表示形式です。「デフォルト」はアプリの一般設定に従います。",
+    useDefault: "デフォルト ({value})",
+    preferencesSaved: "設定を保存しました",
     profileTitle: "プロフィール",
     signInMethod: "サインイン方法",
     appSettingsLink: "アプリケーション設定",

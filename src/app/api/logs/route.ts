@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/middleware-auth";
 import { logAudit } from "@/lib/audit";
 import { getAppSetting } from "@/lib/settings";
+import { getUserPreferences } from "@/lib/user-preferences";
 
 const ALLOWED_PAGE_SIZES = new Set([25, 50, 100, 500]);
 
@@ -23,13 +24,14 @@ function resolvePageSize(rawPageSize: string | null, settingPageSize: string | n
 }
 
 export const GET = withAuth(
-  async (request: Request) => {
+  async (request: Request, { user }) => {
     const { searchParams } = new URL(request.url);
     const entityType = searchParams.get("entityType");
     const action = searchParams.get("action");
     const search = searchParams.get("search");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const dashboardDefaultPageSize = await getAppSetting("dashboard_default_page_size");
+    const dashboardDefaultPageSize =
+      (await getUserPreferences(user.id)).pageSize ?? (await getAppSetting("dashboard_default_page_size"));
     const pageSize = resolvePageSize(searchParams.get("pageSize"), dashboardDefaultPageSize);
     const effectivePage = pageSize === undefined ? 1 : page;
 
