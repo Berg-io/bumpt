@@ -482,7 +482,8 @@ export default function AdminItemsPage() {
         const q = search.toLowerCase();
         const sourceName = item.source?.name?.toLowerCase() ?? "";
         const itemId = item.id.toLowerCase();
-        if (!item.name.toLowerCase().includes(q) && !sourceName.includes(q) && !itemId.includes(q)) return false;
+        const note = item.userNote?.toLowerCase() ?? "";
+        if (!item.name.toLowerCase().includes(q) && !sourceName.includes(q) && !itemId.includes(q) && !note.includes(q)) return false;
       }
       return true;
     });

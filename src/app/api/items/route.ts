@@ -67,6 +67,8 @@ export const GET = withAuth(
         OR: [
           { name: { contains: search } },
           { tags: { contains: search } },
+          { userNote: { contains: search } },
+          { source: { is: { name: { contains: search } } } },
         ],
       });
     }
